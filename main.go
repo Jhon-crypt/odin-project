@@ -44,7 +44,7 @@ func main() {
 func startNextServer() {
 	// Change to the frontend directory
 	if err := os.Chdir("frontend"); err != nil {
-		log.Printf("Error changing to frontend directory: %v\n", err)
+		log.Printf("Error changing to frontend director: %v\n", err)
 		return
 	}
 
