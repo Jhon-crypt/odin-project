@@ -29,7 +29,7 @@ func NewProvider(providerName string) (Provider, error) {
 	case "openai":
 		apiKey := os.Getenv("OPENAI_API_KEY")
 		if apiKey == "" {
-			return nil, errors.New("OPENAI_API_KEY environment variable is not set")
+			return nil, errors.New("OpenAI API key not found. Please set the OPENAI_API_KEY environment variable with your API key from https://platform.openai.com/api-keys")
 		}
 		return NewOpenAIProvider(apiKey), nil
 	case "gemini":
