@@ -60,6 +60,7 @@ func handleResearch(c *gin.Context) {
 		c.Header("Cache-Control", "no-cache")
 		c.Header("Connection", "keep-alive")
 		c.Header("Transfer-Encoding", "chunked")
+		c.Header("X-Accel-Buffering", "no") // Disable buffering for nginx
 
 		resultChan := make(chan string, 100)
 		errChan := make(chan error, 1)
@@ -72,14 +73,25 @@ func handleResearch(c *gin.Context) {
 			select {
 			case chunk, ok := <-resultChan:
 				if !ok {
+					c.SSEvent("done", gin.H{"status": "complete"})
 					return false
 				}
-				c.SSEvent("message", chunk)
+				// Format as proper SSE data
+				c.SSEvent("data", chunk)
 				return true
 			case err := <-errChan:
 				if err != nil {
-					c.SSEvent("error", gin.H{"error": err.Error()})
+					c.SSEvent("error", gin.H{
+						"error": err.Error(),
+						"type":  "error",
+					})
 				}
+				return false
+			case <-c.Request.Context().Done():
+				c.SSEvent("error", gin.H{
+					"error": "Client disconnected",
+					"type":  "disconnect",
+				})
 				return false
 			}
 		})

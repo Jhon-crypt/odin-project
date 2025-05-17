@@ -19,13 +19,13 @@ type Provider interface {
 // ResearchResult represents the response from an LLM provider
 type ResearchResult struct {
 	Content    string
-	TokensUsed int
 	Model      string
+	TokensUsed int
 }
 
 // Factory creates a new LLM provider based on the provider name
-func NewProvider(providerName string) (Provider, error) {
-	switch providerName {
+func NewProvider(providerType string) (Provider, error) {
+	switch providerType {
 	case "openai":
 		apiKey := os.Getenv("OPENAI_API_KEY")
 		if apiKey == "" {
@@ -33,9 +33,9 @@ func NewProvider(providerName string) (Provider, error) {
 		}
 		return NewOpenAIProvider(apiKey), nil
 	case "gemini":
-		return &GeminiProvider{}, nil
+		return nil, errors.New("Gemini provider not implemented yet")
 	default:
-		return nil, errors.New("unsupported provider")
+		return nil, fmt.Errorf("unknown provider type: %s", providerType)
 	}
 }
 
@@ -51,27 +51,22 @@ func NewOpenAIProvider(apiKey string) *OpenAIProvider {
 }
 
 func (p *OpenAIProvider) Research(ctx context.Context, query string, model string, maxTokens int) (*ResearchResult, error) {
-	// Create the completion request
-	req := openai.ChatCompletionRequest{
-		Model:     model,
-		MaxTokens: maxTokens,
-		Messages: []openai.ChatCompletionMessage{
-			{
-				Role: openai.ChatMessageRoleSystem,
-				Content: `You are a research assistant helping with in-depth analysis and insights. 
-				Provide detailed, well-structured responses with citations where possible.`,
+	resp, err := p.client.CreateChatCompletion(
+		ctx,
+		openai.ChatCompletionRequest{
+			Model: model,
+			Messages: []openai.ChatCompletionMessage{
+				{
+					Role:    openai.ChatMessageRoleUser,
+					Content: query,
+				},
 			},
-			{
-				Role:    openai.ChatMessageRoleUser,
-				Content: query,
-			},
+			MaxTokens: maxTokens,
 		},
-	}
+	)
 
-	// Make the API call
-	resp, err := p.client.CreateChatCompletion(ctx, req)
 	if err != nil {
-		return nil, fmt.Errorf("OpenAI API error: %w", err)
+		return nil, fmt.Errorf("OpenAI API error: %v", err)
 	}
 
 	if len(resp.Choices) == 0 {
@@ -80,34 +75,30 @@ func (p *OpenAIProvider) Research(ctx context.Context, query string, model strin
 
 	return &ResearchResult{
 		Content:    resp.Choices[0].Message.Content,
+		Model:      resp.Model,
 		TokensUsed: resp.Usage.TotalTokens,
-		Model:      model,
 	}, nil
 }
 
 func (p *OpenAIProvider) StreamResearch(ctx context.Context, query string, model string, maxTokens int, resultChan chan<- string) error {
 	defer close(resultChan)
 
-	req := openai.ChatCompletionRequest{
-		Model:     model,
-		MaxTokens: maxTokens,
-		Messages: []openai.ChatCompletionMessage{
-			{
-				Role: openai.ChatMessageRoleSystem,
-				Content: `You are a research assistant helping with in-depth analysis and insights. 
-				Provide detailed, well-structured responses with citations where possible.`,
+	stream, err := p.client.CreateChatCompletionStream(
+		ctx,
+		openai.ChatCompletionRequest{
+			Model: model,
+			Messages: []openai.ChatCompletionMessage{
+				{
+					Role:    openai.ChatMessageRoleUser,
+					Content: query,
+				},
 			},
-			{
-				Role:    openai.ChatMessageRoleUser,
-				Content: query,
-			},
+			MaxTokens: maxTokens,
+			Stream:    true,
 		},
-		Stream: true,
-	}
-
-	stream, err := p.client.CreateChatCompletionStream(ctx, req)
+	)
 	if err != nil {
-		return fmt.Errorf("OpenAI stream error: %w", err)
+		return fmt.Errorf("OpenAI stream error: %v", err)
 	}
 	defer stream.Close()
 
@@ -117,13 +108,17 @@ func (p *OpenAIProvider) StreamResearch(ctx context.Context, query string, model
 			return nil
 		}
 		if err != nil {
-			return fmt.Errorf("stream receive error: %w", err)
+			return fmt.Errorf("stream receive error: %v", err)
 		}
 
 		if len(response.Choices) > 0 {
-			content := response.Choices[0].Delta.Content
-			if content != "" {
-				resultChan <- content
+			chunk := response.Choices[0].Delta.Content
+			if chunk != "" {
+				select {
+				case resultChan <- chunk:
+				case <-ctx.Done():
+					return ctx.Err()
+				}
 			}
 		}
 	}
