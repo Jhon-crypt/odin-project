@@ -11,6 +11,7 @@ import (
 	"odin-project/pkg/llm"
 
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 )
 
 type ResearchRequest struct {
@@ -103,6 +104,11 @@ func handleResearch(c *gin.Context) {
 }
 
 func main() {
+	// Load environment variables from .env file
+	if err := godotenv.Load(); err != nil {
+		log.Printf("Warning: .env file not found or error loading it: %v", err)
+	}
+
 	// Start Next.js development server
 	go startNextServer()
 
