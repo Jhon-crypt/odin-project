@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"log"
 	"net/http"
 	"os"
@@ -10,7 +9,6 @@ import (
 
 	"odin-project/pkg/llm"
 
-	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -28,28 +26,23 @@ type ResearchResponse struct {
 	TokensUsed int    `json:"tokensUsed"`
 }
 
-func handleResearch(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
+func handleResearch(c *gin.Context) {
 	var req ResearchRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
 		return
 	}
 
 	// Validate request
 	if req.Provider == "" || req.Model == "" || req.Query == "" {
-		http.Error(w, "Missing required fields", http.StatusBadRequest)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Missing required fields"})
 		return
 	}
 
 	// Create LLM provider
 	provider, err := llm.NewProvider(req.Provider)
 	if err != nil {
-		http.Error(w, "Invalid provider: "+err.Error(), http.StatusBadRequest)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid provider: " + err.Error()})
 		return
 	}
 
@@ -59,9 +52,9 @@ func handleResearch(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Perform research using the provider
-	result, err := provider.Research(r.Context(), req.Query, req.Model, req.MaxTokens)
+	result, err := provider.Research(c.Request.Context(), req.Query, req.Model, req.MaxTokens)
 	if err != nil {
-		http.Error(w, "Research failed: "+err.Error(), http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Research failed: " + err.Error()})
 		return
 	}
 
@@ -72,8 +65,7 @@ func handleResearch(w http.ResponseWriter, r *http.Request) {
 		TokensUsed: result.TokensUsed,
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(response)
+	c.JSON(http.StatusOK, response)
 }
 
 func main() {
@@ -83,12 +75,17 @@ func main() {
 	// Initialize Gin router
 	r := gin.Default()
 
-	// Configure CORS
-	config := cors.DefaultConfig()
-	config.AllowOrigins = []string{"http://localhost:3000"}
-	config.AllowMethods = []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"}
-	config.AllowHeaders = []string{"Origin", "Content-Type", "Accept"}
-	r.Use(cors.New(config))
+	// CORS middleware
+	r.Use(func(c *gin.Context) {
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(204)
+			return
+		}
+		c.Next()
+	})
 
 	// API routes
 	api := r.Group("/api")
@@ -99,14 +96,14 @@ func main() {
 				"message": "API is running",
 			})
 		})
-		api.POST("/research", func(c *gin.Context) {
-			handleResearch(c.Writer, c.Request)
-		})
+		api.POST("/research", handleResearch)
 	}
 
 	// Start the server
-	log.Println("Starting backend server on :8080...")
-	r.Run(":8080")
+	log.Println("Server starting on :8080")
+	if err := r.Run(":8080"); err != nil {
+		log.Fatal(err)
+	}
 }
 
 func startNextServer() {
