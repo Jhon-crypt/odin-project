@@ -1,6 +1,7 @@
 package main
 
 import (
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -17,6 +18,7 @@ type ResearchRequest struct {
 	Model     string `json:"model"`     // e.g. "gpt-4.1-2025-04-14"
 	Query     string `json:"query"`     // The research query
 	MaxTokens int    `json:"maxTokens"` // Maximum tokens for response
+	Stream    bool   `json:"stream"`    // Whether to stream the response
 }
 
 type ResearchResponse struct {
@@ -51,7 +53,39 @@ func handleResearch(c *gin.Context) {
 		req.MaxTokens = 2000
 	}
 
-	// Perform research using the provider
+	// Handle streaming request
+	if req.Stream {
+		c.Header("Content-Type", "text/event-stream")
+		c.Header("Cache-Control", "no-cache")
+		c.Header("Connection", "keep-alive")
+		c.Header("Transfer-Encoding", "chunked")
+
+		resultChan := make(chan string, 100)
+		errChan := make(chan error, 1)
+
+		go func() {
+			errChan <- provider.StreamResearch(c.Request.Context(), req.Query, req.Model, req.MaxTokens, resultChan)
+		}()
+
+		c.Stream(func(w io.Writer) bool {
+			select {
+			case chunk, ok := <-resultChan:
+				if !ok {
+					return false
+				}
+				c.SSEvent("message", chunk)
+				return true
+			case err := <-errChan:
+				if err != nil {
+					c.SSEvent("error", gin.H{"error": err.Error()})
+				}
+				return false
+			}
+		})
+		return
+	}
+
+	// Handle non-streaming request
 	result, err := provider.Research(c.Request.Context(), req.Query, req.Model, req.MaxTokens)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Research failed: " + err.Error()})
