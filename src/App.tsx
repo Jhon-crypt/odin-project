@@ -99,7 +99,7 @@ function App() {
               fontWeight: 'bold', 
               fontSize: { xs: '1rem', sm: '1.1rem', md: '1.2rem' }
             }}>
-              A
+              📚
             </Typography>
           </Box>
 
@@ -125,7 +125,7 @@ function App() {
                 fontWeight: 'bold',
               }}
             >
-              V
+              🔬
             </Avatar>
 
             {/* Title and Subtext */}
@@ -140,56 +140,84 @@ function App() {
                   lineHeight: { xs: 1.2, md: 1.1 },
                 }}
               >
-                Vertexia
+                Odin Project
               </Typography>
               <Typography
                 sx={{
                   color: '#C0FF92',
                   fontSize: { xs: '0.9rem', sm: '1rem', md: '1.1rem' },
                   fontWeight: 400,
+                  mb: { xs: 1, sm: 1.25, md: 1.5 },
                 }}
               >
-                vertexia.artifcium.app
+                AI-Powered Research Paper Tool
               </Typography>
             </Box>
 
-            {/* Join Now Button */}
-            <Button
-              variant="contained"
-              sx={{
-                bgcolor: '#C0FF92',
-                color: '#000',
-                fontWeight: 'bold',
-                fontSize: { xs: '0.9rem', sm: '0.95rem', md: '1rem' },
-                px: { xs: 3, sm: 3.5, md: 4 },
-                py: { xs: 1.25, sm: 1.375, md: 1.5 },
-                borderRadius: { xs: '10px', md: '12px' },
-                textTransform: 'none',
-                mb: { xs: 0.75, sm: 1, md: 1 },
-                minWidth: { xs: '120px', sm: '140px', md: '160px' },
-                '&:hover': {
-                  bgcolor: '#A8E67A',
-                },
-              }}
-            >
-              Join Now
-            </Button>
+            {/* Action Buttons */}
+            <Box sx={{ 
+              display: 'flex', 
+              gap: { xs: 1.5, sm: 2, md: 2 },
+              flexDirection: { xs: 'column', sm: 'row' },
+              width: '100%',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}>
+              <Button
+                variant="contained"
+                sx={{
+                  bgcolor: '#C0FF92',
+                  color: '#000',
+                  fontWeight: 'bold',
+                  fontSize: { xs: '0.9rem', sm: '0.95rem', md: '1rem' },
+                  px: { xs: 3, sm: 3.5, md: 4 },
+                  py: { xs: 1.25, sm: 1.375, md: 1.5 },
+                  borderRadius: { xs: '10px', md: '12px' },
+                  textTransform: 'none',
+                  minWidth: { xs: '140px', sm: '130px', md: '140px' },
+                  '&:hover': {
+                    bgcolor: '#A8E67A',
+                  },
+                }}
+              >
+                Get Started
+              </Button>
+              
+              <Button
+                variant="outlined"
+                sx={{
+                  borderColor: '#C0FF92',
+                  color: '#C0FF92',
+                  fontWeight: 'bold',
+                  fontSize: { xs: '0.9rem', sm: '0.95rem', md: '1rem' },
+                  px: { xs: 3, sm: 3.5, md: 4 },
+                  py: { xs: 1.25, sm: 1.375, md: 1.5 },
+                  borderRadius: { xs: '10px', md: '12px' },
+                  textTransform: 'none',
+                  minWidth: { xs: '140px', sm: '130px', md: '140px' },
+                  '&:hover': {
+                    borderColor: '#A8E67A',
+                    color: '#A8E67A',
+                    bgcolor: 'rgba(192, 255, 146, 0.1)',
+                  },
+                }}
+              >
+                Login
+              </Button>
+            </Box>
 
-            {/* Change workspace link */}
-            <Link
-              href="#"
+            {/* Additional Info */}
+            <Typography
               sx={{
                 color: '#888888',
-                textDecoration: 'none',
                 fontSize: { xs: '0.8rem', sm: '0.85rem', md: '0.9rem' },
                 mb: { xs: 2, sm: 2.5, md: 3 },
-                '&:hover': {
-                  color: '#aaa',
-                },
+                textAlign: 'center',
+                lineHeight: 1.4,
               }}
             >
-              Change workspace
-            </Link>
+              Analyze, summarize, and collaborate on research papers with AI
+            </Typography>
 
             {/* Avatar Group */}
             <Box sx={{ 
@@ -224,7 +252,7 @@ function App() {
                   px: { xs: 1, sm: 0 },
                 }}
               >
-                and 873 others have already joined
+                Join 1,200+ researchers and academics already using Odin
               </Typography>
             </Box>
           </Box>
@@ -248,7 +276,7 @@ function App() {
               fontSize: { xs: '0.75rem', sm: '0.8rem', md: '0.85rem' },
               textAlign: { xs: 'center', sm: 'left' },
             }}>
-              Artifcium.app © 2023
+              Odin Project © 2024
             </Typography>
             <Link
               href="#"
