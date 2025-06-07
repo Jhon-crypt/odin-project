@@ -67,33 +67,38 @@ function App() {
         {/* Left Panel */}
         <Box
           sx={{
-            width: { xs: '100%', md: '50%' },
-            height: { xs: '100vh', md: '100vh' },
+            width: { xs: '100%', sm: '100%', md: '50%', lg: '50%' },
+            height: { xs: '100vh', sm: '100vh', md: '100vh' },
             bgcolor: '#111111',
             position: 'relative',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'center',
             alignItems: 'center',
-            px: { xs: 3, md: 4 },
+            px: { xs: 2, sm: 3, md: 4, lg: 5 },
+            py: { xs: 4, sm: 3, md: 0 },
           }}
         >
           {/* Top-left Logo */}
           <Box
             sx={{
               position: 'absolute',
-              top: 24,
-              left: 24,
-              width: 32,
-              height: 32,
+              top: { xs: 16, sm: 20, md: 24 },
+              left: { xs: 16, sm: 20, md: 24 },
+              width: { xs: 28, sm: 30, md: 32 },
+              height: { xs: 28, sm: 30, md: 32 },
               bgcolor: '#C0FF92',
-              borderRadius: '8px',
+              borderRadius: { xs: '6px', md: '8px' },
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
             }}
           >
-            <Typography sx={{ color: '#000', fontWeight: 'bold', fontSize: '1.2rem' }}>
+            <Typography sx={{ 
+              color: '#000', 
+              fontWeight: 'bold', 
+              fontSize: { xs: '1rem', sm: '1.1rem', md: '1.2rem' }
+            }}>
               A
             </Typography>
           </Box>
@@ -106,16 +111,17 @@ function App() {
               alignItems: 'center',
               justifyContent: 'center',
               textAlign: 'center',
-              gap: 3,
+              gap: { xs: 2, sm: 2.5, md: 3 },
+              maxWidth: { xs: '90%', sm: '80%', md: '100%' },
             }}
           >
             {/* Workspace Avatar */}
             <Avatar
               sx={{
-                width: 72,
-                height: 72,
+                width: { xs: 56, sm: 64, md: 72 },
+                height: { xs: 56, sm: 64, md: 72 },
                 bgcolor: '#333',
-                fontSize: '2rem',
+                fontSize: { xs: '1.5rem', sm: '1.75rem', md: '2rem' },
                 fontWeight: 'bold',
               }}
             >
@@ -123,14 +129,15 @@ function App() {
             </Avatar>
 
             {/* Title and Subtext */}
-            <Box sx={{ mb: 2 }}>
+            <Box sx={{ mb: { xs: 1.5, sm: 2, md: 2 } }}>
               <Typography
                 variant="h3"
                 sx={{
                   fontWeight: 'bold',
                   color: '#ffffff',
-                  mb: 1,
-                  fontSize: { xs: '2.5rem', md: '3rem' },
+                  mb: { xs: 0.5, sm: 0.75, md: 1 },
+                  fontSize: { xs: '2rem', sm: '2.25rem', md: '2.75rem', lg: '3rem' },
+                  lineHeight: { xs: 1.2, md: 1.1 },
                 }}
               >
                 Vertexia
@@ -138,7 +145,7 @@ function App() {
               <Typography
                 sx={{
                   color: '#C0FF92',
-                  fontSize: '1.1rem',
+                  fontSize: { xs: '0.9rem', sm: '1rem', md: '1.1rem' },
                   fontWeight: 400,
                 }}
               >
@@ -153,12 +160,13 @@ function App() {
                 bgcolor: '#C0FF92',
                 color: '#000',
                 fontWeight: 'bold',
-                fontSize: '1rem',
-                px: 4,
-                py: 1.5,
-                borderRadius: '12px',
+                fontSize: { xs: '0.9rem', sm: '0.95rem', md: '1rem' },
+                px: { xs: 3, sm: 3.5, md: 4 },
+                py: { xs: 1.25, sm: 1.375, md: 1.5 },
+                borderRadius: { xs: '10px', md: '12px' },
                 textTransform: 'none',
-                mb: 1,
+                mb: { xs: 0.75, sm: 1, md: 1 },
+                minWidth: { xs: '120px', sm: '140px', md: '160px' },
                 '&:hover': {
                   bgcolor: '#A8E67A',
                 },
@@ -173,8 +181,8 @@ function App() {
               sx={{
                 color: '#888888',
                 textDecoration: 'none',
-                fontSize: '0.9rem',
-                mb: 3,
+                fontSize: { xs: '0.8rem', sm: '0.85rem', md: '0.9rem' },
+                mb: { xs: 2, sm: 2.5, md: 3 },
                 '&:hover': {
                   color: '#aaa',
                 },
@@ -184,15 +192,21 @@ function App() {
             </Link>
 
             {/* Avatar Group */}
-            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+            <Box sx={{ 
+              display: 'flex', 
+              flexDirection: 'column', 
+              alignItems: 'center', 
+              gap: { xs: 1.5, sm: 1.75, md: 2 },
+              width: '100%',
+            }}>
               <AvatarGroup
-                max={7}
+                max={6}
                 sx={{
                   '& .MuiAvatar-root': {
-                    width: 40,
-                    height: 40,
-                    border: '2px solid #333',
-                    fontSize: '0.8rem',
+                    width: { xs: 32, sm: 36, md: 40 },
+                    height: { xs: 32, sm: 36, md: 40 },
+                    border: { xs: '1.5px solid #333', md: '2px solid #333' },
+                    fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' },
                   },
                 }}
               >
@@ -204,8 +218,10 @@ function App() {
               <Typography
                 sx={{
                   color: '#888888',
-                  fontSize: '0.9rem',
+                  fontSize: { xs: '0.75rem', sm: '0.8rem', md: '0.9rem' },
                   textAlign: 'center',
+                  lineHeight: 1.4,
+                  px: { xs: 1, sm: 0 },
                 }}
               >
                 and 873 others have already joined
@@ -217,15 +233,21 @@ function App() {
           <Box
             sx={{
               position: 'absolute',
-              bottom: 24,
-              left: 24,
-              right: 24,
+              bottom: { xs: 16, sm: 20, md: 24 },
+              left: { xs: 16, sm: 20, md: 24 },
+              right: { xs: 16, sm: 20, md: 24 },
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
+              flexDirection: { xs: 'column', sm: 'row' },
+              gap: { xs: 1, sm: 0 },
             }}
           >
-            <Typography sx={{ color: '#666', fontSize: '0.85rem' }}>
+            <Typography sx={{ 
+              color: '#666', 
+              fontSize: { xs: '0.75rem', sm: '0.8rem', md: '0.85rem' },
+              textAlign: { xs: 'center', sm: 'left' },
+            }}>
               Artifcium.app © 2023
             </Typography>
             <Link
@@ -233,8 +255,9 @@ function App() {
               sx={{
                 color: '#666',
                 textDecoration: 'underline',
-                fontSize: '0.85rem',
+                fontSize: { xs: '0.75rem', sm: '0.8rem', md: '0.85rem' },
                 cursor: 'pointer',
+                textAlign: { xs: 'center', sm: 'right' },
                 '&:hover': {
                   color: '#888',
                 },
@@ -248,10 +271,14 @@ function App() {
         {/* Right Panel */}
         <Box
           sx={{
-            width: { xs: '100%', md: '50%' },
-            height: { xs: '50vh', md: '100vh' },
-            position: 'relative',
+            width: { xs: '100%', sm: '100%', md: '50%', lg: '50%' },
+            height: { xs: '0vh', sm: '0vh', md: '100vh' },
+            position: { xs: 'absolute', md: 'relative' },
+            top: { xs: 0, md: 'auto' },
+            left: { xs: 0, md: 'auto' },
+            zIndex: { xs: -1, md: 1 },
             overflow: 'hidden',
+            display: { xs: 'none', md: 'block' },
           }}
         >
           <Box

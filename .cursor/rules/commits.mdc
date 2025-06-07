@@ -1,0 +1,5 @@
+---
+description: Always commit and push changes after each work done
+globs: 
+alwaysApply: false
+---
