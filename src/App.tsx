@@ -179,38 +179,47 @@ function App() {
             maxWidth: '100vw',
             alignItems: 'center',
             px: 0,
-            py: { xs: 4, md: 0 },
+            py: { xs: 6, md: 0 },
+            position: 'relative',
           }}
         >
           {/* Left Side Content */}
           <Box
             sx={{
-              flex: 1,
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'center',
-              pl: { xs: 5, md: 8, lg: 12 },
-              pr: { xs: 3, md: 6, lg: 8 },
-              width: '50%',
+              pl: { xs: 4, md: 6, lg: 8 },
+              pr: { xs: 2, md: 4, lg: 6 },
+              width: { xs: '100%', md: '45%', lg: '40%' },
               height: '100%',
+              zIndex: 2,
+              position: 'relative',
             }}
           >
             {/* Logo and Title */}
-            <Box sx={{ mb: 3 }}>
-              <Box sx={{ mb: 4 }}>
+            <Box sx={{ mb: { xs: 2, md: 3 } }}>
+              <Box 
+                sx={{ 
+                  mb: { xs: 3, md: 4 },
+                  width: { xs: 44, md: 56 },
+                  height: { xs: 44, md: 56 },
+                }}
+              >
                 <GeometricLogo size={56} />
               </Box>
               
               <Typography 
                 variant="h1" 
                 sx={{ 
-                  mb: 2,
+                  mb: { xs: 1, md: 2 },
                   background: 'linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%)',
                   backgroundClip: 'text',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
                   fontFamily: '"Inter", "Roboto", sans-serif',
                   fontWeight: 800,
+                  fontSize: { xs: '3rem', sm: '3.5rem', md: '4.8rem' },
                 }}
               >
                 Vertexia
@@ -220,8 +229,8 @@ function App() {
                 variant="h6" 
                 sx={{ 
                   color: '#94a3b8',
-                  mb: 5,
-                  fontSize: '1.15rem',
+                  mb: { xs: 3, md: 5 },
+                  fontSize: { xs: '1rem', md: '1.15rem' },
                   fontWeight: 400,
                 }}
               >
@@ -230,13 +239,13 @@ function App() {
             </Box>
 
             {/* Change workspace link */}
-            <Box sx={{ mb: 4 }}>
+            <Box sx={{ mb: { xs: 3, md: 4 } }}>
               <Link 
                 href="#" 
                 sx={{ 
                   color: '#64748b',
                   textDecoration: 'none',
-                  fontSize: '0.95rem',
+                  fontSize: { xs: '0.9rem', md: '0.95rem' },
                   fontWeight: 500,
                   '&:hover': {
                     color: '#94a3b8',
@@ -248,16 +257,16 @@ function App() {
             </Box>
 
             {/* Join Now Button */}
-            <Box sx={{ mb: 5 }}>
+            <Box sx={{ mb: { xs: 4, md: 5 } }}>
               <Button
                 variant="contained"
                 sx={{
                   background: 'linear-gradient(135deg, #84cc16 0%, #65a30d 100%)',
                   color: '#000',
                   fontWeight: 700,
-                  fontSize: '1.05rem',
-                  px: 5,
-                  py: 2,
+                  fontSize: { xs: '0.95rem', md: '1.05rem' },
+                  px: { xs: 4, md: 5 },
+                  py: { xs: 1.5, md: 2 },
                   borderRadius: '12px',
                   textTransform: 'none',
                   boxShadow: '0 8px 32px rgba(132, 204, 22, 0.4)',
@@ -275,13 +284,18 @@ function App() {
             </Box>
 
             {/* User Avatars and Count */}
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2.5 }}>
+            <Box sx={{ 
+              display: 'flex', 
+              alignItems: { xs: 'flex-start', sm: 'center' },
+              gap: { xs: 2, md: 2.5 },
+              flexDirection: { xs: 'column', sm: 'row' },
+            }}>
               <AvatarGroup 
                 max={6}
                 sx={{
                   '& .MuiAvatar-root': {
-                    width: 36,
-                    height: 36,
+                    width: { xs: 32, md: 36 },
+                    height: { xs: 32, md: 36 },
                     border: '3px solid #1e293b',
                     fontSize: '0.8rem',
                     boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
@@ -296,8 +310,9 @@ function App() {
               <Typography 
                 sx={{ 
                   color: '#64748b',
-                  fontSize: '0.95rem',
+                  fontSize: { xs: '0.85rem', md: '0.95rem' },
                   fontWeight: 500,
+                  textAlign: { xs: 'left', sm: 'left' },
                 }}
               >
                 and 873 others have already joined
@@ -308,15 +323,16 @@ function App() {
           {/* Right Side - 3D Illustration */}
           <Box
             sx={{
-              flex: 1,
+              position: { xs: 'absolute', md: 'relative' },
+              top: { xs: 0, md: 'auto' },
+              right: 0,
               display: 'flex',
-              justifyContent: 'center',
+              justifyContent: { xs: 'center', md: 'flex-end' },
               alignItems: 'center',
-              position: 'relative',
               height: '100vh',
-              minHeight: '600px',
-              width: '50%',
-              pr: { xs: 3, md: 4, lg: 6 },
+              width: { xs: '100%', md: '55%', lg: '60%' },
+              zIndex: 1,
+              pr: { xs: 0, md: 2, lg: 4 },
             }}
           >
             <Box
@@ -324,12 +340,12 @@ function App() {
               src="/Illustration.png"
               alt="3D Illustration"
               sx={{
-                width: '100%',
+                width: { xs: '80%', sm: '70%', md: '90%', lg: '100%' },
                 maxWidth: '100%',
-                height: 'auto',
-                maxHeight: '95vh',
+                height: { xs: '60vh', sm: '70vh', md: '90vh', lg: '95vh' },
                 objectFit: 'contain',
                 filter: 'drop-shadow(0 30px 60px rgba(0, 0, 0, 0.5))',
+                opacity: { xs: 0.3, md: 1 },
               }}
             />
           </Box>
@@ -349,29 +365,7 @@ function App() {
           </Typography>
         </Box>
 
-        <Box
-          sx={{
-            position: 'absolute',
-            bottom: 32,
-            right: 32,
-            zIndex: 10,
-          }}
-        >
-          <Link 
-            href="#" 
-            sx={{ 
-              color: '#475569',
-              textDecoration: 'none',
-              fontSize: '0.9rem',
-              fontWeight: 500,
-              '&:hover': {
-                color: '#64748b',
-              }
-            }}
-          >
-            Privacy Policy
-          </Link>
-        </Box>
+        
       </Box>
     </ThemeProvider>
   )
