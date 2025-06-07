@@ -113,15 +113,29 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
+      {/* Global CSS Reset for full width */}
+      <style>{`
+        html, body, #root {
+          margin: 0 !important;
+          padding: 0 !important;
+          width: 100vw !important;
+          max-width: 100vw !important;
+          overflow-x: hidden;
+        }
+      `}</style>
       <Box
         sx={{
           minHeight: '100vh',
           height: '100vh',
+          width: '100vw',
+          maxWidth: '100vw',
           background: 'radial-gradient(ellipse at top left, #1a1a2e 0%, #0f172a 50%, #020617 100%)',
           display: 'flex',
           flexDirection: 'column',
           position: 'relative',
           overflow: 'hidden',
+          margin: 0,
+          padding: 0,
         }}
       >
         {/* Top Left Logo */}
@@ -161,10 +175,10 @@ function App() {
           sx={{ 
             flex: 1, 
             display: 'flex',
-            width: '100%',
-            maxWidth: '100%',
+            width: '100vw',
+            maxWidth: '100vw',
             alignItems: 'center',
-            px: { xs: 2, md: 4, lg: 6 },
+            px: 0,
             py: { xs: 4, md: 0 },
           }}
         >
@@ -175,9 +189,9 @@ function App() {
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'center',
-              pl: { xs: 4, md: 8, lg: 12 },
-              pr: { xs: 4, md: 6, lg: 8 },
-              maxWidth: { xs: '100%', md: '50%' },
+              pl: { xs: 5, md: 8, lg: 12 },
+              pr: { xs: 3, md: 6, lg: 8 },
+              width: '50%',
               height: '100%',
             }}
           >
@@ -300,8 +314,8 @@ function App() {
               position: 'relative',
               height: '100vh',
               minHeight: '600px',
-              maxWidth: { xs: '100%', md: '50%' },
-              pr: { xs: 2, md: 4, lg: 6 },
+              width: '50%',
+              pr: { xs: 3, md: 4, lg: 6 },
             }}
           >
             <Box
