@@ -117,8 +117,10 @@ function App() {
       <Box
         sx={{
           minHeight: '100vh',
+          height: '100vh',
           background: 'radial-gradient(ellipse at top left, #1a1a2e 0%, #0f172a 50%, #020617 100%)',
           display: 'flex',
+          flexDirection: 'column',
           position: 'relative',
           overflow: 'hidden',
         }}
@@ -156,7 +158,16 @@ function App() {
         </Box>
 
         {/* Main Content Container */}
-        <Container maxWidth="xl" sx={{ display: 'flex', alignItems: 'center', height: '100vh' }}>
+        <Box sx={{ flex: 1, display: 'flex' }}>
+          <Container 
+            maxWidth="xl" 
+            sx={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              height: '100%',
+              py: { xs: 4, md: 0 },
+            }}
+          >
           {/* Left Side Content */}
           <Box
             sx={{
@@ -164,9 +175,10 @@ function App() {
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'center',
-              pl: { xs: 2, md: 8 },
-              pr: { xs: 2, md: 4 },
-              maxWidth: '600px',
+              pl: { xs: 3, md: 10 },
+              pr: { xs: 3, md: 6 },
+              maxWidth: '550px',
+              height: '100%',
             }}
           >
             {/* Logo and Title */}
@@ -286,7 +298,8 @@ function App() {
               justifyContent: 'center',
               alignItems: 'center',
               position: 'relative',
-              height: '100%',
+              height: '100vh',
+              minHeight: '600px',
             }}
           >
             <Box
@@ -294,14 +307,17 @@ function App() {
               src="/Illustration.png"
               alt="3D Illustration"
               sx={{
-                maxWidth: '90%',
-                maxHeight: '85vh',
+                width: '100%',
+                maxWidth: '95%',
+                height: 'auto',
+                maxHeight: '90vh',
                 objectFit: 'contain',
                 filter: 'drop-shadow(0 25px 50px rgba(0, 0, 0, 0.4))',
               }}
             />
           </Box>
-        </Container>
+          </Container>
+        </Box>
 
         {/* Bottom Footer */}
         <Box
