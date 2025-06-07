@@ -8,7 +8,6 @@ import {
   Avatar,
   AvatarGroup,
   Link,
-  Container,
 } from '@mui/material'
 
 function App() {
@@ -158,16 +157,17 @@ function App() {
         </Box>
 
         {/* Main Content Container */}
-        <Box sx={{ flex: 1, display: 'flex' }}>
-          <Container 
-            maxWidth="xl" 
-            sx={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              height: '100%',
-              py: { xs: 4, md: 0 },
-            }}
-          >
+        <Box 
+          sx={{ 
+            flex: 1, 
+            display: 'flex',
+            width: '100%',
+            maxWidth: '100%',
+            alignItems: 'center',
+            px: { xs: 2, md: 4, lg: 6 },
+            py: { xs: 4, md: 0 },
+          }}
+        >
           {/* Left Side Content */}
           <Box
             sx={{
@@ -175,9 +175,9 @@ function App() {
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'center',
-              pl: { xs: 3, md: 10 },
-              pr: { xs: 3, md: 6 },
-              maxWidth: '550px',
+              pl: { xs: 4, md: 8, lg: 12 },
+              pr: { xs: 4, md: 6, lg: 8 },
+              maxWidth: { xs: '100%', md: '50%' },
               height: '100%',
             }}
           >
@@ -300,6 +300,8 @@ function App() {
               position: 'relative',
               height: '100vh',
               minHeight: '600px',
+              maxWidth: { xs: '100%', md: '50%' },
+              pr: { xs: 2, md: 4, lg: 6 },
             }}
           >
             <Box
@@ -316,7 +318,6 @@ function App() {
               }}
             />
           </Box>
-          </Container>
         </Box>
 
         {/* Bottom Footer */}
