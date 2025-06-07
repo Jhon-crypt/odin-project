@@ -29,10 +29,10 @@ function App() {
     typography: {
       fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
       h1: {
-        fontSize: '4.5rem',
-        fontWeight: 700,
-        letterSpacing: '-0.03em',
-        lineHeight: 1.1,
+        fontSize: '4.8rem',
+        fontWeight: 800,
+        letterSpacing: '-0.04em',
+        lineHeight: 1.05,
       },
       h6: {
         fontSize: '1.15rem',
@@ -129,7 +129,7 @@ function App() {
           height: '100vh',
           width: '100vw',
           maxWidth: '100vw',
-          background: 'radial-gradient(ellipse at top left, #1a1a2e 0%, #0f172a 50%, #020617 100%)',
+          background: 'linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 30%, #16213e 70%, #0f172a 100%)',
           display: 'flex',
           flexDirection: 'column',
           position: 'relative',
@@ -205,11 +205,12 @@ function App() {
                 variant="h1" 
                 sx={{ 
                   mb: 2,
-                  background: 'linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%)',
+                  background: 'linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%)',
                   backgroundClip: 'text',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
                   fontFamily: '"Inter", "Roboto", sans-serif',
+                  fontWeight: 800,
                 }}
               >
                 Vertexia
@@ -324,11 +325,11 @@ function App() {
               alt="3D Illustration"
               sx={{
                 width: '100%',
-                maxWidth: '95%',
+                maxWidth: '100%',
                 height: 'auto',
-                maxHeight: '90vh',
+                maxHeight: '95vh',
                 objectFit: 'contain',
-                filter: 'drop-shadow(0 25px 50px rgba(0, 0, 0, 0.4))',
+                filter: 'drop-shadow(0 30px 60px rgba(0, 0, 0, 0.5))',
               }}
             />
           </Box>
