@@ -8,19 +8,24 @@ import {
   Avatar,
   Button,
   Divider,
+  ButtonBase,
 } from '@mui/material'
 import {
   Search as SearchIcon,
   CreditCard as BillingIcon,
   Folder as ProjectIcon,
   Add as AddIcon,
+  Person as PersonIcon,
 } from '@mui/icons-material'
+import { useNavigate } from 'react-router-dom'
 
 interface SidebarProps {
   activeProject: string
 }
 
 function Sidebar({ activeProject }: SidebarProps) {
+  const navigate = useNavigate()
+  
   const projects = [
     'AI Research Papers',
     'Machine Learning Studies',
@@ -83,6 +88,29 @@ function Sidebar({ activeProject }: SidebarProps) {
         </Typography>
         
         <List sx={{ p: 0 }}>
+          <ListItem
+            onClick={() => navigate('/profile')}
+            sx={{
+              borderRadius: '8px',
+              mx: 1,
+              cursor: 'pointer',
+              '&:hover': {
+                bgcolor: '#333',
+              },
+            }}
+          >
+            <ListItemIcon sx={{ minWidth: 36 }}>
+              <PersonIcon sx={{ color: '#888', fontSize: 20 }} />
+            </ListItemIcon>
+            <ListItemText
+              primary="Profile & Research"
+              primaryTypographyProps={{
+                fontSize: '14px',
+                color: '#ccc',
+              }}
+            />
+          </ListItem>
+          
           <ListItem
             sx={{
               borderRadius: '8px',
@@ -200,13 +228,19 @@ function Sidebar({ activeProject }: SidebarProps) {
       </Box>
 
       {/* Current User Profile */}
-      <Box
+      <ButtonBase
+        onClick={() => navigate('/profile')}
         sx={{
           p: 3,
           borderTop: '1px solid #333',
           display: 'flex',
           alignItems: 'center',
           gap: 2,
+          width: '100%',
+          borderRadius: 0,
+          '&:hover': {
+            bgcolor: '#333',
+          },
         }}
       >
         <Avatar
@@ -240,7 +274,7 @@ function Sidebar({ activeProject }: SidebarProps) {
             john@example.com
           </Typography>
         </Box>
-      </Box>
+      </ButtonBase>
     </Box>
   )
 }
