@@ -30,19 +30,26 @@ function ResearchHistoryCard() {
         bgcolor: '#1a1a1a',
         border: '1px solid #333',
         borderRadius: 2,
-        p: 3,
+        p: { xs: 2, sm: 3 },
         width: '100%',
         maxWidth: 'none',
       }}
     >
       {/* Header */}
-      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
+      <Box sx={{ 
+        display: 'flex', 
+        alignItems: { xs: 'flex-start', sm: 'center' },
+        flexDirection: { xs: 'column', sm: 'row' },
+        justifyContent: 'space-between', 
+        mb: { xs: 2, sm: 3 },
+        gap: { xs: 1, sm: 0 }
+      }}>
         <Typography
           variant="h6"
           sx={{
             color: '#fff',
             fontWeight: 'bold',
-            fontSize: '18px',
+            fontSize: { xs: '16px', sm: '18px' },
           }}
         >
           Research Activity
@@ -58,12 +65,17 @@ function ResearchHistoryCard() {
       </Box>
 
       {/* Statistics */}
-      <Box sx={{ display: 'flex', gap: 4, mb: 3 }}>
+      <Box sx={{ 
+        display: 'flex', 
+        flexDirection: { xs: 'column', sm: 'row' },
+        gap: { xs: 2, sm: 4 }, 
+        mb: { xs: 2, sm: 3 } 
+      }}>
         <Box>
           <Typography
             sx={{
               color: '#C0FF92',
-              fontSize: '24px',
+              fontSize: { xs: '20px', sm: '24px' },
               fontWeight: 'bold',
             }}
           >
@@ -82,7 +94,7 @@ function ResearchHistoryCard() {
           <Typography
             sx={{
               color: '#888',
-              fontSize: '24px',
+              fontSize: { xs: '20px', sm: '24px' },
               fontWeight: 'bold',
             }}
           >
@@ -100,7 +112,10 @@ function ResearchHistoryCard() {
       </Box>
 
       {/* Chart */}
-      <Box sx={{ height: 400, mb: 3 }}>
+      <Box sx={{ 
+        height: { xs: 250, sm: 300, md: 400 }, 
+        mb: { xs: 2, sm: 3 } 
+      }}>
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={data}>
             <CartesianGrid strokeDasharray="3 3" stroke="#333" />
@@ -135,7 +150,13 @@ function ResearchHistoryCard() {
       </Box>
 
       {/* Controls */}
-      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <Box sx={{ 
+        display: 'flex', 
+        alignItems: { xs: 'flex-start', sm: 'center' },
+        flexDirection: { xs: 'column', sm: 'row' },
+        justifyContent: 'space-between',
+        gap: { xs: 2, sm: 0 }
+      }}>
         <FormControlLabel
           control={
             <Checkbox
@@ -155,7 +176,12 @@ function ResearchHistoryCard() {
           }
         />
         
-        <Box sx={{ display: 'flex', gap: 2 }}>
+        <Box sx={{ 
+          display: 'flex', 
+          flexDirection: { xs: 'column', sm: 'row' },
+          gap: { xs: 1, sm: 2 },
+          width: { xs: '100%', sm: 'auto' }
+        }}>
           <Button
             variant="outlined"
             size="small"

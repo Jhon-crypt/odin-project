@@ -43,13 +43,22 @@ function Profile() {
           overflow: 'auto',
         }}
       >
-        <Box sx={{ px: 3, pt: 3, width: '100%', maxWidth: 'none' }}>
+        <Box sx={{ 
+          px: { xs: 2, sm: 3, md: 4 }, 
+          pt: { xs: 2, sm: 3 }, 
+          width: '100%', 
+          maxWidth: 'none' 
+        }}>
           {/* Profile Header */}
           <ResearchProfileHeader />
 
           {/* Main Content */}
           <Box sx={{ mt: 1 }}>
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+            <Box sx={{ 
+              display: 'flex', 
+              flexDirection: 'column', 
+              gap: { xs: 2, sm: 3 } 
+            }}>
               {/* Research History */}
               <ResearchHistoryCard />
               
