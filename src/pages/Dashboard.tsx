@@ -8,12 +8,12 @@ import {
   Drawer,
 } from '@mui/material'
 import MenuIcon from '@mui/icons-material/Menu'
-import GroupIcon from '@mui/icons-material/Group'
+import DescriptionIcon from '@mui/icons-material/Description'
 import { useState } from 'react'
 import Sidebar from '../components/Sidebar'
 import ProjectHeader from '../components/ProjectHeader'
 import ChatArea from '../components/ChatArea'
-import UserStatus from '../components/UserStatus'
+import ResearchCanvas from '../components/ResearchCanvas'
 
 function Dashboard() {
   const [leftDrawerOpen, setLeftDrawerOpen] = useState(false)
@@ -96,7 +96,7 @@ function Dashboard() {
                 },
               }}
             >
-              <GroupIcon />
+              <DescriptionIcon />
             </IconButton>
           </Box>
         )}
@@ -145,7 +145,7 @@ function Dashboard() {
         {/* Right Sidebar - Hidden on mobile and tablet, drawer on tablet */}
         {isLargeScreen ? (
           <Box>
-            <UserStatus />
+            <ResearchCanvas />
           </Box>
         ) : (
           <Drawer
@@ -159,7 +159,7 @@ function Dashboard() {
               },
             }}
           >
-            <UserStatus />
+            <ResearchCanvas />
           </Drawer>
         )}
       </Box>
