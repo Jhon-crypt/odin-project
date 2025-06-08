@@ -1,11 +1,5 @@
 import {
   Box,
-  Grid,
-  Chip,
-  Avatar,
-  Tabs,
-  Tab,
-  Badge,
   ThemeProvider,
   createTheme,
   CssBaseline,
@@ -14,8 +8,6 @@ import { useState } from 'react'
 import ResearchProfileHeader from '../components/ResearchProfileHeader'
 import NavigationTabs from '../components/NavigationTabs'
 import ResearchHistoryCard from '../components/ResearchHistoryCard'
-import StatusCards from '../components/StatusCards'
-import LocationCard from '../components/LocationCard'
 import ResearchTable from '../components/ResearchTable'
 
 function Profile() {
@@ -64,29 +56,15 @@ function Profile() {
           <NavigationTabs activeTab={activeTab} onTabChange={handleTabChange} />
 
           {/* Main Content */}
-          <Grid container spacing={3} sx={{ mt: 1 }}>
-            {/* Left Column - Main Content */}
-            <Grid item xs={12} lg={9}>
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-                {/* Research History */}
-                <ResearchHistoryCard />
-                
-                {/* Research Projects Table */}
-                <ResearchTable />
-              </Box>
-            </Grid>
-
-            {/* Right Sidebar */}
-            <Grid item xs={12} lg={3}>
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-                {/* Status Cards */}
-                <StatusCards />
-                
-                {/* Location/Institution Card */}
-                <LocationCard />
-              </Box>
-            </Grid>
-          </Grid>
+          <Box sx={{ mt: 1 }}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+              {/* Research History */}
+              <ResearchHistoryCard />
+              
+              {/* Research Projects Table */}
+              <ResearchTable />
+            </Box>
+          </Box>
         </Box>
       </Box>
     </ThemeProvider>
