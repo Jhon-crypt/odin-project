@@ -63,48 +63,54 @@ function Dashboard() {
           position: 'relative',
         }}
       >
-        {/* Mobile FAB Navigation */}
+        {/* Mobile FAB Navigation - Improved positioning */}
         {isMobile && (
           <>
             <IconButton
               onClick={() => setLeftDrawerOpen(true)}
               sx={{
                 position: 'fixed',
-                top: 16,
-                left: 16,
-                zIndex: 1300,
+                top: { xs: 12, sm: 16 },
+                left: { xs: 12, sm: 16 },
+                zIndex: 1400,
                 bgcolor: '#1a1a1a',
                 color: '#C0FF92',
                 border: '1px solid #333',
-                width: 48,
-                height: 48,
-                boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+                width: { xs: 40, sm: 48 },
+                height: { xs: 40, sm: 48 },
+                boxShadow: '0 4px 12px rgba(0,0,0,0.4)',
+                backdropFilter: 'blur(8px)',
                 '&:hover': {
                   bgcolor: '#333',
+                  transform: 'scale(1.05)',
                 },
+                transition: 'all 0.2s ease-in-out',
               }}
             >
-              <MenuIcon />
+              <MenuIcon sx={{ fontSize: { xs: 18, sm: 20 } }} />
             </IconButton>
             <IconButton
               onClick={() => setRightDrawerOpen(true)}
               sx={{
                 position: 'fixed',
-                top: 16,
-                right: 16,
-                zIndex: 1300,
+                top: { xs: 12, sm: 16 },
+                right: { xs: 12, sm: 16 },
+                zIndex: 1400,
                 bgcolor: '#1a1a1a',
                 color: '#C0FF92',
                 border: '1px solid #333',
-                width: 48,
-                height: 48,
-                boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+                width: { xs: 40, sm: 48 },
+                height: { xs: 40, sm: 48 },
+                boxShadow: '0 4px 12px rgba(0,0,0,0.4)',
+                backdropFilter: 'blur(8px)',
                 '&:hover': {
                   bgcolor: '#333',
+                  transform: 'scale(1.05)',
                 },
+                transition: 'all 0.2s ease-in-out',
               }}
             >
-              <DescriptionIcon />
+              <DescriptionIcon sx={{ fontSize: { xs: 18, sm: 20 } }} />
             </IconButton>
           </>
         )}
@@ -152,6 +158,8 @@ function Dashboard() {
             minWidth: 0,
             width: '100%',
             height: '100vh',
+            // Add padding top on mobile to account for FABs
+            pt: { xs: 0, sm: 0 },
           }}
         >
           {/* Top Header */}

@@ -47,6 +47,7 @@ function ChatArea() {
         overflow: 'hidden',
         width: '100%',
         height: '100%',
+        position: 'relative',
       }}
     >
       {/* Messages Area */}
@@ -54,9 +55,11 @@ function ChatArea() {
         sx={{
           flex: 1,
           overflow: 'auto',
-          px: { xs: 1, sm: 2, md: 3, lg: 4 },
-          py: { xs: 1, sm: 2, md: 3 },
+          px: { xs: 1.5, sm: 2, md: 3, lg: 4 },
+          py: { xs: 1.5, sm: 2, md: 3 },
+          pt: { xs: 2, sm: 2, md: 3 },
           width: '100%',
+          '-webkit-overflow-scrolling': 'touch',
         }}
       >
         <Stack spacing={{ xs: 2, sm: 2.5, md: 3 }}>
@@ -65,14 +68,15 @@ function ChatArea() {
             display: 'flex', 
             gap: { xs: 1, sm: 1.5, md: 2 },
             width: '100%',
+            mt: { xs: 1, sm: 0 },
           }}>
             <Avatar
               sx={{
-                width: { xs: 28, sm: 32, md: 36 },
-                height: { xs: 28, sm: 32, md: 36 },
+                width: { xs: 26, sm: 32, md: 36 },
+                height: { xs: 26, sm: 32, md: 36 },
                 bgcolor: '#C0FF92',
                 color: '#000',
-                fontSize: { xs: '11px', sm: '12px', md: '14px' },
+                fontSize: { xs: '10px', sm: '12px', md: '14px' },
                 fontWeight: 'bold',
                 flexShrink: 0,
               }}
@@ -83,7 +87,7 @@ function ChatArea() {
               <Typography
                 sx={{
                   color: '#C0FF92',
-                  fontSize: { xs: '12px', sm: '13px', md: '14px' },
+                  fontSize: { xs: '11px', sm: '13px', md: '14px' },
                   fontWeight: 'bold',
                   mb: { xs: 0.5, sm: 1 },
                 }}
@@ -93,7 +97,7 @@ function ChatArea() {
               <Typography
                 sx={{
                   color: '#ccc',
-                  fontSize: { xs: '12px', sm: '13px', md: '14px' },
+                  fontSize: { xs: '11px', sm: '13px', md: '14px' },
                   lineHeight: { xs: 1.4, sm: 1.5 },
                   wordBreak: 'break-word',
                 }}
@@ -112,11 +116,11 @@ function ChatArea() {
           }}>
             <Avatar
               sx={{
-                width: { xs: 28, sm: 32, md: 36 },
-                height: { xs: 28, sm: 32, md: 36 },
+                width: { xs: 26, sm: 32, md: 36 },
+                height: { xs: 26, sm: 32, md: 36 },
                 bgcolor: '#333',
                 color: '#C0FF92',
-                fontSize: { xs: '11px', sm: '12px', md: '14px' },
+                fontSize: { xs: '10px', sm: '12px', md: '14px' },
                 fontWeight: 'bold',
                 flexShrink: 0,
               }}
@@ -127,7 +131,7 @@ function ChatArea() {
               <Typography
                 sx={{
                   color: '#C0FF92',
-                  fontSize: { xs: '12px', sm: '13px', md: '14px' },
+                  fontSize: { xs: '11px', sm: '13px', md: '14px' },
                   fontWeight: 'bold',
                   mb: { xs: 0.5, sm: 1 },
                 }}
@@ -138,7 +142,7 @@ function ChatArea() {
               <Typography
                 sx={{
                   color: '#ccc',
-                  fontSize: { xs: '12px', sm: '13px', md: '14px' },
+                  fontSize: { xs: '11px', sm: '13px', md: '14px' },
                   lineHeight: { xs: 1.4, sm: 1.5 },
                   mb: { xs: 1.5, sm: 2 },
                   wordBreak: 'break-word',
@@ -163,19 +167,19 @@ function ChatArea() {
                     aspectRatio: '4/3',
                     bgcolor: '#1a1a1a',
                     border: '1px solid #333',
-                    borderRadius: { xs: '8px', sm: '12px' },
+                    borderRadius: { xs: '6px', sm: '8px', md: '12px' },
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    p: { xs: 1, sm: 2 },
+                    p: { xs: 0.5, sm: 1, md: 2 },
                   }}
                 >
                   <Typography
                     sx={{
                       color: '#888',
-                      fontSize: { xs: '10px', sm: '11px', md: '12px' },
+                      fontSize: { xs: '9px', sm: '10px', md: '12px' },
                       textAlign: 'center',
-                      lineHeight: 1.3,
+                      lineHeight: 1.2,
                     }}
                   >
                     Leadership Hierarchy<br/>Visualization
@@ -187,19 +191,19 @@ function ChatArea() {
                     aspectRatio: '4/3',
                     bgcolor: '#1a1a1a',
                     border: '1px solid #333',
-                    borderRadius: { xs: '8px', sm: '12px' },
+                    borderRadius: { xs: '6px', sm: '8px', md: '12px' },
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    p: { xs: 1, sm: 2 },
+                    p: { xs: 0.5, sm: 1, md: 2 },
                   }}
                 >
                   <Typography
                     sx={{
                       color: '#888',
-                      fontSize: { xs: '10px', sm: '11px', md: '12px' },
+                      fontSize: { xs: '9px', sm: '10px', md: '12px' },
                       textAlign: 'center',
-                      lineHeight: 1.3,
+                      lineHeight: 1.2,
                     }}
                   >
                     Conflict Resolution<br/>Framework
@@ -210,9 +214,9 @@ function ChatArea() {
               <Typography
                 sx={{
                   color: '#ccc',
-                  fontSize: { xs: '12px', sm: '13px', md: '14px' },
+                  fontSize: { xs: '11px', sm: '13px', md: '14px' },
                   lineHeight: { xs: 1.4, sm: 1.5 },
-                  mb: { xs: 2, sm: 3 },
+                  mb: { xs: 1.5, sm: 2, md: 3 },
                   wordBreak: 'break-word',
                 }}
               >
@@ -231,28 +235,32 @@ function ChatArea() {
                 }}
               >
                 <Button
-                  startIcon={<RefreshIcon sx={{ fontSize: { xs: 14, sm: 16 } }} />}
+                  startIcon={<RefreshIcon sx={{ fontSize: { xs: 12, sm: 14, md: 16 } }} />}
                   size={isMobile ? 'small' : 'medium'}
                   sx={{
                     color: '#888',
                     textTransform: 'none',
-                    fontSize: { xs: '11px', sm: '12px', md: '14px' },
+                    fontSize: { xs: '10px', sm: '12px', md: '14px' },
+                    minHeight: { xs: '28px', sm: '32px' },
+                    px: { xs: 1, sm: 1.5 },
                     '&:hover': {
                       bgcolor: '#333',
                       color: '#C0FF92',
                     },
                   }}
                 >
-                  Regenerate
+                  {isMobile ? 'Regen' : 'Regenerate'}
                 </Button>
                 
                 <Button
-                  startIcon={<EditIcon sx={{ fontSize: { xs: 14, sm: 16 } }} />}
+                  startIcon={<EditIcon sx={{ fontSize: { xs: 12, sm: 14, md: 16 } }} />}
                   size={isMobile ? 'small' : 'medium'}
                   sx={{
                     color: '#888',
                     textTransform: 'none',
-                    fontSize: { xs: '11px', sm: '12px', md: '14px' },
+                    fontSize: { xs: '10px', sm: '12px', md: '14px' },
+                    minHeight: { xs: '28px', sm: '32px' },
+                    px: { xs: 1, sm: 1.5 },
                     '&:hover': {
                       bgcolor: '#333',
                       color: '#C0FF92',
@@ -263,19 +271,21 @@ function ChatArea() {
                 </Button>
 
                 <Button
-                  startIcon={<AddIcon sx={{ fontSize: { xs: 14, sm: 16 } }} />}
+                  startIcon={<AddIcon sx={{ fontSize: { xs: 12, sm: 14, md: 16 } }} />}
                   size={isMobile ? 'small' : 'medium'}
                   sx={{
                     color: '#888',
                     textTransform: 'none',
-                    fontSize: { xs: '11px', sm: '12px', md: '14px' },
+                    fontSize: { xs: '10px', sm: '12px', md: '14px' },
+                    minHeight: { xs: '28px', sm: '32px' },
+                    px: { xs: 1, sm: 1.5 },
                     '&:hover': {
                       bgcolor: '#333',
                       color: '#C0FF92',
                     },
                   }}
                 >
-                  Add to Canvas
+                  {isMobile ? 'Add' : 'Add to Canvas'}
                 </Button>
               </Box>
             </Box>
@@ -283,14 +293,15 @@ function ChatArea() {
         </Stack>
       </Box>
 
-      {/* Message Input Area */}
+      {/* Message Input Area - Mobile Optimized */}
       <Box
         sx={{
           borderTop: '1px solid #333',
-          p: { xs: 1, sm: 2, md: 3 },
+          p: { xs: 1.5, sm: 2, md: 3 },
           bgcolor: '#111111',
           flexShrink: 0,
           width: '100%',
+          pb: { xs: 2, sm: 2, md: 3 },
         }}
       >
         <Box
@@ -303,17 +314,18 @@ function ChatArea() {
         >
           <TextField
             multiline
-            maxRows={4}
+            maxRows={isMobile ? 3 : 4}
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             onKeyPress={handleKeyPress}
-            placeholder="Type your research question..."
+            placeholder={isMobile ? "Ask a question..." : "Type your research question..."}
             sx={{
               flex: 1,
               '& .MuiOutlinedInput-root': {
                 color: '#fff',
                 bgcolor: '#1a1a1a',
                 fontSize: { xs: '14px', sm: '15px', md: '16px' },
+                borderRadius: { xs: '8px', sm: '10px', md: '12px' },
                 '& fieldset': {
                   borderColor: '#333',
                 },
@@ -325,7 +337,7 @@ function ChatArea() {
                 },
               },
               '& .MuiOutlinedInput-input': {
-                py: { xs: 1, sm: 1.5 },
+                py: { xs: 1, sm: 1.25, md: 1.5 },
                 px: { xs: 1.5, sm: 2 },
               },
               '& .MuiInputBase-input::placeholder': {
@@ -335,32 +347,41 @@ function ChatArea() {
             }}
           />
           
-          <Box sx={{ display: 'flex', gap: { xs: 0.5, sm: 1 }, alignItems: 'center' }}>
-            <IconButton
-              size={isMobile ? 'small' : 'medium'}
-              sx={{
-                color: '#888',
-                '&:hover': {
-                  color: '#C0FF92',
-                  bgcolor: '#333',
-                },
-              }}
-            >
-              <MicIcon sx={{ fontSize: { xs: 18, sm: 20 } }} />
-            </IconButton>
-            
-            <IconButton
-              size={isMobile ? 'small' : 'medium'}
-              sx={{
-                color: '#888',
-                '&:hover': {
-                  color: '#C0FF92',
-                  bgcolor: '#333',
-                },
-              }}
-            >
-              <EmojiIcon sx={{ fontSize: { xs: 18, sm: 20 } }} />
-            </IconButton>
+          <Box sx={{ 
+            display: 'flex', 
+            gap: { xs: 0.5, sm: 1 }, 
+            alignItems: 'center',
+            flexShrink: 0,
+          }}>
+            {!isMobile && (
+              <>
+                <IconButton
+                  size="medium"
+                  sx={{
+                    color: '#888',
+                    '&:hover': {
+                      color: '#C0FF92',
+                      bgcolor: '#333',
+                    },
+                  }}
+                >
+                  <MicIcon sx={{ fontSize: 20 }} />
+                </IconButton>
+                
+                <IconButton
+                  size="medium"
+                  sx={{
+                    color: '#888',
+                    '&:hover': {
+                      color: '#C0FF92',
+                      bgcolor: '#333',
+                    },
+                  }}
+                >
+                  <EmojiIcon sx={{ fontSize: 20 }} />
+                </IconButton>
+              </>
+            )}
             
             <IconButton
               onClick={handleSendMessage}
@@ -369,6 +390,8 @@ function ChatArea() {
               sx={{
                 bgcolor: message.trim() ? '#C0FF92' : '#333',
                 color: message.trim() ? '#000' : '#666',
+                width: { xs: 36, sm: 40 },
+                height: { xs: 36, sm: 40 },
                 '&:hover': {
                   bgcolor: message.trim() ? '#A8E87C' : '#444',
                 },
@@ -378,7 +401,7 @@ function ChatArea() {
                 },
               }}
             >
-              <SendIcon sx={{ fontSize: { xs: 18, sm: 20 } }} />
+              <SendIcon sx={{ fontSize: { xs: 16, sm: 20 } }} />
             </IconButton>
           </Box>
         </Box>
