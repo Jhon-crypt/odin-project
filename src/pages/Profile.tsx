@@ -49,9 +49,14 @@ function Profile() {
           minHeight: '100vh',
           bgcolor: '#111111',
           pb: 4,
+          width: '100vw',
+          maxWidth: 'none',
+          margin: 0,
+          padding: 0,
+          overflow: 'auto',
         }}
       >
-        <Box sx={{ px: 3, pt: 3, width: '100%' }}>
+        <Box sx={{ px: 3, pt: 3, width: '100%', maxWidth: 'none' }}>
           {/* Profile Header */}
           <ResearchProfileHeader />
 
