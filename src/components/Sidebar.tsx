@@ -8,7 +8,6 @@ import {
   Avatar,
   Button,
   Divider,
-  ButtonBase,
 } from '@mui/material'
 import {
   Search as SearchIcon,
@@ -89,29 +88,6 @@ function Sidebar({ activeProject }: SidebarProps) {
         
         <List sx={{ p: 0 }}>
           <ListItem
-            onClick={() => navigate('/profile')}
-            sx={{
-              borderRadius: '8px',
-              mx: 1,
-              cursor: 'pointer',
-              '&:hover': {
-                bgcolor: '#333',
-              },
-            }}
-          >
-            <ListItemIcon sx={{ minWidth: 36 }}>
-              <PersonIcon sx={{ color: '#888', fontSize: 20 }} />
-            </ListItemIcon>
-            <ListItemText
-              primary="Profile & Research"
-              primaryTypographyProps={{
-                fontSize: '14px',
-                color: '#ccc',
-              }}
-            />
-          </ListItem>
-          
-          <ListItem
             sx={{
               borderRadius: '8px',
               mx: 1,
@@ -146,6 +122,29 @@ function Sidebar({ activeProject }: SidebarProps) {
             </ListItemIcon>
             <ListItemText
               primary="Billing"
+              primaryTypographyProps={{
+                fontSize: '14px',
+                color: '#ccc',
+              }}
+            />
+          </ListItem>
+
+          <ListItem
+            onClick={() => navigate('/profile')}
+            sx={{
+              borderRadius: '8px',
+              mx: 1,
+              cursor: 'pointer',
+              '&:hover': {
+                bgcolor: '#333',
+              },
+            }}
+          >
+            <ListItemIcon sx={{ minWidth: 36 }}>
+              <PersonIcon sx={{ color: '#888', fontSize: 20 }} />
+            </ListItemIcon>
+            <ListItemText
+              primary="Profile"
               primaryTypographyProps={{
                 fontSize: '14px',
                 color: '#ccc',
@@ -228,19 +227,13 @@ function Sidebar({ activeProject }: SidebarProps) {
       </Box>
 
       {/* Current User Profile */}
-      <ButtonBase
-        onClick={() => navigate('/profile')}
+      <Box
         sx={{
           p: 3,
           borderTop: '1px solid #333',
           display: 'flex',
           alignItems: 'center',
           gap: 2,
-          width: '100%',
-          borderRadius: 0,
-          '&:hover': {
-            bgcolor: '#333',
-          },
         }}
       >
         <Avatar
@@ -274,7 +267,7 @@ function Sidebar({ activeProject }: SidebarProps) {
             john@example.com
           </Typography>
         </Box>
-      </ButtonBase>
+      </Box>
     </Box>
   )
 }
