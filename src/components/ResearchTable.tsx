@@ -8,11 +8,7 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Avatar,
-  Chip,
-  Button,
 } from '@mui/material'
-import VisibilityIcon from '@mui/icons-material/Visibility'
 
 interface ResearchProject {
   id: string
@@ -59,20 +55,7 @@ function ResearchTable() {
     },
   ]
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'published':
-        return { bgcolor: '#C0FF92', color: '#000' }
-      case 'in-review':
-        return { bgcolor: '#FFB347', color: '#000' }
-      case 'active':
-        return { bgcolor: '#87CEEB', color: '#000' }
-      case 'draft':
-        return { bgcolor: '#666', color: '#fff' }
-      default:
-        return { bgcolor: '#666', color: '#fff' }
-    }
-  }
+
 
   const getTypeIcon = (type: string) => {
     switch (type) {
@@ -132,15 +115,6 @@ function ResearchTable() {
               <TableCell sx={{ color: '#888', borderBottom: '1px solid #333', fontSize: '12px' }}>
                 Last Updated
               </TableCell>
-              <TableCell sx={{ color: '#888', borderBottom: '1px solid #333', fontSize: '12px' }}>
-                Collaborators
-              </TableCell>
-              <TableCell sx={{ color: '#888', borderBottom: '1px solid #333', fontSize: '12px' }}>
-                Status
-              </TableCell>
-              <TableCell sx={{ color: '#888', borderBottom: '1px solid #333', fontSize: '12px' }}>
-                Actions
-              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -191,68 +165,6 @@ function ResearchTable() {
                   >
                     {project.lastUpdated}
                   </Typography>
-                </TableCell>
-                
-                <TableCell sx={{ borderBottom: '1px solid #333' }}>
-                  <Box sx={{ display: 'flex', gap: 0.5 }}>
-                    {project.collaborators.slice(0, 3).map((collaborator, index) => (
-                      <Avatar
-                        key={index}
-                        sx={{
-                          width: 24,
-                          height: 24,
-                          fontSize: '10px',
-                          bgcolor: '#C0FF92',
-                          color: '#000',
-                        }}
-                      >
-                        {collaborator.split(' ').map(n => n[0]).join('')}
-                      </Avatar>
-                    ))}
-                    {project.collaborators.length > 3 && (
-                      <Avatar
-                        sx={{
-                          width: 24,
-                          height: 24,
-                          fontSize: '10px',
-                          bgcolor: '#666',
-                          color: '#fff',
-                        }}
-                      >
-                        +{project.collaborators.length - 3}
-                      </Avatar>
-                    )}
-                  </Box>
-                </TableCell>
-                
-                <TableCell sx={{ borderBottom: '1px solid #333' }}>
-                  <Chip
-                    label={project.status.replace('-', ' ')}
-                    size="small"
-                    sx={{
-                      ...getStatusColor(project.status),
-                      fontWeight: 'bold',
-                      fontSize: '11px',
-                      textTransform: 'capitalize',
-                    }}
-                  />
-                </TableCell>
-                
-                <TableCell sx={{ borderBottom: '1px solid #333' }}>
-                  <Button
-                    startIcon={<VisibilityIcon />}
-                    size="small"
-                    sx={{
-                      color: '#C0FF92',
-                      textTransform: 'none',
-                      fontSize: '12px',
-                      '&:hover': {
-                        bgcolor: 'rgba(192, 255, 146, 0.1)',
-                      },
-                    }}
-                  >
-                    View
-                  </Button>
                 </TableCell>
               </TableRow>
             ))}
