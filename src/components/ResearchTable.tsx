@@ -94,6 +94,8 @@ function ResearchTable() {
         border: '1px solid #333',
         borderRadius: 2,
         overflow: 'hidden',
+        width: '100%',
+        maxWidth: 'none',
       }}
     >
       {/* Header */}

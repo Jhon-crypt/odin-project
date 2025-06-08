@@ -17,6 +17,8 @@ function StatusCards() {
           border: '1px solid #333',
           borderRadius: 2,
           p: 3,
+          width: '100%',
+          maxWidth: 'none',
         }}
       >
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
@@ -83,6 +85,8 @@ function StatusCards() {
           border: '1px solid #333',
           borderRadius: 2,
           p: 3,
+          width: '100%',
+          maxWidth: 'none',
         }}
       >
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>

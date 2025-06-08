@@ -15,6 +15,8 @@ function LocationCard() {
         border: '1px solid #333',
         borderRadius: 2,
         p: 3,
+        width: '100%',
+        maxWidth: 'none',
       }}
     >
       {/* Institution Info */}

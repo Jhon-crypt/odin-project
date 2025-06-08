@@ -18,6 +18,8 @@ function NavigationTabs({ activeTab, onTabChange }: NavigationTabsProps) {
         borderRadius: 2,
         border: '1px solid #333',
         mb: 3,
+        width: '100%',
+        maxWidth: 'none',
       }}
     >
       <Tabs

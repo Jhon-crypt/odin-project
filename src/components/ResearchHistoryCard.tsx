@@ -31,6 +31,8 @@ function ResearchHistoryCard() {
         border: '1px solid #333',
         borderRadius: 2,
         p: 3,
+        width: '100%',
+        maxWidth: 'none',
       }}
     >
       {/* Header */}
@@ -98,7 +100,7 @@ function ResearchHistoryCard() {
       </Box>
 
       {/* Chart */}
-      <Box sx={{ height: 300, mb: 3 }}>
+      <Box sx={{ height: 400, mb: 3 }}>
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={data}>
             <CartesianGrid strokeDasharray="3 3" stroke="#333" />

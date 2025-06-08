@@ -66,7 +66,7 @@ function Profile() {
           {/* Main Content */}
           <Grid container spacing={3} sx={{ mt: 1 }}>
             {/* Left Column - Main Content */}
-            <Grid item xs={12} lg={8}>
+            <Grid item xs={12} lg={9}>
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
                 {/* Research History */}
                 <ResearchHistoryCard />
@@ -77,7 +77,7 @@ function Profile() {
             </Grid>
 
             {/* Right Sidebar */}
-            <Grid item xs={12} lg={4}>
+            <Grid item xs={12} lg={3}>
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
                 {/* Status Cards */}
                 <StatusCards />

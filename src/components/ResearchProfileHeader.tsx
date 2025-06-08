@@ -18,6 +18,8 @@ function ResearchProfileHeader() {
         p: { xs: 3, md: 4 },
         mb: 3,
         border: '1px solid #333',
+        width: '100%',
+        maxWidth: 'none',
       }}
     >
       <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 3, mb: 3 }}>
