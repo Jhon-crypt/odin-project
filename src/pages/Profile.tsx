@@ -4,14 +4,11 @@ import {
   createTheme,
   CssBaseline,
 } from '@mui/material'
-import { useState } from 'react'
 import ResearchProfileHeader from '../components/ResearchProfileHeader'
-import NavigationTabs from '../components/NavigationTabs'
 import ResearchHistoryCard from '../components/ResearchHistoryCard'
 import ResearchTable from '../components/ResearchTable'
 
 function Profile() {
-  const [activeTab, setActiveTab] = useState(0)
 
   const theme = createTheme({
     palette: {
@@ -29,9 +26,7 @@ function Profile() {
     },
   })
 
-  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
-    setActiveTab(newValue)
-  }
+
 
   return (
     <ThemeProvider theme={theme}>
@@ -51,9 +46,6 @@ function Profile() {
         <Box sx={{ px: 3, pt: 3, width: '100%', maxWidth: 'none' }}>
           {/* Profile Header */}
           <ResearchProfileHeader />
-
-          {/* Navigation Tabs */}
-          <NavigationTabs activeTab={activeTab} onTabChange={handleTabChange} />
 
           {/* Main Content */}
           <Box sx={{ mt: 1 }}>
