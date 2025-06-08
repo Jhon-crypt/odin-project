@@ -50,20 +50,20 @@ function ChatArea() {
         sx={{
           flex: 1,
           overflow: 'auto',
-          px: 4,
-          py: 3,
+          px: { xs: 2, sm: 3, md: 4 },
+          py: { xs: 2, md: 3 },
         }}
       >
-        <Stack spacing={3}>
+        <Stack spacing={{ xs: 2, md: 3 }}>
           {/* User Message */}
-          <Box sx={{ display: 'flex', gap: 2 }}>
+          <Box sx={{ display: 'flex', gap: { xs: 1.5, md: 2 } }}>
             <Avatar
               sx={{
-                width: 36,
-                height: 36,
+                width: { xs: 32, md: 36 },
+                height: { xs: 32, md: 36 },
                 bgcolor: '#C0FF92',
                 color: '#000',
-                fontSize: '14px',
+                fontSize: { xs: '12px', md: '14px' },
                 fontWeight: 'bold',
               }}
             >
@@ -73,7 +73,7 @@ function ChatArea() {
               <Typography
                 sx={{
                   color: '#C0FF92',
-                  fontSize: '14px',
+                  fontSize: { xs: '13px', md: '14px' },
                   fontWeight: 'bold',
                   mb: 1,
                 }}
@@ -83,7 +83,7 @@ function ChatArea() {
               <Typography
                 sx={{
                   color: '#ccc',
-                  fontSize: '14px',
+                  fontSize: { xs: '13px', md: '14px' },
                   lineHeight: 1.5,
                 }}
               >
@@ -94,14 +94,14 @@ function ChatArea() {
           </Box>
 
           {/* AI Assistant Message */}
-          <Box sx={{ display: 'flex', gap: 2 }}>
+          <Box sx={{ display: 'flex', gap: { xs: 1.5, md: 2 } }}>
             <Avatar
               sx={{
-                width: 36,
-                height: 36,
+                width: { xs: 32, md: 36 },
+                height: { xs: 32, md: 36 },
                 bgcolor: '#333',
                 color: '#C0FF92',
-                fontSize: '14px',
+                fontSize: { xs: '12px', md: '14px' },
                 fontWeight: 'bold',
               }}
             >
@@ -111,7 +111,7 @@ function ChatArea() {
               <Typography
                 sx={{
                   color: '#C0FF92',
-                  fontSize: '14px',
+                  fontSize: { xs: '13px', md: '14px' },
                   fontWeight: 'bold',
                   mb: 1,
                 }}
@@ -122,7 +122,7 @@ function ChatArea() {
               <Typography
                 sx={{
                   color: '#ccc',
-                  fontSize: '14px',
+                  fontSize: { xs: '13px', md: '14px' },
                   lineHeight: 1.5,
                   mb: 2,
                 }}
@@ -135,8 +135,8 @@ function ChatArea() {
               <Box
                 sx={{
                   display: 'grid',
-                  gridTemplateColumns: 'repeat(2, 1fr)',
-                  gap: 2,
+                  gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)' },
+                  gap: { xs: 1.5, md: 2 },
                   mb: 2,
                 }}
               >
@@ -190,7 +190,7 @@ function ChatArea() {
               <Typography
                 sx={{
                   color: '#ccc',
-                  fontSize: '14px',
+                  fontSize: { xs: '13px', md: '14px' },
                   lineHeight: 1.5,
                   mb: 3,
                 }}
@@ -201,7 +201,11 @@ function ChatArea() {
               </Typography>
 
               {/* Action Buttons */}
-              <Box sx={{ display: 'flex', gap: 1 }}>
+              <Box sx={{ 
+                display: 'flex', 
+                gap: { xs: 0.5, md: 1 },
+                flexDirection: { xs: 'column', sm: 'row' },
+              }}>
                 <Button
                   startIcon={<RefreshIcon />}
                   variant="outlined"
@@ -210,7 +214,8 @@ function ChatArea() {
                     borderColor: '#333',
                     color: '#888',
                     textTransform: 'none',
-                    fontSize: '12px',
+                    fontSize: { xs: '11px', md: '12px' },
+                    py: { xs: 0.75, md: 1 },
                     '&:hover': {
                       borderColor: '#C0FF92',
                       color: '#C0FF92',
@@ -228,7 +233,8 @@ function ChatArea() {
                     borderColor: '#333',
                     color: '#888',
                     textTransform: 'none',
-                    fontSize: '12px',
+                    fontSize: { xs: '11px', md: '12px' },
+                    py: { xs: 0.75, md: 1 },
                     '&:hover': {
                       borderColor: '#C0FF92',
                       color: '#C0FF92',
@@ -246,8 +252,8 @@ function ChatArea() {
       {/* Message Input */}
       <Box
         sx={{
-          px: 4,
-          py: 4,
+          px: { xs: 2, sm: 3, md: 4 },
+          py: { xs: 3, md: 4 },
           borderTop: '1px solid #333',
         }}
       >
@@ -255,12 +261,12 @@ function ChatArea() {
           sx={{
             display: 'flex',
             alignItems: 'flex-end',
-            gap: 1,
+            gap: { xs: 0.5, md: 1 },
             bgcolor: '#1a1a1a',
-            borderRadius: '16px',
+            borderRadius: { xs: '12px', md: '16px' },
             border: '1px solid #333',
-            p: 2,
-            minHeight: '120px',
+            p: { xs: 1.5, md: 2 },
+            minHeight: { xs: '100px', md: '120px' },
           }}
         >
           <TextField
@@ -276,9 +282,9 @@ function ChatArea() {
               flex: 1,
               '& .MuiInputBase-root': {
                 color: '#fff',
-                fontSize: '16px',
-                px: 3,
-                py: 2,
+                fontSize: { xs: '14px', md: '16px' },
+                px: { xs: 2, md: 3 },
+                py: { xs: 1.5, md: 2 },
                 lineHeight: 1.6,
               },
               '& .MuiInputBase-input::placeholder': {

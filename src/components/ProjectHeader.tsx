@@ -26,8 +26,8 @@ function ProjectHeader({ projectTitle, projectSubtitle }: ProjectHeaderProps) {
       sx={{
         borderBottom: '1px solid #333',
         bgcolor: '#111111',
-        px: 4,
-        py: 2,
+        px: { xs: 2, sm: 3, md: 4 },
+        py: { xs: 1.5, md: 2 },
       }}
     >
       {/* Top Row - Title and Share */}
@@ -35,17 +35,20 @@ function ProjectHeader({ projectTitle, projectSubtitle }: ProjectHeaderProps) {
         sx={{
           display: 'flex',
           justifyContent: 'space-between',
-          alignItems: 'flex-start',
-          mb: 2,
+          alignItems: { xs: 'flex-start', sm: 'center' },
+          flexDirection: { xs: 'column', sm: 'row' },
+          gap: { xs: 2, sm: 0 },
+          mb: { xs: 1, md: 2 },
         }}
       >
-        <Box>
+        <Box sx={{ flex: 1 }}>
           <Typography
             variant="h5"
             sx={{
               fontWeight: 'bold',
               color: '#fff',
               mb: 0.5,
+              fontSize: { xs: '1.25rem', sm: '1.5rem', md: '1.75rem' },
             }}
           >
             {projectTitle}
@@ -53,22 +56,30 @@ function ProjectHeader({ projectTitle, projectSubtitle }: ProjectHeaderProps) {
           <Typography
             sx={{
               color: '#888',
-              fontSize: '14px',
+              fontSize: { xs: '12px', sm: '13px', md: '14px' },
+              display: { xs: 'none', sm: 'block' },
             }}
           >
             {projectSubtitle}
           </Typography>
         </Box>
 
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+        <Box sx={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          gap: { xs: 1.5, sm: 2 },
+          flexDirection: { xs: 'row', sm: 'row' },
+          width: { xs: '100%', sm: 'auto' },
+          justifyContent: { xs: 'space-between', sm: 'flex-end' },
+        }}>
           <AvatarGroup
             max={4}
             sx={{
               '& .MuiAvatar-root': {
-                width: 32,
-                height: 32,
+                width: { xs: 28, sm: 32 },
+                height: { xs: 28, sm: 32 },
                 border: '2px solid #333',
-                fontSize: '12px',
+                fontSize: { xs: '10px', sm: '12px' },
               },
             }}
           >
@@ -78,12 +89,15 @@ function ProjectHeader({ projectTitle, projectSubtitle }: ProjectHeaderProps) {
           </AvatarGroup>
 
           <Button
-            startIcon={<ShareIcon />}
+            startIcon={<ShareIcon sx={{ fontSize: { xs: '16px', sm: '20px' } }} />}
             variant="outlined"
+            size="small"
             sx={{
               borderColor: '#333',
               color: '#ccc',
               textTransform: 'none',
+              fontSize: { xs: '12px', sm: '14px' },
+              px: { xs: 2, sm: 3 },
               '&:hover': {
                 borderColor: '#C0FF92',
                 color: '#C0FF92',

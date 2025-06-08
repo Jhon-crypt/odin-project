@@ -102,29 +102,34 @@ function UserStatus() {
   return (
     <Box
       sx={{
-        width: 280,
+        width: { xs: '100vw', sm: 320, lg: 280 },
         height: '100vh',
         bgcolor: '#1a1a1a',
         borderLeft: '1px solid #333',
         display: 'flex',
         flexDirection: 'column',
         overflow: 'hidden',
+        position: { xs: 'fixed', lg: 'static' },
+        top: 0,
+        right: 0,
+        zIndex: { xs: 1000, lg: 'auto' },
       }}
     >
       {/* Currently Online Section */}
-      <Box sx={{ p: 3 }}>
+      <Box sx={{ p: { xs: 2, md: 3 } }}>
         <Typography
           variant="subtitle2"
           sx={{
             color: '#fff',
             fontWeight: 'bold',
             mb: 2,
+            fontSize: { xs: '14px', md: '16px' },
           }}
         >
           Currently Online ({onlineMembers.length})
         </Typography>
 
-        <Stack spacing={2}>
+        <Stack spacing={{ xs: 1.5, md: 2 }}>
           {onlineMembers.map((member) => (
             <Box
               key={member.id}
@@ -144,8 +149,8 @@ function UserStatus() {
                 <Avatar
                   src={member.avatar}
                   sx={{
-                    width: 36,
-                    height: 36,
+                    width: { xs: 32, md: 36 },
+                    height: { xs: 32, md: 36 },
                   }}
                 />
               </StatusBadge>
@@ -154,7 +159,7 @@ function UserStatus() {
                 <Typography
                   sx={{
                     color: '#fff',
-                    fontSize: '14px',
+                    fontSize: { xs: '13px', md: '14px' },
                     fontWeight: 'medium',
                   }}
                 >
@@ -163,7 +168,7 @@ function UserStatus() {
                 <Typography
                   sx={{
                     color: getStatusColor(member.status),
-                    fontSize: '12px',
+                    fontSize: { xs: '11px', md: '12px' },
                   }}
                 >
                   {member.statusText}
@@ -177,19 +182,20 @@ function UserStatus() {
       <Divider sx={{ borderColor: '#333', mx: 3 }} />
 
       {/* Offline Section */}
-      <Box sx={{ p: 3, flex: 1, overflow: 'auto' }}>
+      <Box sx={{ p: { xs: 2, md: 3 }, flex: 1, overflow: 'auto' }}>
         <Typography
           variant="subtitle2"
           sx={{
             color: '#888',
             fontWeight: 'bold',
             mb: 2,
+            fontSize: { xs: '14px', md: '16px' },
           }}
         >
           Offline ({offlineMembers.length})
         </Typography>
 
-        <Stack spacing={2}>
+        <Stack spacing={{ xs: 1.5, md: 2 }}>
           {offlineMembers.map((member) => (
             <Box
               key={member.id}
@@ -208,8 +214,8 @@ function UserStatus() {
               <Avatar
                 src={member.avatar}
                 sx={{
-                  width: 36,
-                  height: 36,
+                  width: { xs: 32, md: 36 },
+                  height: { xs: 32, md: 36 },
                   filter: 'grayscale(50%)',
                   opacity: 0.7,
                 }}
@@ -219,7 +225,7 @@ function UserStatus() {
                 <Typography
                   sx={{
                     color: '#888',
-                    fontSize: '14px',
+                    fontSize: { xs: '13px', md: '14px' },
                     fontWeight: 'medium',
                   }}
                 >
@@ -228,7 +234,7 @@ function UserStatus() {
                 <Typography
                   sx={{
                     color: '#666',
-                    fontSize: '12px',
+                    fontSize: { xs: '11px', md: '12px' },
                   }}
                 >
                   {member.lastSeen}

@@ -32,12 +32,16 @@ function Sidebar({ activeProject }: SidebarProps) {
   return (
     <Box
       sx={{
-        width: 280,
+        width: { xs: '100vw', sm: 320, md: 280, lg: 280 },
         height: '100vh',
         bgcolor: '#1a1a1a',
         display: 'flex',
         flexDirection: 'column',
         borderRight: '1px solid #333',
+        position: { xs: 'fixed', md: 'static' },
+        top: 0,
+        left: 0,
+        zIndex: { xs: 1000, md: 'auto' },
       }}
     >
       {/* Logo & Workspace */}
