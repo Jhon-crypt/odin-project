@@ -116,7 +116,7 @@ function ChatArea() {
                   mb: 1,
                 }}
               >
-                Artificium
+                Odin
               </Typography>
               
               <Typography
@@ -247,7 +247,7 @@ function ChatArea() {
       <Box
         sx={{
           px: 4,
-          py: 3,
+          py: 4,
           borderTop: '1px solid #333',
         }}
       >
@@ -257,26 +257,29 @@ function ChatArea() {
             alignItems: 'flex-end',
             gap: 1,
             bgcolor: '#1a1a1a',
-            borderRadius: '12px',
+            borderRadius: '16px',
             border: '1px solid #333',
-            p: 1,
+            p: 2,
+            minHeight: '120px',
           }}
         >
           <TextField
             multiline
-            maxRows={4}
+            maxRows={8}
+            minRows={3}
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             onKeyPress={handleKeyPress}
-            placeholder="Ask Artificium anything about your research..."
+            placeholder="Ask Odin anything about your research..."
             variant="standard"
             sx={{
               flex: 1,
               '& .MuiInputBase-root': {
                 color: '#fff',
-                fontSize: '14px',
-                px: 2,
-                py: 1,
+                fontSize: '16px',
+                px: 3,
+                py: 2,
+                lineHeight: 1.6,
               },
               '& .MuiInputBase-input::placeholder': {
                 color: '#888',
