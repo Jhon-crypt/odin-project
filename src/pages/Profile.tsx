@@ -1,9 +1,6 @@
 import {
   Box,
-  Container,
   Grid,
-  Typography,
-  Button,
   Chip,
   Avatar,
   Tabs,
@@ -54,7 +51,7 @@ function Profile() {
           pb: 4,
         }}
       >
-        <Container maxWidth="xl" sx={{ pt: 3 }}>
+        <Box sx={{ px: 3, pt: 3, width: '100%' }}>
           {/* Profile Header */}
           <ResearchProfileHeader />
 
@@ -85,7 +82,7 @@ function Profile() {
               </Box>
             </Grid>
           </Grid>
-        </Container>
+        </Box>
       </Box>
     </ThemeProvider>
   )
