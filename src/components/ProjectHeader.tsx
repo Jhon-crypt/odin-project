@@ -1,14 +1,11 @@
 import {
   Box,
   Typography,
-  Tabs,
-  Tab,
   AvatarGroup,
   Avatar,
   Button,
 } from '@mui/material'
 import { Share as ShareIcon } from '@mui/icons-material'
-import { useState } from 'react'
 
 interface ProjectHeaderProps {
   projectTitle: string
@@ -16,11 +13,6 @@ interface ProjectHeaderProps {
 }
 
 function ProjectHeader({ projectTitle, projectSubtitle }: ProjectHeaderProps) {
-  const [activeTab, setActiveTab] = useState(1) // Default to Chat tab
-
-  const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
-    setActiveTab(newValue)
-  }
 
   const teamMembers = [
     'https://i.pravatar.cc/150?img=1',
@@ -104,31 +96,7 @@ function ProjectHeader({ projectTitle, projectSubtitle }: ProjectHeaderProps) {
         </Box>
       </Box>
 
-      {/* Bottom Row - Tabs */}
-      <Tabs
-        value={activeTab}
-        onChange={handleTabChange}
-        sx={{
-          '& .MuiTab-root': {
-            textTransform: 'none',
-            color: '#888',
-            fontSize: '14px',
-            fontWeight: 'medium',
-            minWidth: 'auto',
-            px: 3,
-            '&.Mui-selected': {
-              color: '#C0FF92',
-            },
-          },
-          '& .MuiTabs-indicator': {
-            backgroundColor: '#C0FF92',
-          },
-        }}
-      >
-        <Tab label="Artificium" />
-        <Tab label="Chat" />
-        <Tab label="Library" />
-      </Tabs>
+
     </Box>
   )
 }
