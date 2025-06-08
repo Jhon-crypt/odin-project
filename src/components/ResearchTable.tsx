@@ -83,7 +83,7 @@ function ResearchTable() {
     >
       {/* Header */}
       <Box sx={{ 
-        p: { xs: 2, sm: 3 }, 
+        p: { xs: 1.5, sm: 2, md: 3 }, 
         borderBottom: '1px solid #333' 
       }}>
         <Typography
@@ -91,8 +91,8 @@ function ResearchTable() {
           sx={{
             color: '#fff',
             fontWeight: 'bold',
-            fontSize: { xs: '16px', sm: '18px' },
-            mb: 1,
+            fontSize: { xs: '14px', sm: '16px', md: '18px' },
+            mb: { xs: 0.5, sm: 1 },
           }}
         >
           Research Projects
@@ -100,7 +100,7 @@ function ResearchTable() {
         <Typography
           sx={{
             color: '#888',
-            fontSize: '14px',
+            fontSize: { xs: '12px', sm: '13px', md: '14px' },
           }}
         >
           {researchProjects.length} active projects and papers
@@ -108,22 +108,31 @@ function ResearchTable() {
       </Box>
 
       {/* Table */}
-      <TableContainer>
+      <TableContainer sx={{ overflow: 'auto' }}>
         <Table>
           <TableHead>
             <TableRow>
               <TableCell sx={{ 
                 color: '#888', 
                 borderBottom: '1px solid #333', 
-                fontSize: { xs: '11px', sm: '12px' },
-                display: { xs: 'table-cell' }
+                fontSize: { xs: '10px', sm: '11px', md: '12px' },
+                py: { xs: 1, sm: 1.5 },
+                px: { xs: 1.5, sm: 2, md: 3 },
+                fontWeight: 'bold',
+                textTransform: 'uppercase',
+                letterSpacing: 0.5,
               }}>
                 Project
               </TableCell>
               <TableCell sx={{ 
                 color: '#888', 
                 borderBottom: '1px solid #333', 
-                fontSize: { xs: '11px', sm: '12px' },
+                fontSize: { xs: '10px', sm: '11px', md: '12px' },
+                py: { xs: 1, sm: 1.5 },
+                px: { xs: 1.5, sm: 2, md: 3 },
+                fontWeight: 'bold',
+                textTransform: 'uppercase',
+                letterSpacing: 0.5,
                 display: { xs: 'none', sm: 'table-cell' }
               }}>
                 Last Updated
@@ -138,20 +147,36 @@ function ResearchTable() {
                   '&:hover': {
                     bgcolor: '#222',
                   },
+                  '&:last-child td': {
+                    borderBottom: 'none',
+                  }
                 }}
               >
-                <TableCell sx={{ borderBottom: '1px solid #333' }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                    <Typography sx={{ fontSize: { xs: '18px', sm: '20px' } }}>
+                <TableCell sx={{ 
+                  borderBottom: '1px solid #333',
+                  py: { xs: 1.5, sm: 2 },
+                  px: { xs: 1.5, sm: 2, md: 3 },
+                }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1.5, sm: 2 } }}>
+                    <Typography sx={{ 
+                      fontSize: { xs: '16px', sm: '18px', md: '20px' },
+                      flexShrink: 0,
+                    }}>
                       {getTypeIcon(project.type)}
                     </Typography>
-                    <Box sx={{ flex: 1 }}>
+                    <Box sx={{ flex: 1, minWidth: 0 }}>
                       <Typography
                         sx={{
                           color: '#fff',
-                          fontSize: { xs: '13px', sm: '14px' },
+                          fontSize: { xs: '12px', sm: '13px', md: '14px' },
                           fontWeight: 'medium',
                           lineHeight: 1.3,
+                          mb: { xs: 0.5, sm: 0.75 },
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          display: '-webkit-box',
+                          WebkitLineClamp: { xs: 2, sm: 1 },
+                          WebkitBoxOrient: 'vertical',
                         }}
                       >
                         {project.title}
@@ -160,13 +185,14 @@ function ResearchTable() {
                         display: 'flex', 
                         flexDirection: { xs: 'column', sm: 'row' },
                         alignItems: { xs: 'flex-start', sm: 'center' },
-                        gap: { xs: 0.5, sm: 2 }
+                        gap: { xs: 0.25, sm: 2 }
                       }}>
                         <Typography
                           sx={{
                             color: '#888',
-                            fontSize: { xs: '11px', sm: '12px' },
+                            fontSize: { xs: '10px', sm: '11px', md: '12px' },
                             textTransform: 'capitalize',
+                            fontWeight: '500',
                           }}
                         >
                           {project.type}
@@ -174,7 +200,7 @@ function ResearchTable() {
                         <Typography
                           sx={{
                             color: '#ccc',
-                            fontSize: { xs: '11px', sm: '13px' },
+                            fontSize: { xs: '10px', sm: '11px', md: '12px' },
                             display: { xs: 'block', sm: 'none' }
                           }}
                         >
@@ -187,12 +213,15 @@ function ResearchTable() {
                 
                 <TableCell sx={{ 
                   borderBottom: '1px solid #333',
+                  py: { xs: 1.5, sm: 2 },
+                  px: { xs: 1.5, sm: 2, md: 3 },
                   display: { xs: 'none', sm: 'table-cell' }
                 }}>
                   <Typography
                     sx={{
                       color: '#ccc',
-                      fontSize: '13px',
+                      fontSize: { xs: '11px', sm: '12px', md: '13px' },
+                      whiteSpace: 'nowrap',
                     }}
                   >
                     {project.lastUpdated}

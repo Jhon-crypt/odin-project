@@ -30,7 +30,7 @@ function ResearchHistoryCard() {
         bgcolor: '#1a1a1a',
         border: '1px solid #333',
         borderRadius: 2,
-        p: { xs: 2, sm: 3 },
+        p: { xs: 1.5, sm: 2, md: 3 },
         width: '100%',
         maxWidth: 'none',
       }}
@@ -49,7 +49,7 @@ function ResearchHistoryCard() {
           sx={{
             color: '#fff',
             fontWeight: 'bold',
-            fontSize: { xs: '16px', sm: '18px' },
+            fontSize: { xs: '14px', sm: '16px', md: '18px' },
           }}
         >
           Research Activity
@@ -57,7 +57,7 @@ function ResearchHistoryCard() {
         <Typography
           sx={{
             color: '#888',
-            fontSize: '14px',
+            fontSize: { xs: '12px', sm: '13px', md: '14px' },
           }}
         >
           Last 12 months
@@ -67,16 +67,18 @@ function ResearchHistoryCard() {
       {/* Statistics */}
       <Box sx={{ 
         display: 'flex', 
-        flexDirection: { xs: 'column', sm: 'row' },
-        gap: { xs: 2, sm: 4 }, 
-        mb: { xs: 2, sm: 3 } 
+        flexDirection: { xs: 'row', sm: 'row' },
+        gap: { xs: 3, sm: 4 }, 
+        mb: { xs: 2, sm: 3 },
+        justifyContent: { xs: 'space-around', sm: 'flex-start' }
       }}>
-        <Box>
+        <Box sx={{ textAlign: { xs: 'center', sm: 'left' } }}>
           <Typography
             sx={{
               color: '#C0FF92',
-              fontSize: { xs: '20px', sm: '24px' },
+              fontSize: { xs: '18px', sm: '20px', md: '24px' },
               fontWeight: 'bold',
+              lineHeight: 1,
             }}
           >
             42 papers
@@ -84,18 +86,20 @@ function ResearchHistoryCard() {
           <Typography
             sx={{
               color: '#888',
-              fontSize: '12px',
+              fontSize: { xs: '10px', sm: '11px', md: '12px' },
+              mt: 0.5,
             }}
           >
             this year
           </Typography>
         </Box>
-        <Box>
+        <Box sx={{ textAlign: { xs: 'center', sm: 'left' } }}>
           <Typography
             sx={{
               color: '#888',
-              fontSize: { xs: '20px', sm: '24px' },
+              fontSize: { xs: '18px', sm: '20px', md: '24px' },
               fontWeight: 'bold',
+              lineHeight: 1,
             }}
           >
             30 papers
@@ -103,7 +107,8 @@ function ResearchHistoryCard() {
           <Typography
             sx={{
               color: '#888',
-              fontSize: '12px',
+              fontSize: { xs: '10px', sm: '11px', md: '12px' },
+              mt: 0.5,
             }}
           >
             last year
@@ -113,29 +118,33 @@ function ResearchHistoryCard() {
 
       {/* Chart */}
       <Box sx={{ 
-        height: { xs: 250, sm: 300, md: 400 }, 
-        mb: { xs: 2, sm: 3 } 
+        height: { xs: 200, sm: 250, md: 300, lg: 400 }, 
+        mb: { xs: 2, sm: 3 },
+        overflow: 'hidden'
       }}>
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={data}>
+          <LineChart data={data} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#333" />
             <XAxis 
               dataKey="month" 
               stroke="#888"
-              fontSize={12}
+              fontSize={10}
+              tick={{ fontSize: 10 }}
             />
             <YAxis 
               stroke="#888"
-              fontSize={12}
+              fontSize={10}
+              tick={{ fontSize: 10 }}
+              width={30}
             />
-            <Legend />
+            <Legend wrapperStyle={{ fontSize: '12px' }} />
             <Line 
               type="monotone" 
               dataKey="thisYear" 
               stroke="#C0FF92" 
               strokeWidth={2}
               name="This Year"
-              dot={{ fill: '#C0FF92', strokeWidth: 2 }}
+              dot={{ fill: '#C0FF92', strokeWidth: 2, r: 3 }}
             />
             <Line 
               type="monotone" 
@@ -143,7 +152,7 @@ function ResearchHistoryCard() {
               stroke="#888" 
               strokeWidth={2}
               name="Last Year"
-              dot={{ fill: '#888', strokeWidth: 2 }}
+              dot={{ fill: '#888', strokeWidth: 2, r: 3 }}
             />
           </LineChart>
         </ResponsiveContainer>
@@ -161,6 +170,7 @@ function ResearchHistoryCard() {
           control={
             <Checkbox
               defaultChecked
+              size="small"
               sx={{
                 color: '#888',
                 '&.Mui-checked': {
@@ -170,7 +180,10 @@ function ResearchHistoryCard() {
             />
           }
           label={
-            <Typography sx={{ color: '#888', fontSize: '14px' }}>
+            <Typography sx={{ 
+              color: '#888', 
+              fontSize: { xs: '12px', sm: '13px', md: '14px' }
+            }}>
               Compare to previous period
             </Typography>
           }
@@ -189,6 +202,8 @@ function ResearchHistoryCard() {
               borderColor: '#333',
               color: '#888',
               textTransform: 'none',
+              fontSize: { xs: '11px', sm: '12px' },
+              minWidth: { xs: 'unset', sm: 'auto' },
               '&:hover': {
                 borderColor: '#C0FF92',
                 color: '#C0FF92',
@@ -205,6 +220,8 @@ function ResearchHistoryCard() {
               color: '#000',
               textTransform: 'none',
               fontWeight: 'bold',
+              fontSize: { xs: '11px', sm: '12px' },
+              minWidth: { xs: 'unset', sm: 'auto' },
               '&:hover': {
                 bgcolor: '#A8E87C',
               },

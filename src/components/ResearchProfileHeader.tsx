@@ -14,195 +14,158 @@ function ResearchProfileHeader() {
       sx={{
         bgcolor: '#1a1a1a',
         borderRadius: 2,
-        p: { xs: 3, md: 4 },
-        mb: 3,
+        p: { xs: 2, sm: 3, md: 4 },
+        mb: { xs: 2, sm: 3 },
         border: '1px solid #333',
         width: '100%',
         maxWidth: 'none',
       }}
     >
-      <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 3, mb: 3 }}>
+      {/* Profile Section */}
+      <Box sx={{ 
+        display: 'flex', 
+        alignItems: 'flex-start', 
+        gap: { xs: 2, sm: 3 }, 
+        mb: { xs: 3, sm: 4 } 
+      }}>
         {/* Avatar */}
         <Avatar
           sx={{
-            width: { xs: 80, md: 100 },
-            height: { xs: 80, md: 100 },
+            width: { xs: 60, sm: 80, md: 100 },
+            height: { xs: 60, sm: 80, md: 100 },
             bgcolor: '#C0FF92',
             color: '#000',
-            fontSize: { xs: '28px', md: '36px' },
+            fontSize: { xs: '20px', sm: '28px', md: '36px' },
             fontWeight: 'bold',
+            flexShrink: 0,
           }}
         >
           JD
         </Avatar>
 
-        {/* Profile Info */}
+        {/* Name and Info */}
         <Box sx={{ flex: 1 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
-            <Typography
-              variant="h4"
-              sx={{
-                color: '#fff',
-                fontWeight: 'bold',
-                fontSize: { xs: '24px', md: '32px' },
-              }}
-            >
-              John Doe
-            </Typography>
-            <Chip
-              label="Active Researcher"
-              sx={{
-                bgcolor: '#C0FF92',
-                color: '#000',
-                fontWeight: 'bold',
-                fontSize: { xs: '11px', md: '12px' },
-              }}
-            />
-          </Box>
-
-          {/* Profile Details */}
           <Box sx={{ 
             display: 'flex', 
-            flexWrap: 'wrap', 
-            gap: 3, 
-            mt: 2,
-            '& > div': {
-              minWidth: { xs: '100%', sm: '150px', md: '200px' },
-              flex: { xs: '1 0 100%', sm: '1 0 calc(50% - 12px)', md: '1 0 calc(25% - 18px)' }
-            }
+            alignItems: { xs: 'flex-start', sm: 'center' },
+            flexDirection: { xs: 'column', sm: 'row' },
+            justifyContent: 'space-between',
+            gap: { xs: 2, sm: 3 }, 
+            mb: 2
           }}>
+            {/* Name and Badge */}
             <Box>
+              <Box sx={{ 
+                display: 'flex', 
+                alignItems: { xs: 'flex-start', sm: 'center' },
+                flexDirection: { xs: 'column', sm: 'row' },
+                gap: { xs: 1, sm: 2 }, 
+                mb: 1 
+              }}>
+                <Typography
+                  variant="h4"
+                  sx={{
+                    color: '#fff',
+                    fontWeight: 'bold',
+                    fontSize: { xs: '20px', sm: '24px', md: '32px' },
+                    lineHeight: 1.2,
+                  }}
+                >
+                  John Doe
+                </Typography>
+                <Chip
+                  label="Active Researcher"
+                  sx={{
+                    bgcolor: '#C0FF92',
+                    color: '#000',
+                    fontWeight: 'bold',
+                    fontSize: { xs: '10px', sm: '11px', md: '12px' },
+                    height: { xs: 24, sm: 32 },
+                  }}
+                />
+              </Box>
               <Typography
-                variant="caption"
                 sx={{
                   color: '#888',
-                  fontSize: { xs: '11px', md: '12px' },
-                  display: 'block',
-                  mb: 0.5,
+                  fontSize: { xs: '12px', sm: '13px', md: '14px' },
+                  mb: 1,
                 }}
               >
-                Institution
-              </Typography>
-              <Typography
-                sx={{
-                  color: '#fff',
-                  fontSize: { xs: '13px', md: '14px' },
-                  fontWeight: 'medium',
-                }}
-              >
-                Stanford University
+                Stanford University • Computer Science Department
               </Typography>
             </Box>
-            
-            <Box>
-              <Typography
-                variant="caption"
+
+            {/* Action Buttons */}
+            <Box sx={{ 
+              display: 'flex', 
+              gap: { xs: 1.5, sm: 2 },
+              flexDirection: { xs: 'row', sm: 'row' },
+              alignSelf: { xs: 'flex-start', sm: 'flex-start' },
+            }}>
+              <Button
+                startIcon={<EditIcon />}
+                variant="outlined"
+                size="small"
                 sx={{
-                  color: '#888',
-                  fontSize: { xs: '11px', md: '12px' },
-                  display: 'block',
-                  mb: 0.5,
+                  borderColor: '#333',
+                  color: '#ccc',
+                  textTransform: 'none',
+                  fontSize: { xs: '12px', sm: '14px' },
+                  '&:hover': {
+                    borderColor: '#C0FF92',
+                    color: '#C0FF92',
+                  },
                 }}
               >
-                Researcher ID
-              </Typography>
-              <Typography
+                Edit
+              </Button>
+              <Button
+                startIcon={<EmailIcon />}
+                variant="contained"
+                size="small"
                 sx={{
-                  color: '#fff',
-                  fontSize: { xs: '13px', md: '14px' },
-                  fontWeight: 'medium',
+                  bgcolor: '#C0FF92',
+                  color: '#000',
+                  textTransform: 'none',
+                  fontWeight: 'bold',
+                  fontSize: { xs: '12px', sm: '14px' },
+                  '&:hover': {
+                    bgcolor: '#A8E87C',
+                  },
                 }}
               >
-                ODN-R-2024
-              </Typography>
-            </Box>
-            
-            <Box>
-              <Typography
-                variant="caption"
-                sx={{
-                  color: '#888',
-                  fontSize: { xs: '11px', md: '12px' },
-                  display: 'block',
-                  mb: 0.5,
-                }}
-              >
-                Department
-              </Typography>
-              <Typography
-                sx={{
-                  color: '#fff',
-                  fontSize: { xs: '13px', md: '14px' },
-                  fontWeight: 'medium',
-                }}
-              >
-                Computer Science
-              </Typography>
-            </Box>
-            
-            <Box>
-              <Typography
-                variant="caption"
-                sx={{
-                  color: '#888',
-                  fontSize: { xs: '11px', md: '12px' },
-                  display: 'block',
-                  mb: 0.5,
-                }}
-              >
-                Specialization
-              </Typography>
-              <Typography
-                sx={{
-                  color: '#fff',
-                  fontSize: { xs: '13px', md: '14px' },
-                  fontWeight: 'medium',
-                }}
-              >
-                AI & Machine Learning
-              </Typography>
+                Contact
+              </Button>
             </Box>
           </Box>
         </Box>
+      </Box>
 
-        {/* Action Buttons */}
-        <Box sx={{ 
-          display: 'flex', 
-          gap: 2, 
-          flexDirection: { xs: 'column', sm: 'row' },
-          minWidth: 'fit-content',
-        }}>
-          <Button
-            startIcon={<EditIcon />}
-            variant="outlined"
-            sx={{
-              borderColor: '#333',
-              color: '#ccc',
-              textTransform: 'none',
-              '&:hover': {
-                borderColor: '#C0FF92',
-                color: '#C0FF92',
-              },
-            }}
-          >
-            Edit
-          </Button>
-          <Button
-            startIcon={<EmailIcon />}
-            variant="contained"
-            sx={{
-              bgcolor: '#C0FF92',
-              color: '#000',
-              textTransform: 'none',
-              fontWeight: 'bold',
-              '&:hover': {
-                bgcolor: '#A8E87C',
-              },
-            }}
-          >
-            Contact
-          </Button>
-        </Box>
+      {/* About Section */}
+      <Box>
+        <Typography
+          variant="h6"
+          sx={{
+            color: '#fff',
+            fontWeight: 'bold',
+            fontSize: { xs: '14px', sm: '16px', md: '18px' },
+            mb: 2,
+          }}
+        >
+          About
+        </Typography>
+        <Typography
+          sx={{
+            color: '#ccc',
+            fontSize: { xs: '13px', sm: '14px', md: '15px' },
+            lineHeight: 1.6,
+            maxWidth: '100%',
+          }}
+        >
+          Researcher specializing in AI & Machine Learning with a focus on advancing scientific research through 
+          innovative computational methods. Currently working on projects involving spaceship crew psychology analysis 
+          and machine learning applications in space exploration.
+        </Typography>
       </Box>
     </Box>
   )

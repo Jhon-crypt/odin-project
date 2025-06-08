@@ -24,9 +24,16 @@ function Profile() {
     typography: {
       fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
     },
+    breakpoints: {
+      values: {
+        xs: 0,
+        sm: 600,
+        md: 900,
+        lg: 1200,
+        xl: 1536,
+      },
+    },
   })
-
-
 
   return (
     <ThemeProvider theme={theme}>
@@ -35,7 +42,7 @@ function Profile() {
         sx={{
           minHeight: '100vh',
           bgcolor: '#111111',
-          pb: 4,
+          pb: { xs: 2, sm: 3, md: 4 },
           width: '100vw',
           maxWidth: 'none',
           margin: 0,
@@ -44,20 +51,25 @@ function Profile() {
         }}
       >
         <Box sx={{ 
-          px: { xs: 2, sm: 3, md: 4 }, 
-          pt: { xs: 2, sm: 3 }, 
+          px: { xs: 1, sm: 2, md: 3, lg: 4 }, 
+          pt: { xs: 1, sm: 2, md: 3 }, 
           width: '100%', 
-          maxWidth: 'none' 
+          maxWidth: 'none',
+          margin: '0 auto'
         }}>
           {/* Profile Header */}
           <ResearchProfileHeader />
 
           {/* Main Content */}
-          <Box sx={{ mt: 1 }}>
+          <Box sx={{ 
+            mt: { xs: 1, sm: 2 },
+            maxWidth: { xs: '100%', lg: '1400px' },
+            margin: '0 auto'
+          }}>
             <Box sx={{ 
               display: 'flex', 
               flexDirection: 'column', 
-              gap: { xs: 2, sm: 3 } 
+              gap: { xs: 1.5, sm: 2, md: 3 } 
             }}>
               {/* Research History */}
               <ResearchHistoryCard />
