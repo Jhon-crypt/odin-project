@@ -63,15 +63,15 @@ function Dashboard() {
           position: 'relative',
         }}
       >
-        {/* Mobile FAB Navigation - Improved positioning */}
+        {/* Mobile FAB Navigation - Positioned to avoid header overlap */}
         {isMobile && (
           <>
             <IconButton
               onClick={() => setLeftDrawerOpen(true)}
               sx={{
                 position: 'fixed',
-                top: { xs: 12, sm: 16 },
-                left: { xs: 12, sm: 16 },
+                top: { xs: 72, sm: 80 },
+                left: { xs: 16, sm: 20 },
                 zIndex: 1400,
                 bgcolor: '#1a1a1a',
                 color: '#C0FF92',
@@ -93,8 +93,8 @@ function Dashboard() {
               onClick={() => setRightDrawerOpen(true)}
               sx={{
                 position: 'fixed',
-                top: { xs: 12, sm: 16 },
-                right: { xs: 12, sm: 16 },
+                top: { xs: 72, sm: 80 },
+                right: { xs: 16, sm: 20 },
                 zIndex: 1400,
                 bgcolor: '#1a1a1a',
                 color: '#C0FF92',
@@ -158,8 +158,6 @@ function Dashboard() {
             minWidth: 0,
             width: '100%',
             height: '100vh',
-            // Add padding top on mobile to account for FABs
-            pt: { xs: 0, sm: 0 },
           }}
         >
           {/* Top Header */}
