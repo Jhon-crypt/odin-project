@@ -4,7 +4,6 @@ import {
   Button,
   Chip,
   Avatar,
-  Grid,
 } from '@mui/material'
 import EditIcon from '@mui/icons-material/Edit'
 import EmailIcon from '@mui/icons-material/Email'
@@ -61,9 +60,18 @@ function ResearchProfileHeader() {
             />
           </Box>
 
-          {/* Profile Details Grid */}
-          <Grid container spacing={3} sx={{ mt: 2 }}>
-            <Grid item xs={12} sm={6} md={3}>
+          {/* Profile Details */}
+          <Box sx={{ 
+            display: 'flex', 
+            flexWrap: 'wrap', 
+            gap: 3, 
+            mt: 2,
+            '& > div': {
+              minWidth: { xs: '100%', sm: '150px', md: '200px' },
+              flex: { xs: '1 0 100%', sm: '1 0 calc(50% - 12px)', md: '1 0 calc(25% - 18px)' }
+            }
+          }}>
+            <Box>
               <Typography
                 variant="caption"
                 sx={{
@@ -84,9 +92,9 @@ function ResearchProfileHeader() {
               >
                 Stanford University
               </Typography>
-            </Grid>
+            </Box>
             
-            <Grid item xs={12} sm={6} md={3}>
+            <Box>
               <Typography
                 variant="caption"
                 sx={{
@@ -107,9 +115,9 @@ function ResearchProfileHeader() {
               >
                 ODN-R-2024
               </Typography>
-            </Grid>
+            </Box>
             
-            <Grid item xs={12} sm={6} md={3}>
+            <Box>
               <Typography
                 variant="caption"
                 sx={{
@@ -130,9 +138,9 @@ function ResearchProfileHeader() {
               >
                 Computer Science
               </Typography>
-            </Grid>
+            </Box>
             
-            <Grid item xs={12} sm={6} md={3}>
+            <Box>
               <Typography
                 variant="caption"
                 sx={{
@@ -153,8 +161,8 @@ function ResearchProfileHeader() {
               >
                 AI & Machine Learning
               </Typography>
-            </Grid>
-          </Grid>
+            </Box>
+          </Box>
         </Box>
 
         {/* Action Buttons */}
