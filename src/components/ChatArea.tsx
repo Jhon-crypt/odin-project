@@ -43,24 +43,7 @@ function ChatArea() {
         bgcolor: '#111111',
       }}
     >
-      {/* Thread Title */}
-      <Box
-        sx={{
-          px: 4,
-          py: 3,
-          borderBottom: '1px solid #333',
-        }}
-      >
-        <Typography
-          variant="h6"
-          sx={{
-            fontWeight: 'bold',
-            color: '#fff',
-          }}
-        >
-          Spaceship Crew Analysis
-        </Typography>
-      </Box>
+
 
       {/* Messages Area */}
       <Box
