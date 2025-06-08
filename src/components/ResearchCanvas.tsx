@@ -5,6 +5,7 @@ import {
   TextField,
   IconButton,
   Divider,
+  useMediaQuery,
 } from '@mui/material'
 import DescriptionIcon from '@mui/icons-material/Description'
 import EditIcon from '@mui/icons-material/Edit'
@@ -14,6 +15,7 @@ import { useState } from 'react'
 function ResearchCanvas() {
   const [isEditing, setIsEditing] = useState(false)
   const [documentTitle, setDocumentTitle] = useState('Spaceship Crew Psychology Analysis')
+  const isMobile = useMediaQuery('(max-width:767px)')
   const [documentContent, setDocumentContent] = useState(`# Spaceship Crew Psychology Analysis
 
 ## Executive Summary
@@ -76,35 +78,35 @@ Successful Mars mission crews require balanced leadership, structured conflict r
   return (
     <Box
       sx={{
-        width: { xs: '100vw', sm: '100%', lg: 400 },
+        width: '100%',
         height: '100vh',
         bgcolor: '#1a1a1a',
         borderLeft: '1px solid #333',
         display: 'flex',
         flexDirection: 'column',
         overflow: 'hidden',
-        position: { xs: 'fixed', lg: 'static' },
-        top: 0,
-        right: 0,
-        zIndex: { xs: 1000, lg: 'auto' },
       }}
     >
       {/* Header */}
       <Box sx={{ 
-        p: { xs: 2, md: 3 }, 
+        p: { xs: 1.5, sm: 2, md: 3 }, 
         borderBottom: '1px solid #333',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
+        flexShrink: 0,
       }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <DescriptionIcon sx={{ color: '#C0FF92', fontSize: 20 }} />
+          <DescriptionIcon sx={{ 
+            color: '#C0FF92', 
+            fontSize: { xs: 18, sm: 20 } 
+          }} />
           <Typography
             variant="h6"
             sx={{
               color: '#C0FF92',
               fontWeight: 'bold',
-              fontSize: { xs: '16px', md: '18px' },
+              fontSize: { xs: '14px', sm: '16px', md: '18px' },
             }}
           >
             Research Document
@@ -113,6 +115,7 @@ Successful Mars mission crews require balanced leadership, structured conflict r
         
         <IconButton
           onClick={() => isEditing ? handleSave() : setIsEditing(true)}
+          size={isMobile ? 'small' : 'medium'}
           sx={{
             color: '#C0FF92',
             bgcolor: 'transparent',
@@ -122,12 +125,20 @@ Successful Mars mission crews require balanced leadership, structured conflict r
             },
           }}
         >
-          {isEditing ? <SaveIcon /> : <EditIcon />}
+          {isEditing ? (
+            <SaveIcon sx={{ fontSize: { xs: 18, sm: 20 } }} />
+          ) : (
+            <EditIcon sx={{ fontSize: { xs: 18, sm: 20 } }} />
+          )}
         </IconButton>
       </Box>
 
       {/* Document Editor */}
-      <Box sx={{ flex: 1, overflow: 'auto' }}>
+      <Box sx={{ 
+        flex: 1, 
+        overflow: 'auto',
+        '-webkit-overflow-scrolling': 'touch',
+      }}>
         <Paper
           elevation={0}
           sx={{
@@ -145,13 +156,14 @@ Successful Mars mission crews require balanced leadership, structured conflict r
               variant="standard"
               sx={{
                 width: '100%',
-                px: { xs: 3, md: 4 },
-                pt: { xs: 3, md: 4 },
-                pb: 2,
+                px: { xs: 2, sm: 3, md: 4 },
+                pt: { xs: 2, sm: 3, md: 4 },
+                pb: { xs: 1.5, sm: 2 },
                 '& .MuiInputBase-root': {
                   color: '#fff',
-                  fontSize: { xs: '20px', md: '24px' },
+                  fontSize: { xs: '16px', sm: '18px', md: '24px' },
                   fontWeight: 'bold',
+                  lineHeight: 1.2,
                 },
                 '& .MuiInput-underline:before': {
                   borderBottomColor: '#333',
@@ -167,18 +179,23 @@ Successful Mars mission crews require balanced leadership, structured conflict r
               sx={{
                 color: '#fff',
                 fontWeight: 'bold',
-                fontSize: { xs: '20px', md: '24px' },
-                px: { xs: 3, md: 4 },
-                pt: { xs: 3, md: 4 },
-                pb: 2,
+                fontSize: { xs: '16px', sm: '18px', md: '24px' },
+                px: { xs: 2, sm: 3, md: 4 },
+                pt: { xs: 2, sm: 3, md: 4 },
+                pb: { xs: 1.5, sm: 2 },
                 lineHeight: 1.3,
+                wordBreak: 'break-word',
               }}
             >
               {documentTitle}
             </Typography>
           )}
 
-          <Divider sx={{ borderColor: '#333', mx: { xs: 3, md: 4 }, mb: 3 }} />
+          <Divider sx={{ 
+            borderColor: '#333', 
+            mx: { xs: 2, sm: 3, md: 4 }, 
+            mb: { xs: 2, sm: 3 } 
+          }} />
 
           {/* Document Content */}
           {isEditing ? (
@@ -189,13 +206,13 @@ Successful Mars mission crews require balanced leadership, structured conflict r
               variant="standard"
               sx={{
                 width: '100%',
-                px: { xs: 3, md: 4 },
-                pb: { xs: 3, md: 4 },
+                px: { xs: 2, sm: 3, md: 4 },
+                pb: { xs: 2, sm: 3, md: 4 },
                 '& .MuiInputBase-root': {
                   color: '#ccc',
-                  fontSize: { xs: '14px', md: '16px' },
-                  lineHeight: 1.8,
-                  fontFamily: '"JetBrains Mono", monospace',
+                  fontSize: { xs: '12px', sm: '14px', md: '16px' },
+                  lineHeight: { xs: 1.6, sm: 1.8 },
+                  fontFamily: '"JetBrains Mono", "Courier New", monospace',
                 },
                 '& .MuiInput-underline:before': {
                   display: 'none',
@@ -203,58 +220,58 @@ Successful Mars mission crews require balanced leadership, structured conflict r
                 '& .MuiInput-underline:after': {
                   display: 'none',
                 },
+                '& .MuiInputBase-input': {
+                  resize: 'none',
+                },
+              }}
+              InputProps={{
+                disableUnderline: true,
               }}
             />
           ) : (
             <Box
               sx={{
-                px: { xs: 3, md: 4 },
-                pb: { xs: 3, md: 4 },
-                color: '#ccc',
-                fontSize: { xs: '14px', md: '16px' },
-                lineHeight: 1.8,
-                '& h1': {
-                  color: '#C0FF92',
-                  fontSize: { xs: '18px', md: '20px' },
-                  fontWeight: 'bold',
-                  mb: 2,
-                  mt: 3,
-                },
-                '& h2': {
-                  color: '#fff',
-                  fontSize: { xs: '16px', md: '18px' },
-                  fontWeight: 'bold',
-                  mb: 2,
-                  mt: 3,
-                },
-                '& p': {
-                  mb: 2,
-                  color: '#ccc',
-                },
-                '& ul, & ol': {
-                  pl: 3,
-                  mb: 2,
-                },
-                '& li': {
-                  mb: 1,
-                  color: '#ccc',
-                },
-                '& hr': {
-                  borderColor: '#333',
-                  my: 3,
-                },
+                px: { xs: 2, sm: 3, md: 4 },
+                pb: { xs: 2, sm: 3, md: 4 },
               }}
-              dangerouslySetInnerHTML={{
-                __html: documentContent
-                  .replace(/^# (.*$)/gim, '<h1>$1</h1>')
-                  .replace(/^## (.*$)/gim, '<h2>$1</h2>')
-                  .replace(/^- (.*$)/gim, '<li>$1</li>')
-                  .replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>')
-                  .replace(/\n\n/g, '</p><p>')
-                  .replace(/^([^<].*$)/gim, '<p>$1</p>')
-                  .replace(/---/g, '<hr>')
-              }}
-            />
+            >
+              <Typography
+                component="div"
+                sx={{
+                  color: '#ccc',
+                  fontSize: { xs: '12px', sm: '14px', md: '16px' },
+                  lineHeight: { xs: 1.6, sm: 1.8 },
+                  whiteSpace: 'pre-wrap',
+                  wordBreak: 'break-word',
+                  '& h1, & h2, & h3': {
+                    color: '#fff',
+                    marginTop: { xs: '16px', sm: '24px' },
+                    marginBottom: { xs: '8px', sm: '12px' },
+                    fontSize: { xs: '14px', sm: '16px', md: '18px' },
+                    fontWeight: 'bold',
+                  },
+                  '& h1': {
+                    fontSize: { xs: '16px', sm: '18px', md: '22px' },
+                    color: '#C0FF92',
+                  },
+                  '& h2': {
+                    fontSize: { xs: '14px', sm: '16px', md: '20px' },
+                  },
+                  '& ul, & ol': {
+                    paddingLeft: { xs: '16px', sm: '24px' },
+                    marginBottom: { xs: '12px', sm: '16px' },
+                  },
+                  '& li': {
+                    marginBottom: { xs: '4px', sm: '6px' },
+                  },
+                  '& p': {
+                    marginBottom: { xs: '12px', sm: '16px' },
+                  },
+                }}
+              >
+                {documentContent}
+              </Typography>
+            </Box>
           )}
         </Paper>
       </Box>

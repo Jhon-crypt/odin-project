@@ -36,32 +36,31 @@ function Sidebar({ activeProject }: SidebarProps) {
   return (
     <Box
       sx={{
-        width: { xs: '100vw', sm: 320, md: 280, lg: 280 },
+        width: '100%',
         height: '100vh',
         bgcolor: '#1a1a1a',
         display: 'flex',
         flexDirection: 'column',
         borderRight: '1px solid #333',
-        position: { xs: 'fixed', md: 'static' },
-        top: 0,
-        left: 0,
-        zIndex: { xs: 1000, md: 'auto' },
+        overflow: 'hidden',
       }}
     >
       {/* Logo & Workspace */}
       <Box
         sx={{
-          p: 3,
+          p: { xs: 2, sm: 3 },
           borderBottom: '1px solid #333',
+          flexShrink: 0,
         }}
       >
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-          <Typography sx={{ fontSize: '24px' }}>🔬</Typography>
+          <Typography sx={{ fontSize: { xs: '20px', sm: '24px' } }}>🔬</Typography>
           <Typography
             variant="h6"
             sx={{
               fontWeight: 'bold',
               color: '#fff',
+              fontSize: { xs: '16px', sm: '18px' },
             }}
           >
             Odin Research
@@ -70,7 +69,7 @@ function Sidebar({ activeProject }: SidebarProps) {
       </Box>
 
       {/* General Section */}
-      <Box sx={{ px: 2, py: 3 }}>
+      <Box sx={{ px: { xs: 1, sm: 2 }, py: { xs: 2, sm: 3 }, flexShrink: 0 }}>
         <Typography
           variant="caption"
           sx={{
@@ -81,6 +80,7 @@ function Sidebar({ activeProject }: SidebarProps) {
             px: 2,
             mb: 1,
             display: 'block',
+            fontSize: { xs: '10px', sm: '11px' },
           }}
         >
           General
@@ -91,18 +91,19 @@ function Sidebar({ activeProject }: SidebarProps) {
             sx={{
               borderRadius: '8px',
               mx: 1,
+              py: { xs: 1, sm: 1.5 },
               '&:hover': {
                 bgcolor: '#333',
               },
             }}
           >
-            <ListItemIcon sx={{ minWidth: 36 }}>
-              <SearchIcon sx={{ color: '#888', fontSize: 20 }} />
+            <ListItemIcon sx={{ minWidth: { xs: 32, sm: 36 } }}>
+              <SearchIcon sx={{ color: '#888', fontSize: { xs: 18, sm: 20 } }} />
             </ListItemIcon>
             <ListItemText
               primary="Search"
               primaryTypographyProps={{
-                fontSize: '14px',
+                fontSize: { xs: '13px', sm: '14px' },
                 color: '#ccc',
               }}
             />
@@ -112,18 +113,19 @@ function Sidebar({ activeProject }: SidebarProps) {
             sx={{
               borderRadius: '8px',
               mx: 1,
+              py: { xs: 1, sm: 1.5 },
               '&:hover': {
                 bgcolor: '#333',
               },
             }}
           >
-            <ListItemIcon sx={{ minWidth: 36 }}>
-              <BillingIcon sx={{ color: '#888', fontSize: 20 }} />
+            <ListItemIcon sx={{ minWidth: { xs: 32, sm: 36 } }}>
+              <BillingIcon sx={{ color: '#888', fontSize: { xs: 18, sm: 20 } }} />
             </ListItemIcon>
             <ListItemText
               primary="Billing"
               primaryTypographyProps={{
-                fontSize: '14px',
+                fontSize: { xs: '13px', sm: '14px' },
                 color: '#ccc',
               }}
             />
@@ -134,19 +136,20 @@ function Sidebar({ activeProject }: SidebarProps) {
             sx={{
               borderRadius: '8px',
               mx: 1,
+              py: { xs: 1, sm: 1.5 },
               cursor: 'pointer',
               '&:hover': {
                 bgcolor: '#333',
               },
             }}
           >
-            <ListItemIcon sx={{ minWidth: 36 }}>
-              <PersonIcon sx={{ color: '#888', fontSize: 20 }} />
+            <ListItemIcon sx={{ minWidth: { xs: 32, sm: 36 } }}>
+              <PersonIcon sx={{ color: '#888', fontSize: { xs: 18, sm: 20 } }} />
             </ListItemIcon>
             <ListItemText
               primary="Profile"
               primaryTypographyProps={{
-                fontSize: '14px',
+                fontSize: { xs: '13px', sm: '14px' },
                 color: '#ccc',
               }}
             />
@@ -157,7 +160,7 @@ function Sidebar({ activeProject }: SidebarProps) {
       <Divider sx={{ borderColor: '#333', mx: 2 }} />
 
       {/* Projects Section */}
-      <Box sx={{ px: 2, py: 3, flex: 1 }}>
+      <Box sx={{ px: { xs: 1, sm: 2 }, py: { xs: 2, sm: 3 }, flex: 1, overflow: 'auto' }}>
         <Typography
           variant="caption"
           sx={{
@@ -168,6 +171,7 @@ function Sidebar({ activeProject }: SidebarProps) {
             px: 2,
             mb: 1,
             display: 'block',
+            fontSize: { xs: '10px', sm: '11px' },
           }}
         >
           Projects
@@ -180,6 +184,7 @@ function Sidebar({ activeProject }: SidebarProps) {
               sx={{
                 borderRadius: '8px',
                 mx: 1,
+                py: { xs: 1, sm: 1.5 },
                 bgcolor: project === activeProject ? '#C0FF92' : 'transparent',
                 color: project === activeProject ? '#000' : '#ccc',
                 '&:hover': {
@@ -187,18 +192,18 @@ function Sidebar({ activeProject }: SidebarProps) {
                 },
               }}
             >
-              <ListItemIcon sx={{ minWidth: 36 }}>
+              <ListItemIcon sx={{ minWidth: { xs: 32, sm: 36 } }}>
                 <ProjectIcon
                   sx={{
                     color: project === activeProject ? '#000' : '#888',
-                    fontSize: 20,
+                    fontSize: { xs: 18, sm: 20 },
                   }}
                 />
               </ListItemIcon>
               <ListItemText
                 primary={project}
                 primaryTypographyProps={{
-                  fontSize: '14px',
+                  fontSize: { xs: '13px', sm: '14px' },
                   fontWeight: project === activeProject ? 'bold' : 'normal',
                 }}
               />
@@ -206,66 +211,78 @@ function Sidebar({ activeProject }: SidebarProps) {
           ))}
         </List>
 
-        {/* Add New Project Button */}
-        <Button
-          startIcon={<AddIcon />}
-          sx={{
-            mt: 2,
-            mx: 1,
-            color: '#888',
-            justifyContent: 'flex-start',
-            textTransform: 'none',
-            '&:hover': {
-              bgcolor: '#333',
-              color: '#C0FF92',
-            },
-          }}
-          fullWidth
-        >
-          Add new project
-        </Button>
+        {/* Add Project Button */}
+        <Box sx={{ mt: 2, px: 1 }}>
+          <Button
+            startIcon={<AddIcon sx={{ fontSize: { xs: 16, sm: 18 } }} />}
+            fullWidth
+            variant="outlined"
+            size="small"
+            sx={{
+              borderColor: '#333',
+              color: '#ccc',
+              textTransform: 'none',
+              justifyContent: 'flex-start',
+              fontSize: { xs: '13px', sm: '14px' },
+              py: { xs: 1, sm: 1.5 },
+              '&:hover': {
+                borderColor: '#C0FF92',
+                color: '#C0FF92',
+                bgcolor: 'rgba(192, 255, 146, 0.1)',
+              },
+            }}
+          >
+            Add Project
+          </Button>
+        </Box>
       </Box>
 
-      {/* Current User Profile */}
+      {/* User Profile at Bottom */}
       <Box
         sx={{
-          p: 3,
+          p: { xs: 2, sm: 3 },
           borderTop: '1px solid #333',
-          display: 'flex',
-          alignItems: 'center',
-          gap: 2,
+          flexShrink: 0,
         }}
       >
-        <Avatar
-          sx={{
-            width: 36,
-            height: 36,
-            bgcolor: '#C0FF92',
-            color: '#000',
-            fontSize: '14px',
-            fontWeight: 'bold',
-          }}
-        >
-          JD
-        </Avatar>
-        <Box sx={{ flex: 1 }}>
-          <Typography
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <Avatar
             sx={{
-              color: '#fff',
-              fontSize: '14px',
+              width: { xs: 32, sm: 36 },
+              height: { xs: 32, sm: 36 },
+              bgcolor: '#C0FF92',
+              color: '#000',
+              fontSize: { xs: '12px', sm: '14px' },
               fontWeight: 'bold',
             }}
           >
-            John Doe
-          </Typography>
-          <Typography
-            sx={{
-              color: '#888',
-              fontSize: '12px',
-            }}
-          >
-            john@example.com
-          </Typography>
+            EL
+          </Avatar>
+          <Box sx={{ flex: 1, minWidth: 0 }}>
+            <Typography
+              sx={{
+                color: '#fff',
+                fontSize: { xs: '13px', sm: '14px' },
+                fontWeight: 'bold',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              Emily Liu
+            </Typography>
+            <Typography
+              sx={{
+                color: '#888',
+                fontSize: { xs: '11px', sm: '12px' },
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              emily@research.ai
+            </Typography>
+          </Box>
         </Box>
       </Box>
     </Box>

@@ -18,8 +18,12 @@ import ResearchCanvas from '../components/ResearchCanvas'
 function Dashboard() {
   const [leftDrawerOpen, setLeftDrawerOpen] = useState(false)
   const [rightDrawerOpen, setRightDrawerOpen] = useState(false)
-  const isLargeScreen = useMediaQuery('(min-width:1200px)')
-  const isMediumScreen = useMediaQuery('(min-width:900px)')
+  
+  // Better breakpoint handling
+  const isMobile = useMediaQuery('(max-width:767px)')
+  const isDesktop = useMediaQuery('(min-width:1024px)')
+  const isLargeDesktop = useMediaQuery('(min-width:1200px)')
+
   const theme = createTheme({
     palette: {
       mode: 'dark',
@@ -34,6 +38,15 @@ function Dashboard() {
     typography: {
       fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
     },
+    breakpoints: {
+      values: {
+        xs: 0,
+        sm: 600,
+        md: 768,
+        lg: 1024,
+        xl: 1200,
+      },
+    },
   })
 
   return (
@@ -43,29 +56,29 @@ function Dashboard() {
         sx={{
           display: 'flex',
           height: '100vh',
+          width: '100vw',
           overflow: 'hidden',
           bgcolor: '#111111',
-          flexDirection: { xs: 'column', lg: 'row' },
+          flexDirection: 'row',
+          position: 'relative',
         }}
       >
-        {/* Mobile Navigation Buttons */}
-        {!isMediumScreen && (
-          <Box
-            sx={{
-              position: 'fixed',
-              top: 16,
-              left: 16,
-              zIndex: 1100,
-              display: 'flex',
-              gap: 1,
-            }}
-          >
+        {/* Mobile FAB Navigation */}
+        {isMobile && (
+          <>
             <IconButton
               onClick={() => setLeftDrawerOpen(true)}
               sx={{
+                position: 'fixed',
+                top: 16,
+                left: 16,
+                zIndex: 1300,
                 bgcolor: '#1a1a1a',
                 color: '#C0FF92',
                 border: '1px solid #333',
+                width: 48,
+                height: 48,
+                boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
                 '&:hover': {
                   bgcolor: '#333',
                 },
@@ -73,24 +86,19 @@ function Dashboard() {
             >
               <MenuIcon />
             </IconButton>
-          </Box>
-        )}
-
-        {!isLargeScreen && (
-          <Box
-            sx={{
-              position: 'fixed',
-              top: 16,
-              right: 16,
-              zIndex: 1100,
-            }}
-          >
             <IconButton
               onClick={() => setRightDrawerOpen(true)}
               sx={{
+                position: 'fixed',
+                top: 16,
+                right: 16,
+                zIndex: 1300,
                 bgcolor: '#1a1a1a',
                 color: '#C0FF92',
                 border: '1px solid #333',
+                width: 48,
+                height: 48,
+                boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
                 '&:hover': {
                   bgcolor: '#333',
                 },
@@ -98,12 +106,19 @@ function Dashboard() {
             >
               <DescriptionIcon />
             </IconButton>
-          </Box>
+          </>
         )}
 
-        {/* Left Sidebar - Hidden on mobile, drawer on mobile */}
-        {isMediumScreen ? (
-          <Box>
+        {/* Left Sidebar */}
+        {isDesktop ? (
+          <Box
+            sx={{
+              width: 280,
+              flexShrink: 0,
+              height: '100vh',
+              overflow: 'hidden',
+            }}
+          >
             <Sidebar activeProject="AI Research Papers" />
           </Box>
         ) : (
@@ -111,8 +126,13 @@ function Dashboard() {
             anchor="left"
             open={leftDrawerOpen}
             onClose={() => setLeftDrawerOpen(false)}
+            ModalProps={{
+              keepMounted: true, // Better open performance on mobile
+            }}
             PaperProps={{
               sx: {
+                width: isMobile ? '85vw' : '320px',
+                maxWidth: '320px',
                 bgcolor: '#1a1a1a',
                 borderRight: '1px solid #333',
               },
@@ -129,22 +149,46 @@ function Dashboard() {
             display: 'flex',
             flexDirection: 'column',
             overflow: 'hidden',
-            minWidth: 0, // Prevents flex overflow
+            minWidth: 0,
+            width: '100%',
+            height: '100vh',
           }}
         >
           {/* Top Header */}
-          <ProjectHeader
-            projectTitle="AI Research Papers"
-            projectSubtitle="Collaborative analysis of machine learning publications"
-          />
+          <Box
+            sx={{
+              flexShrink: 0,
+              width: '100%',
+            }}
+          >
+            <ProjectHeader
+              projectTitle="AI Research Papers"
+              projectSubtitle="Collaborative analysis of machine learning publications"
+            />
+          </Box>
 
           {/* Chat Area */}
-          <ChatArea />
+          <Box
+            sx={{
+              flex: 1,
+              overflow: 'hidden',
+              width: '100%',
+            }}
+          >
+            <ChatArea />
+          </Box>
         </Box>
 
-        {/* Right Sidebar - Hidden on mobile and tablet, drawer on tablet */}
-        {isLargeScreen ? (
-          <Box>
+        {/* Right Sidebar */}
+        {isLargeDesktop ? (
+          <Box
+            sx={{
+              width: 400,
+              flexShrink: 0,
+              height: '100vh',
+              overflow: 'hidden',
+            }}
+          >
             <ResearchCanvas />
           </Box>
         ) : (
@@ -152,8 +196,13 @@ function Dashboard() {
             anchor="right"
             open={rightDrawerOpen}
             onClose={() => setRightDrawerOpen(false)}
+            ModalProps={{
+              keepMounted: true,
+            }}
             PaperProps={{
               sx: {
+                width: isMobile ? '90vw' : '400px',
+                maxWidth: isMobile ? '90vw' : '400px',
                 bgcolor: '#1a1a1a',
                 borderLeft: '1px solid #333',
               },
