@@ -3,12 +3,9 @@ import {
   createTheme,
   CssBaseline,
   Box,
-  IconButton,
   useMediaQuery,
   Drawer,
 } from '@mui/material'
-import MenuIcon from '@mui/icons-material/Menu'
-import DescriptionIcon from '@mui/icons-material/Description'
 import { useState } from 'react'
 import Sidebar from '../components/Sidebar'
 import ProjectHeader from '../components/ProjectHeader'
@@ -63,58 +60,6 @@ function Dashboard() {
           position: 'relative',
         }}
       >
-        {/* Mobile FAB Navigation - Positioned to avoid header overlap */}
-        {isMobile && (
-          <>
-            <IconButton
-              onClick={() => setLeftDrawerOpen(true)}
-              sx={{
-                position: 'fixed',
-                top: { xs: 72, sm: 80 },
-                left: { xs: 16, sm: 20 },
-                zIndex: 1400,
-                bgcolor: '#1a1a1a',
-                color: '#C0FF92',
-                border: '1px solid #333',
-                width: { xs: 40, sm: 48 },
-                height: { xs: 40, sm: 48 },
-                boxShadow: '0 4px 12px rgba(0,0,0,0.4)',
-                backdropFilter: 'blur(8px)',
-                '&:hover': {
-                  bgcolor: '#333',
-                  transform: 'scale(1.05)',
-                },
-                transition: 'all 0.2s ease-in-out',
-              }}
-            >
-              <MenuIcon sx={{ fontSize: { xs: 18, sm: 20 } }} />
-            </IconButton>
-            <IconButton
-              onClick={() => setRightDrawerOpen(true)}
-              sx={{
-                position: 'fixed',
-                top: { xs: 72, sm: 80 },
-                right: { xs: 16, sm: 20 },
-                zIndex: 1400,
-                bgcolor: '#1a1a1a',
-                color: '#C0FF92',
-                border: '1px solid #333',
-                width: { xs: 40, sm: 48 },
-                height: { xs: 40, sm: 48 },
-                boxShadow: '0 4px 12px rgba(0,0,0,0.4)',
-                backdropFilter: 'blur(8px)',
-                '&:hover': {
-                  bgcolor: '#333',
-                  transform: 'scale(1.05)',
-                },
-                transition: 'all 0.2s ease-in-out',
-              }}
-            >
-              <DescriptionIcon sx={{ fontSize: { xs: 18, sm: 20 } }} />
-            </IconButton>
-          </>
-        )}
-
         {/* Left Sidebar */}
         {isDesktop ? (
           <Box
@@ -170,6 +115,8 @@ function Dashboard() {
             <ProjectHeader
               projectTitle="AI Research Papers"
               projectSubtitle="Collaborative analysis of machine learning publications"
+              onLeftMenuClick={() => setLeftDrawerOpen(true)}
+              onRightMenuClick={() => setRightDrawerOpen(true)}
             />
           </Box>
 
