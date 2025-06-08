@@ -87,7 +87,7 @@ function ProjectHeader({
               gap: 1,
             }}
           >
-            {/* Left side: Avatars and Menu Buttons */}
+            {/* Left side: Menu Buttons and Avatars */}
             <Box
               sx={{
                 display: 'flex',
@@ -96,23 +96,7 @@ function ProjectHeader({
                 flex: 1,
               }}
             >
-              <AvatarGroup
-                max={3}
-                sx={{
-                  '& .MuiAvatar-root': {
-                    width: { xs: 20, sm: 24 },
-                    height: { xs: 20, sm: 24 },
-                    border: '1.5px solid #333',
-                    fontSize: { xs: '8px', sm: '10px' },
-                  },
-                }}
-              >
-                {teamMembers.map((avatar, index) => (
-                  <Avatar key={index} src={avatar} />
-                ))}
-              </AvatarGroup>
-
-              {/* Menu FAB Buttons integrated into the row */}
+              {/* Menu FAB Buttons first */}
               <IconButton
                 onClick={onLeftMenuClick}
                 sx={{
@@ -121,7 +105,6 @@ function ProjectHeader({
                   border: '1px solid #333',
                   width: { xs: 32, sm: 36 },
                   height: { xs: 32, sm: 36 },
-                  ml: 0.5,
                   '&:hover': {
                     bgcolor: '#333',
                     transform: 'scale(1.05)',
@@ -140,6 +123,7 @@ function ProjectHeader({
                   border: '1px solid #333',
                   width: { xs: 32, sm: 36 },
                   height: { xs: 32, sm: 36 },
+                  mr: 0.5,
                   '&:hover': {
                     bgcolor: '#333',
                     transform: 'scale(1.05)',
@@ -149,6 +133,23 @@ function ProjectHeader({
               >
                 <DescriptionIcon sx={{ fontSize: { xs: 16, sm: 18 } }} />
               </IconButton>
+
+              {/* Avatars after the buttons */}
+              <AvatarGroup
+                max={3}
+                sx={{
+                  '& .MuiAvatar-root': {
+                    width: { xs: 20, sm: 24 },
+                    height: { xs: 20, sm: 24 },
+                    border: '1.5px solid #333',
+                    fontSize: { xs: '8px', sm: '10px' },
+                  },
+                }}
+              >
+                {teamMembers.map((avatar, index) => (
+                  <Avatar key={index} src={avatar} />
+                ))}
+              </AvatarGroup>
             </Box>
 
             {/* Right side: Share Button */}
