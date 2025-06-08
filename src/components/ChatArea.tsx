@@ -11,6 +11,7 @@ import {
 import {
   Refresh as RefreshIcon,
   Edit as EditIcon,
+  Add as AddIcon,
   Mic as MicIcon,
   EmojiEmotions as EmojiIcon,
   Send as SendIcon,
@@ -242,6 +243,25 @@ function ChatArea() {
                   }}
                 >
                   Modify
+                </Button>
+
+                <Button
+                  startIcon={<AddIcon />}
+                  variant="contained"
+                  size="small"
+                  sx={{
+                    bgcolor: '#C0FF92',
+                    color: '#000',
+                    textTransform: 'none',
+                    fontSize: { xs: '11px', md: '12px' },
+                    py: { xs: 0.75, md: 1 },
+                    fontWeight: 'bold',
+                    '&:hover': {
+                      bgcolor: '#A8E87C',
+                    },
+                  }}
+                >
+                  Add to Canvas
                 </Button>
               </Box>
             </Box>
