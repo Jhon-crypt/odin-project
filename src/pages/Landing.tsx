@@ -12,6 +12,8 @@ import {
   Checkbox,
   FormControlLabel,
   useMediaQuery,
+  Paper,
+  Alert,
 } from '@mui/material'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -21,10 +23,10 @@ function Landing() {
   const [currentView, setCurrentView] = useState('landing') // 'landing', 'login', 'signup'
   const navigate = useNavigate()
   const isMobile = useMediaQuery('(max-width:767px)')
-  const [showSignup, setShowSignup] = useState(false)
+  const [showInviteForm, setShowInviteForm] = useState(false)
   const [email, setEmail] = useState('')
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [submitMessage, setSubmitMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
+  const [submitted, setSubmitted] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const theme = createTheme({
     palette: {
@@ -69,22 +71,17 @@ function Landing() {
     navigate('/dashboard')
   }
 
-  const handleEmailSubmit = async (e: React.FormEvent) => {
+  const handleInviteRequest = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!email.trim()) return
 
-    setIsSubmitting(true)
-    setSubmitMessage(null)
-
     try {
-      // TODO: Integrate with your Supabase backend
+      // TODO: Implement the actual invite request API call
       await new Promise(resolve => setTimeout(resolve, 1000)) // Simulated API call
-      setSubmitMessage({ type: 'success', text: 'Thank you! We\'ll notify you when your invitation is ready.' })
-      setEmail('')
+      setSubmitted(true)
+      setError(null)
     } catch {
-      setSubmitMessage({ type: 'error', text: 'Something went wrong. Please try again.' })
-    } finally {
-      setIsSubmitting(false)
+      setError('Failed to submit invitation request. Please try again.')
     }
   }
 
@@ -198,145 +195,63 @@ function Landing() {
                   </Typography>
                 </Box>
 
-                {/* Action Buttons or Signup Form */}
-                <Box
-                  sx={{
-                    display: 'flex',
-                    flexDirection: { xs: 'column', sm: 'row' },
-                    gap: { xs: 1.5, sm: 2 },
-                    width: '100%',
-                    maxWidth: '400px',
-                    alignItems: 'stretch',
-                  }}
-                >
-                  {!showSignup ? (
-                    <>
-                      <Button
-                        variant="contained"
-                        onClick={() => setShowSignup(true)}
-                        sx={{
-                          bgcolor: '#C0FF92',
-                          color: '#111111',
-                          py: { xs: 1.5, sm: 1.75 },
-                          fontSize: { xs: '0.9rem', sm: '1rem' },
-                          '&:hover': {
-                            bgcolor: '#a8ff66',
-                          },
-                        }}
-                      >
-                        Get Started
-                      </Button>
-                      <Button
-                        variant="outlined"
-                        onClick={() => setCurrentView('login')}
-                        sx={{
-                          borderColor: '#333',
-                          color: '#ffffff',
-                          py: { xs: 1.5, sm: 1.75 },
-                          fontSize: { xs: '0.9rem', sm: '1rem' },
-                          '&:hover': {
-                            borderColor: '#555',
-                          },
-                        }}
-                      >
-                        Login
-                      </Button>
-                    </>
-                  ) : (
-                    <Box
-                      component="form"
-                      onSubmit={handleEmailSubmit}
-                      sx={{
-                        width: '100%',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: 2,
-                      }}
-                    >
-                      <Typography
-                        sx={{
-                          color: '#C0FF92',
-                          fontSize: { xs: '0.9rem', sm: '1rem' },
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 1,
-                          justifyContent: 'center',
-                        }}
-                      >
-                        <AiIcon /> Request Early Access
-                      </Typography>
-                      <TextField
-                        fullWidth
-                        type="email"
-                        placeholder="Enter your email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                        sx={{
-                          '& .MuiOutlinedInput-root': {
-                            bgcolor: 'rgba(255,255,255,0.05)',
-                            '& fieldset': {
-                              borderColor: '#333',
-                            },
-                            '&:hover fieldset': {
-                              borderColor: '#555',
-                            },
-                            '&.Mui-focused fieldset': {
-                              borderColor: '#C0FF92',
-                            },
-                          },
-                          '& input': {
-                            color: '#fff',
-                          },
-                        }}
-                      />
-                      <Box sx={{ display: 'flex', gap: 2 }}>
-                        <Button
-                          type="submit"
-                          variant="contained"
-                          disabled={isSubmitting}
-                          sx={{
-                            flex: 1,
-                            bgcolor: '#C0FF92',
-                            color: '#111111',
-                            '&:hover': {
-                              bgcolor: '#a8ff66',
-                            },
-                          }}
-                        >
-                          {isSubmitting ? 'Submitting...' : 'Submit'}
-                        </Button>
-                        <Button
-                          onClick={() => {
-                            setShowSignup(false)
-                            setSubmitMessage(null)
-                          }}
-                          variant="outlined"
-                          sx={{
-                            flex: 1,
-                            borderColor: '#333',
-                            color: '#ffffff',
-                            '&:hover': {
-                              borderColor: '#555',
-                            },
-                          }}
-                        >
-                          Cancel
-                        </Button>
-                      </Box>
-                      {submitMessage && (
-                        <Typography
-                          sx={{
-                            color: submitMessage.type === 'success' ? '#C0FF92' : '#ff6b6b',
-                            fontSize: '0.9rem',
-                            textAlign: 'center',
-                          }}
-                        >
-                          {submitMessage.text}
-                        </Typography>
-                      )}
-                    </Box>
-                  )}
+                {/* Action Buttons */}
+                <Box sx={{ 
+                  display: 'flex', 
+                  gap: { xs: 1.5, sm: 2 },
+                  flexDirection: { xs: 'column', sm: 'row' },
+                  width: '100%',
+                  maxWidth: { xs: '300px', sm: '400px' },
+                  justifyContent: 'center',
+                  alignItems: 'stretch',
+                }}>
+                  <Button
+                    variant="contained"
+                    onClick={() => setShowInviteForm(true)}
+                    sx={{
+                      bgcolor: '#C0FF92',
+                      color: '#000',
+                      fontWeight: 'bold',
+                      fontSize: { xs: '0.85rem', sm: '0.9rem', md: '0.95rem', lg: '1rem' },
+                      px: { xs: 2.5, sm: 3, md: 3.5, lg: 4 },
+                      py: { xs: 1.5, sm: 1.375, md: 1.5 },
+                      borderRadius: { xs: '8px', sm: '10px', md: '12px' },
+                      textTransform: 'none',
+                      minHeight: { xs: '48px', sm: '44px', md: '48px' },
+                      flex: { xs: 1, sm: 'none' },
+                      minWidth: { xs: 'auto', sm: '130px', md: '140px' },
+                      '&:hover': {
+                        bgcolor: '#A8E67A',
+                      },
+                    }}
+                  >
+                    Get Started
+                  </Button>
+                  
+                  <Button
+                    variant="outlined"
+                    onClick={() => setCurrentView('login')}
+                    sx={{
+                      borderColor: '#C0FF92',
+                      color: '#C0FF92',
+                      fontWeight: 'bold',
+                      fontSize: { xs: '0.85rem', sm: '0.9rem', md: '0.95rem', lg: '1rem' },
+                      px: { xs: 2.5, sm: 3, md: 3.5, lg: 4 },
+                      py: { xs: 1.5, sm: 1.375, md: 1.5 },
+                      borderRadius: { xs: '8px', sm: '10px', md: '12px' },
+                      textTransform: 'none',
+                      minHeight: { xs: '48px', sm: '44px', md: '48px' },
+                      flex: { xs: 1, sm: 'none' },
+                      minWidth: { xs: 'auto', sm: '130px', md: '140px' },
+                      '&:hover': {
+                        borderColor: '#A8E67A',
+                        color: '#A8E67A',
+                        bgcolor: 'rgba(192, 255, 146, 0.1)',
+                      },
+                    }}
+                  >
+                    Login
+                  </Button>
                 </Box>
 
                 {/* Additional Info */}
@@ -785,6 +700,99 @@ function Landing() {
                   </Button>
                 </Box>
               </>
+            )}
+
+            {/* Invitation Request Form */}
+            {showInviteForm && !submitted && (
+              <Paper
+                sx={{
+                  bgcolor: '#1a1a1a',
+                  p: 3,
+                  maxWidth: '400px',
+                  width: '100%',
+                  mb: 4,
+                  border: '1px solid #333',
+                }}
+              >
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                  <AiIcon sx={{ color: '#C0FF92' }} />
+                  <Typography sx={{ color: '#C0FF92', fontWeight: 500 }}>
+                    Request an Invitation
+                  </Typography>
+                </Box>
+                <form onSubmit={handleInviteRequest}>
+                  <TextField
+                    fullWidth
+                    type="email"
+                    label="Email Address"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    sx={{
+                      mb: 2,
+                      '& .MuiOutlinedInput-root': {
+                        color: '#fff',
+                        '& fieldset': {
+                          borderColor: '#333',
+                        },
+                        '&:hover fieldset': {
+                          borderColor: '#444',
+                        },
+                        '&.Mui-focused fieldset': {
+                          borderColor: '#C0FF92',
+                        },
+                      },
+                      '& .MuiInputLabel-root': {
+                        color: '#888',
+                        '&.Mui-focused': {
+                          color: '#C0FF92',
+                        },
+                      },
+                    }}
+                  />
+                  {error && (
+                    <Alert severity="error" sx={{ mb: 2 }}>
+                      {error}
+                    </Alert>
+                  )}
+                  <Button
+                    type="submit"
+                    variant="contained"
+                    fullWidth
+                    sx={{
+                      bgcolor: '#C0FF92',
+                      color: '#111',
+                      '&:hover': {
+                        bgcolor: '#a8ff66',
+                      },
+                    }}
+                  >
+                    Request Invitation
+                  </Button>
+                </form>
+              </Paper>
+            )}
+
+            {/* Success Message */}
+            {submitted && (
+              <Paper
+                sx={{
+                  bgcolor: '#1a1a1a',
+                  p: 3,
+                  maxWidth: '400px',
+                  width: '100%',
+                  mb: 4,
+                  border: '1px solid #333',
+                  textAlign: 'center',
+                }}
+              >
+                <Typography sx={{ color: '#C0FF92', fontWeight: 500, mb: 1 }}>
+                  Thank you for your interest!
+                </Typography>
+                <Typography sx={{ color: '#ccc', fontSize: '0.95rem' }}>
+                  We've received your invitation request. We'll notify you when access becomes available.
+                </Typography>
+              </Paper>
             )}
           </Box>
 
