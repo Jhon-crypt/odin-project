@@ -16,59 +16,55 @@ function ResearchCanvas() {
   const [isEditing, setIsEditing] = useState(false)
   const [documentTitle, setDocumentTitle] = useState('Spaceship Crew Psychology Analysis')
   const isMobile = useMediaQuery('(max-width:767px)')
-  const [documentContent, setDocumentContent] = useState(`# Spaceship Crew Psychology Analysis
+  const [documentContent, setDocumentContent] = useState(`Spaceship Crew Psychology Analysis
 
-## Executive Summary
+Executive Summary
 
 This comprehensive analysis examines the psychological dynamics, leadership structures, and team cohesion strategies essential for successful long-duration Mars missions.
 
-## 1. Leadership Structures in Space Missions
+1. Leadership Structures in Space Missions
 
 Clear command hierarchies are essential for Mars missions. Research indicates that successful long-duration missions require both formal authority structures and informal leadership emergence mechanisms.
 
 Key considerations:
-- Establish clear chain of command before mission launch
-- Allow for situational leadership flexibility
-- Implement regular leadership assessment protocols
-- Balance autocratic and democratic decision-making styles
+• Establish clear chain of command before mission launch
+• Allow for situational leadership flexibility
+• Implement regular leadership assessment protocols
+• Balance autocratic and democratic decision-making styles
 
-## 2. Psychological Dynamics in Isolated Environments
+2. Psychological Dynamics in Isolated Environments
 
 Crew psychology in isolated environments shows predictable patterns: initial excitement, reality adjustment, potential conflict periods, and stabilization phases.
 
 Mission phases typically include:
-- Honeymoon phase (weeks 1-4)
-- Reality adjustment (months 2-6)
-- Potential conflict period (months 6-12)
-- Stabilization and adaptation (months 12+)
+• Honeymoon phase (weeks 1-4)
+• Reality adjustment (months 2-6)
+• Potential conflict period (months 6-12)
+• Stabilization and adaptation (months 12+)
 
-## 3. Conflict Resolution Protocols
+3. Conflict Resolution Protocols
 
 Implementation of structured communication protocols and private retreat spaces significantly reduces interpersonal tensions in confined environments.
 
 Recommended strategies:
-- Weekly one-on-one counseling sessions
-- Structured conflict mediation processes
-- Private communication channels with Earth
-- Regular team building exercises
+• Weekly one-on-one counseling sessions
+• Structured conflict mediation processes
+• Private communication channels with Earth
+• Regular team building exercises
 
-## 4. Team Cohesion Maintenance
+4. Team Cohesion Maintenance
 
 Regular group activities, shared goals, and rotation of responsibilities help maintain social bonds during extended isolation periods.
 
 Effective approaches:
-- Rotating meal preparation duties
-- Collaborative research projects
-- Recreational activities and games
-- Celebration of personal milestones
+• Rotating meal preparation duties
+• Collaborative research projects
+• Recreational activities and games
+• Celebration of personal milestones
 
-## Conclusions
+Conclusions
 
-Successful Mars mission crews require balanced leadership, structured conflict resolution, regular psychological support, and deliberate team cohesion activities to maintain effectiveness during extended isolation.
-
----
-
-*Document last updated: ${new Date().toLocaleString()}*`)
+Successful Mars mission crews require balanced leadership, structured conflict resolution, regular psychological support, and deliberate team cohesion activities to maintain effectiveness during extended isolation.`)
 
   const handleSave = () => {
     setIsEditing(false)
@@ -210,9 +206,9 @@ Successful Mars mission crews require balanced leadership, structured conflict r
                 pb: { xs: 2, sm: 3, md: 4 },
                 '& .MuiInputBase-root': {
                   color: '#ccc',
-                  fontSize: { xs: '12px', sm: '14px', md: '16px' },
+                  fontSize: { xs: '14px', sm: '15px', md: '16px' },
                   lineHeight: { xs: 1.6, sm: 1.8 },
-                  fontFamily: '"JetBrains Mono", "Courier New", monospace',
+                  fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
                 },
                 '& .MuiInput-underline:before': {
                   display: 'none',
@@ -233,44 +229,37 @@ Successful Mars mission crews require balanced leadership, structured conflict r
               sx={{
                 px: { xs: 2, sm: 3, md: 4 },
                 pb: { xs: 2, sm: 3, md: 4 },
+                color: '#ccc',
+                fontSize: { xs: '14px', sm: '15px', md: '16px' },
+                lineHeight: { xs: 1.6, sm: 1.8 },
+                fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+                whiteSpace: 'pre-wrap',
+                '& h1': {
+                  fontSize: { xs: '20px', sm: '22px', md: '24px' },
+                  color: '#fff',
+                  fontWeight: 'bold',
+                  mb: 3,
+                },
+                '& h2': {
+                  fontSize: { xs: '18px', sm: '19px', md: '20px' },
+                  color: '#fff',
+                  fontWeight: 'bold',
+                  mb: 2,
+                  mt: 4,
+                },
+                '& p': {
+                  mb: 2,
+                },
+                '& ul': {
+                  pl: 3,
+                  mb: 2,
+                },
+                '& li': {
+                  mb: 1,
+                },
               }}
             >
-              <Typography
-                component="div"
-                sx={{
-                  color: '#ccc',
-                  fontSize: { xs: '12px', sm: '14px', md: '16px' },
-                  lineHeight: { xs: 1.6, sm: 1.8 },
-                  whiteSpace: 'pre-wrap',
-                  wordBreak: 'break-word',
-                  '& h1, & h2, & h3': {
-                    color: '#fff',
-                    marginTop: { xs: '16px', sm: '24px' },
-                    marginBottom: { xs: '8px', sm: '12px' },
-                    fontSize: { xs: '14px', sm: '16px', md: '18px' },
-                    fontWeight: 'bold',
-                  },
-                  '& h1': {
-                    fontSize: { xs: '16px', sm: '18px', md: '22px' },
-                    color: '#C0FF92',
-                  },
-                  '& h2': {
-                    fontSize: { xs: '14px', sm: '16px', md: '20px' },
-                  },
-                  '& ul, & ol': {
-                    paddingLeft: { xs: '16px', sm: '24px' },
-                    marginBottom: { xs: '12px', sm: '16px' },
-                  },
-                  '& li': {
-                    marginBottom: { xs: '4px', sm: '6px' },
-                  },
-                  '& p': {
-                    marginBottom: { xs: '12px', sm: '16px' },
-                  },
-                }}
-              >
-                {documentContent}
-              </Typography>
+              {documentContent}
             </Box>
           )}
         </Paper>
