@@ -11,10 +11,8 @@ import {
 } from '@mui/material'
 import {
   Search as SearchIcon,
-  CreditCard as BillingIcon,
   Folder as ProjectIcon,
   Add as AddIcon,
-  Person as PersonIcon,
 } from '@mui/icons-material'
 import { useNavigate } from 'react-router-dom'
 
@@ -69,29 +67,15 @@ function Sidebar({ activeProject }: SidebarProps) {
       </Box>
 
       {/* General Section */}
-      <Box sx={{ px: { xs: 1, sm: 2 }, py: { xs: 2, sm: 3 }, flexShrink: 0 }}>
-        <Typography
-          variant="caption"
-          sx={{
-            color: '#888',
-            fontWeight: 'bold',
-            textTransform: 'uppercase',
-            letterSpacing: 1,
-            px: 2,
-            mb: 1,
-            display: 'block',
-            fontSize: { xs: '10px', sm: '11px' },
-          }}
-        >
-          General
-        </Typography>
-        
-        <List sx={{ p: 0 }}>
+      <Box sx={{ overflow: 'auto' }}>
+        <List sx={{ py: 0 }}>
           <ListItem
+            onClick={() => navigate('/search')}
             sx={{
               borderRadius: '8px',
               mx: 1,
               py: { xs: 1, sm: 1.5 },
+              cursor: 'pointer',
               '&:hover': {
                 bgcolor: '#333',
               },
@@ -108,56 +92,10 @@ function Sidebar({ activeProject }: SidebarProps) {
               }}
             />
           </ListItem>
-          
-          <ListItem
-            sx={{
-              borderRadius: '8px',
-              mx: 1,
-              py: { xs: 1, sm: 1.5 },
-              '&:hover': {
-                bgcolor: '#333',
-              },
-            }}
-          >
-            <ListItemIcon sx={{ minWidth: { xs: 32, sm: 36 } }}>
-              <BillingIcon sx={{ color: '#888', fontSize: { xs: 18, sm: 20 } }} />
-            </ListItemIcon>
-            <ListItemText
-              primary="Billing"
-              primaryTypographyProps={{
-                fontSize: { xs: '13px', sm: '14px' },
-                color: '#ccc',
-              }}
-            />
-          </ListItem>
-
-          <ListItem
-            onClick={() => navigate('/profile')}
-            sx={{
-              borderRadius: '8px',
-              mx: 1,
-              py: { xs: 1, sm: 1.5 },
-              cursor: 'pointer',
-              '&:hover': {
-                bgcolor: '#333',
-              },
-            }}
-          >
-            <ListItemIcon sx={{ minWidth: { xs: 32, sm: 36 } }}>
-              <PersonIcon sx={{ color: '#888', fontSize: { xs: 18, sm: 20 } }} />
-            </ListItemIcon>
-            <ListItemText
-              primary="Profile"
-              primaryTypographyProps={{
-                fontSize: { xs: '13px', sm: '14px' },
-                color: '#ccc',
-              }}
-            />
-          </ListItem>
         </List>
       </Box>
 
-      <Divider sx={{ borderColor: '#333', mx: 2 }} />
+      <Divider sx={{ borderColor: '#333', mx: 2, my: 1 }} />
 
       {/* Projects Section */}
       <Box sx={{ px: { xs: 1, sm: 2 }, py: { xs: 2, sm: 3 }, flex: 1, overflow: 'auto' }}>
@@ -239,10 +177,16 @@ function Sidebar({ activeProject }: SidebarProps) {
 
       {/* User Profile at Bottom */}
       <Box
+        onClick={() => navigate('/profile')}
         sx={{
           p: { xs: 2, sm: 3 },
           borderTop: '1px solid #333',
           flexShrink: 0,
+          cursor: 'pointer',
+          '&:hover': {
+            bgcolor: '#333',
+          },
+          transition: 'background-color 0.2s ease',
         }}
       >
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>

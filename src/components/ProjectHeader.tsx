@@ -1,8 +1,6 @@
 import {
   Box,
   Typography,
-  AvatarGroup,
-  Avatar,
   Button,
   IconButton,
   useMediaQuery,
@@ -23,13 +21,6 @@ function ProjectHeader({
   onRightMenuClick 
 }: ProjectHeaderProps) {
   const isMobile = useMediaQuery('(max-width:767px)')
-
-  const teamMembers = [
-    'https://i.pravatar.cc/150?img=1',
-    'https://i.pravatar.cc/150?img=2',
-    'https://i.pravatar.cc/150?img=3',
-    'https://i.pravatar.cc/150?img=4',
-  ]
 
   return (
     <Box
@@ -78,7 +69,7 @@ function ProjectHeader({
             </Typography>
           </Box>
 
-          {/* Team, FAB Buttons, and Share Button */}
+          {/* Menu Buttons and Share Button */}
           <Box
             sx={{
               display: 'flex',
@@ -87,7 +78,7 @@ function ProjectHeader({
               gap: 1,
             }}
           >
-            {/* Left side: Menu Buttons and Avatars */}
+            {/* Left side: Menu Buttons */}
             <Box
               sx={{
                 display: 'flex',
@@ -96,7 +87,6 @@ function ProjectHeader({
                 flex: 1,
               }}
             >
-              {/* Menu FAB Buttons first */}
               <IconButton
                 onClick={onLeftMenuClick}
                 sx={{
@@ -133,23 +123,6 @@ function ProjectHeader({
               >
                 <DescriptionIcon sx={{ fontSize: { xs: 16, sm: 18 } }} />
               </IconButton>
-
-              {/* Avatars after the buttons */}
-              <AvatarGroup
-                max={3}
-                sx={{
-                  '& .MuiAvatar-root': {
-                    width: { xs: 20, sm: 24 },
-                    height: { xs: 20, sm: 24 },
-                    border: '1.5px solid #333',
-                    fontSize: { xs: '8px', sm: '10px' },
-                  },
-                }}
-              >
-                {teamMembers.map((avatar, index) => (
-                  <Avatar key={index} src={avatar} />
-                ))}
-              </AvatarGroup>
             </Box>
 
             {/* Right side: Share Button */}
@@ -209,49 +182,25 @@ function ProjectHeader({
             </Typography>
           </Box>
 
-          <Box
+          <Button
+            startIcon={<ShareIcon sx={{ fontSize: { sm: 16, md: 20 } }} />}
+            variant="outlined"
+            size="small"
             sx={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: { sm: 1.5, md: 2 },
+              borderColor: '#333',
+              color: '#ccc',
+              textTransform: 'none',
+              fontSize: { sm: '12px', md: '14px' },
+              px: { sm: 2, md: 3 },
+              '&:hover': {
+                borderColor: '#C0FF92',
+                color: '#C0FF92',
+                bgcolor: 'rgba(192, 255, 146, 0.1)',
+              },
             }}
           >
-            <AvatarGroup
-              max={4}
-              sx={{
-                '& .MuiAvatar-root': {
-                  width: { sm: 28, md: 32 },
-                  height: { sm: 28, md: 32 },
-                  border: '2px solid #333',
-                  fontSize: { sm: '10px', md: '12px' },
-                },
-              }}
-            >
-              {teamMembers.map((avatar, index) => (
-                <Avatar key={index} src={avatar} />
-              ))}
-            </AvatarGroup>
-
-            <Button
-              startIcon={<ShareIcon sx={{ fontSize: { sm: 16, md: 20 } }} />}
-              variant="outlined"
-              size="small"
-              sx={{
-                borderColor: '#333',
-                color: '#ccc',
-                textTransform: 'none',
-                fontSize: { sm: '12px', md: '14px' },
-                px: { sm: 2, md: 3 },
-                '&:hover': {
-                  borderColor: '#C0FF92',
-                  color: '#C0FF92',
-                  bgcolor: 'rgba(192, 255, 146, 0.1)',
-                },
-              }}
-            >
-              Share
-            </Button>
-          </Box>
+            Share
+          </Button>
         </Box>
       )}
     </Box>
