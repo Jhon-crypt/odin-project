@@ -22,7 +22,7 @@ import {
 import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import type { ResearchProject } from '../api/research'
-import { getResearchProjectById, addComment, addReply, likeResearch, likeComment, likeReply } from '../api/research'
+import { getResearchProjectById, addComment, addReply, likeComment, likeReply } from '../api/research'
 import { Link } from 'react-router-dom'
 
 function PublicResearch() {
@@ -112,23 +112,6 @@ function PublicResearch() {
       })
     } catch (err) {
       console.error('Failed to add reply:', err)
-    }
-  }
-
-  const handleLike = async () => {
-    if (!research || !id) return
-
-    try {
-      const newLikes = await likeResearch(id)
-      setResearch({
-        ...research,
-        stats: {
-          ...research.stats,
-          likes: newLikes
-        }
-      })
-    } catch (err) {
-      console.error('Failed to like research:', err)
     }
   }
 
@@ -393,18 +376,14 @@ function PublicResearch() {
               color: '#888',
             }}
           >
-            <Button
-              startIcon={<LikeIcon />}
-              onClick={handleLike}
-              sx={{
-                color: '#888',
-                '&:hover': { color: '#C0FF92' },
-              }}
-            >
-              {research.stats.likes}
-            </Button>
-            <Typography>{research.stats.comments} Comments</Typography>
-            <Typography>{research.stats.shares} Shares</Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <LikeIcon sx={{ fontSize: 20 }} />
+              <Typography>{research.stats.likes} Likes</Typography>
+            </Box>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <ReplyIcon sx={{ fontSize: 20 }} />
+              <Typography>{research.stats.comments} Comments</Typography>
+            </Box>
           </Box>
 
           {/* Comment Input */}
