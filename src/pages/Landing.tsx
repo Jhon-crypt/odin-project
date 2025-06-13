@@ -727,7 +727,7 @@ function Landing() {
         >
           <Box
             component="img"
-            src="/Illustration.png"
+            src="https://res.cloudinary.com/db7wwc9ex/image/upload/v1749841885/Illustration_morco3.png"
             alt="3D Illustration"
             sx={{
               width: '100%',
