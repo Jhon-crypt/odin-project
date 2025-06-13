@@ -8,6 +8,7 @@ import {
   Stack,
   useMediaQuery,
   useTheme,
+  IconButton,
 } from '@mui/material'
 import {
   ThumbUp as LikeIcon,
@@ -16,6 +17,7 @@ import {
   Psychology as InsightIcon,
   TipsAndUpdates as KeyPointsIcon,
   Timeline as TimelineIcon,
+  CloseOutlined as CloseIcon,
 } from '@mui/icons-material'
 import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
@@ -30,6 +32,7 @@ function PublicResearch() {
   const [error, setError] = useState<string | null>(null)
   const theme = useTheme()
   const isLargeScreen = useMediaQuery(theme.breakpoints.up('lg'))
+  const [showAiAnalysis, setShowAiAnalysis] = useState(true)
 
   useEffect(() => {
     if (!id) return
@@ -257,198 +260,6 @@ function PublicResearch() {
           gap: 4,
         }}
       >
-        {/* AI Summary Sidebar - Only show on large screens */}
-        {isLargeScreen && (
-          <Box
-            sx={{
-              width: '380px',
-              flexShrink: 0,
-            }}
-          >
-            <Paper
-              sx={{
-                bgcolor: '#1a1a1a',
-                border: '1px solid #333',
-                borderRadius: 2,
-                p: 3,
-                position: 'sticky',
-                top: 24,
-              }}
-            >
-              {/* AI Badge */}
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
-                <AiIcon sx={{ color: '#C0FF92' }} />
-                <Typography
-                  sx={{
-                    color: '#C0FF92',
-                    fontWeight: 'bold',
-                    fontSize: '14px',
-                  }}
-                >
-                  AI-Powered Analysis
-                </Typography>
-              </Box>
-
-              {/* Summary */}
-              <Box sx={{ mb: 4 }}>
-                <Typography
-                  sx={{
-                    color: '#fff',
-                    fontSize: '15px',
-                    lineHeight: 1.6,
-                    mb: 2,
-                  }}
-                >
-                  {aiSummary.summary}
-                </Typography>
-              </Box>
-
-              {/* Key Points */}
-              <Box sx={{ mb: 4 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-                  <KeyPointsIcon sx={{ color: '#888', fontSize: 20 }} />
-                  <Typography
-                    sx={{
-                      color: '#fff',
-                      fontWeight: 'bold',
-                      fontSize: '14px',
-                    }}
-                  >
-                    Key Points
-                  </Typography>
-                </Box>
-                <Stack spacing={1}>
-                  {aiSummary.keyPoints.map((point, index) => (
-                    <Box
-                      key={index}
-                      sx={{
-                        display: 'flex',
-                        gap: 2,
-                        alignItems: 'flex-start',
-                      }}
-                    >
-                      <Typography
-                        sx={{
-                          color: '#C0FF92',
-                          fontSize: '12px',
-                          lineHeight: 1.8,
-                        }}
-                      >
-                        •
-                      </Typography>
-                      <Typography
-                        sx={{
-                          color: '#ccc',
-                          fontSize: '13px',
-                          lineHeight: 1.6,
-                        }}
-                      >
-                        {point}
-                      </Typography>
-                    </Box>
-                  ))}
-                </Stack>
-              </Box>
-
-              {/* Timeline */}
-              <Box sx={{ mb: 4 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-                  <TimelineIcon sx={{ color: '#888', fontSize: 20 }} />
-                  <Typography
-                    sx={{
-                      color: '#fff',
-                      fontWeight: 'bold',
-                      fontSize: '14px',
-                    }}
-                  >
-                    Research Timeline
-                  </Typography>
-                </Box>
-                <Stack spacing={2}>
-                  {aiSummary.timeline.map((item, index) => (
-                    <Box key={index}>
-                      <Typography
-                        sx={{
-                          color: '#C0FF92',
-                          fontSize: '13px',
-                          fontWeight: 'bold',
-                          mb: 0.5,
-                        }}
-                      >
-                        {item.phase}
-                      </Typography>
-                      <Typography
-                        sx={{
-                          color: '#888',
-                          fontSize: '12px',
-                          mb: 0.5,
-                        }}
-                      >
-                        {item.duration}
-                      </Typography>
-                      <Typography
-                        sx={{
-                          color: '#ccc',
-                          fontSize: '13px',
-                        }}
-                      >
-                        {item.focus}
-                      </Typography>
-                    </Box>
-                  ))}
-                </Stack>
-              </Box>
-
-              {/* Key Insights */}
-              <Box>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-                  <InsightIcon sx={{ color: '#888', fontSize: 20 }} />
-                  <Typography
-                    sx={{
-                      color: '#fff',
-                      fontWeight: 'bold',
-                      fontSize: '14px',
-                    }}
-                  >
-                    Key Insights
-                  </Typography>
-                </Box>
-                <Stack spacing={1}>
-                  {aiSummary.insights.map((insight, index) => (
-                    <Box
-                      key={index}
-                      sx={{
-                        display: 'flex',
-                        gap: 2,
-                        alignItems: 'flex-start',
-                      }}
-                    >
-                      <Typography
-                        sx={{
-                          color: '#C0FF92',
-                          fontSize: '12px',
-                          lineHeight: 1.8,
-                        }}
-                      >
-                        •
-                      </Typography>
-                      <Typography
-                        sx={{
-                          color: '#ccc',
-                          fontSize: '13px',
-                          lineHeight: 1.6,
-                        }}
-                      >
-                        {insight}
-                      </Typography>
-                    </Box>
-                  ))}
-                </Stack>
-              </Box>
-            </Paper>
-          </Box>
-        )}
-
         {/* Main Content */}
         <Box sx={{ flex: 1, minWidth: 0 }}>
           {/* Author Info */}
@@ -486,6 +297,53 @@ function PublicResearch() {
                   {research.author.institution} • {research.author.department}
                 </Typography>
               </Box>
+            </Box>
+          </Box>
+
+          {/* Contributors Section */}
+          <Box sx={{ mb: 4 }}>
+            <Typography variant="h6" sx={{ color: '#C0FF92', mb: 2, fontSize: '1rem' }}>
+              Contributors
+            </Typography>
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+              {[
+                {
+                  name: 'Dr. Sarah Chen',
+                  role: 'Lead Researcher - Psychological Assessment',
+                  affiliation: 'NASA Behavioral Sciences Division'
+                },
+                {
+                  name: 'Prof. James Martinez',
+                  role: 'Space Psychology Expert',
+                  affiliation: 'International Space University'
+                },
+                {
+                  name: 'Dr. Yuki Tanaka',
+                  role: 'Mission Planning Specialist',
+                  affiliation: 'JAXA Human Factors Research'
+                }
+              ].map((contributor, index) => (
+                <Paper
+                  key={index}
+                  sx={{
+                    bgcolor: '#1a1a1a',
+                    border: '1px solid #333',
+                    p: 2,
+                    flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)', md: '1 1 calc(33.333% - 11px)' },
+                    minWidth: 0
+                  }}
+                >
+                  <Typography sx={{ color: '#fff', fontWeight: 500, mb: 0.5 }}>
+                    {contributor.name}
+                  </Typography>
+                  <Typography sx={{ color: '#C0FF92', fontSize: '14px', mb: 0.5 }}>
+                    {contributor.role}
+                  </Typography>
+                  <Typography sx={{ color: '#888', fontSize: '13px' }}>
+                    {contributor.affiliation}
+                  </Typography>
+                </Paper>
+              ))}
             </Box>
           </Box>
 
@@ -774,6 +632,235 @@ function PublicResearch() {
             ))}
           </Stack>
         </Box>
+
+        {/* AI Summary Sidebar - Only show on large screens */}
+        {isLargeScreen && showAiAnalysis && (
+          <Box
+            sx={{
+              width: '380px',
+              flexShrink: 0,
+            }}
+          >
+            <Paper
+              sx={{
+                bgcolor: '#1a1a1a',
+                border: '1px solid #333',
+                borderRadius: 2,
+                p: 3,
+                position: 'sticky',
+                top: 24,
+              }}
+            >
+              {/* AI Badge with Close Button */}
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <AiIcon sx={{ color: '#C0FF92' }} />
+                  <Typography
+                    sx={{
+                      color: '#C0FF92',
+                      fontWeight: 'bold',
+                      fontSize: '14px',
+                    }}
+                  >
+                    AI-Powered Analysis
+                  </Typography>
+                </Box>
+                <IconButton
+                  onClick={() => setShowAiAnalysis(false)}
+                  size="small"
+                  sx={{
+                    color: '#888',
+                    '&:hover': {
+                      color: '#fff',
+                      bgcolor: 'rgba(255,255,255,0.1)',
+                    },
+                  }}
+                >
+                  <CloseIcon />
+                </IconButton>
+              </Box>
+
+              {/* Summary */}
+              <Box sx={{ mb: 4 }}>
+                <Typography
+                  sx={{
+                    color: '#fff',
+                    fontSize: '15px',
+                    lineHeight: 1.6,
+                    mb: 2,
+                  }}
+                >
+                  {aiSummary.summary}
+                </Typography>
+              </Box>
+
+              {/* Key Points */}
+              <Box sx={{ mb: 4 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                  <KeyPointsIcon sx={{ color: '#888', fontSize: 20 }} />
+                  <Typography
+                    sx={{
+                      color: '#fff',
+                      fontWeight: 'bold',
+                      fontSize: '14px',
+                    }}
+                  >
+                    Key Points
+                  </Typography>
+                </Box>
+                <Stack spacing={1}>
+                  {aiSummary.keyPoints.map((point, index) => (
+                    <Box
+                      key={index}
+                      sx={{
+                        display: 'flex',
+                        gap: 2,
+                        alignItems: 'flex-start',
+                      }}
+                    >
+                      <Typography
+                        sx={{
+                          color: '#C0FF92',
+                          fontSize: '12px',
+                          lineHeight: 1.8,
+                        }}
+                      >
+                        •
+                      </Typography>
+                      <Typography
+                        sx={{
+                          color: '#ccc',
+                          fontSize: '13px',
+                          lineHeight: 1.6,
+                        }}
+                      >
+                        {point}
+                      </Typography>
+                    </Box>
+                  ))}
+                </Stack>
+              </Box>
+
+              {/* Timeline */}
+              <Box sx={{ mb: 4 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                  <TimelineIcon sx={{ color: '#888', fontSize: 20 }} />
+                  <Typography
+                    sx={{
+                      color: '#fff',
+                      fontWeight: 'bold',
+                      fontSize: '14px',
+                    }}
+                  >
+                    Research Timeline
+                  </Typography>
+                </Box>
+                <Stack spacing={2}>
+                  {aiSummary.timeline.map((item, index) => (
+                    <Box key={index}>
+                      <Typography
+                        sx={{
+                          color: '#C0FF92',
+                          fontSize: '13px',
+                          fontWeight: 'bold',
+                          mb: 0.5,
+                        }}
+                      >
+                        {item.phase}
+                      </Typography>
+                      <Typography
+                        sx={{
+                          color: '#888',
+                          fontSize: '12px',
+                          mb: 0.5,
+                        }}
+                      >
+                        {item.duration}
+                      </Typography>
+                      <Typography
+                        sx={{
+                          color: '#ccc',
+                          fontSize: '13px',
+                        }}
+                      >
+                        {item.focus}
+                      </Typography>
+                    </Box>
+                  ))}
+                </Stack>
+              </Box>
+
+              {/* Key Insights */}
+              <Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                  <InsightIcon sx={{ color: '#888', fontSize: 20 }} />
+                  <Typography
+                    sx={{
+                      color: '#fff',
+                      fontWeight: 'bold',
+                      fontSize: '14px',
+                    }}
+                  >
+                    Key Insights
+                  </Typography>
+                </Box>
+                <Stack spacing={1}>
+                  {aiSummary.insights.map((insight, index) => (
+                    <Box
+                      key={index}
+                      sx={{
+                        display: 'flex',
+                        gap: 2,
+                        alignItems: 'flex-start',
+                      }}
+                    >
+                      <Typography
+                        sx={{
+                          color: '#C0FF92',
+                          fontSize: '12px',
+                          lineHeight: 1.8,
+                        }}
+                      >
+                        •
+                      </Typography>
+                      <Typography
+                        sx={{
+                          color: '#ccc',
+                          fontSize: '13px',
+                          lineHeight: 1.6,
+                        }}
+                      >
+                        {insight}
+                      </Typography>
+                    </Box>
+                  ))}
+                </Stack>
+              </Box>
+            </Paper>
+          </Box>
+        )}
+
+        {/* Show a button to restore AI panel when closed */}
+        {isLargeScreen && !showAiAnalysis && (
+          <IconButton
+            onClick={() => setShowAiAnalysis(true)}
+            sx={{
+              position: 'fixed',
+              right: 24,
+              top: 24,
+              bgcolor: '#1a1a1a',
+              border: '1px solid #333',
+              color: '#C0FF92',
+              '&:hover': {
+                bgcolor: '#252525',
+              },
+              width: 40,
+              height: 40,
+            }}
+          >
+            <AiIcon />
+          </IconButton>
+        )}
       </Box>
     </Box>
   )
