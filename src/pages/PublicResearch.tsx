@@ -643,47 +643,15 @@ function PublicResearch() {
               border: '1px solid rgba(192, 255, 146, 0.2)',
             }}
           >
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
               <AiIcon style={{ fontSize: 24, color: '#C0FF92' }} />
               <Typography variant="h5" sx={{ color: '#C0FF92', fontWeight: 500 }}>
                 Create Your Own AI-Powered Research
               </Typography>
             </Box>
-            <Typography sx={{ color: '#ccc', mb: 2, lineHeight: 1.6 }}>
-              Transform your research with our advanced AI tools. Get instant analysis, discover hidden patterns,
-              and generate comprehensive insights automatically.
+            <Typography sx={{ color: '#ccc', mb: 3, lineHeight: 1.6 }}>
+              Transform your research with our advanced AI tools. Get instant analysis, discover patterns, and generate insights automatically.
             </Typography>
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3, mb: 3 }}>
-              {[
-                {
-                  title: 'Smart Analysis',
-                  description: 'AI-powered insights and pattern recognition'
-                },
-                {
-                  title: 'Auto Documentation',
-                  description: 'Automated research documentation and summaries'
-                },
-                {
-                  title: 'Collaboration Tools',
-                  description: 'Real-time collaboration with AI assistance'
-                }
-              ].map((feature, index) => (
-                <Box
-                  key={index}
-                  sx={{
-                    flex: { xs: '1 1 100%', sm: '1 1 calc(33.333% - 16px)' },
-                    minWidth: 0
-                  }}
-                >
-                  <Typography sx={{ color: '#C0FF92', fontWeight: 500, mb: 1 }}>
-                    {feature.title}
-                  </Typography>
-                  <Typography sx={{ color: '#888', fontSize: '14px' }}>
-                    {feature.description}
-                  </Typography>
-                </Box>
-              ))}
-            </Box>
             <Button
               variant="contained"
               size="large"
