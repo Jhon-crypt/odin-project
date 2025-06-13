@@ -12,7 +12,6 @@ import {
   Checkbox,
   FormControlLabel,
   useMediaQuery,
-  Paper,
   Alert,
 } from '@mui/material'
 import { useState } from 'react'
@@ -73,6 +72,13 @@ function Landing() {
     } catch {
       setError('Invalid credentials')
     }
+  }
+
+  const handleBack = () => {
+    setCurrentView('landing')
+    setEmail('')
+    setError(null)
+    setSubmitted(false)
   }
 
   const handleInviteRequest = async (e: React.FormEvent) => {
@@ -486,20 +492,19 @@ function Landing() {
                     mb: { xs: 2, sm: 2 },
                   }}>
                     Don't have an account?{' '}
-                    <Link
-                      href="#"
-                      onClick={() => setCurrentView('signup')}
-                      sx={{ 
-                        color: '#C0FF92', 
-                        textDecoration: 'none', 
-                        cursor: 'pointer',
+                    <Button
+                      onClick={() => setCurrentView('invite')}
+                      sx={{
+                        color: '#C0FF92',
+                        textTransform: 'none',
                         '&:hover': {
-                          textDecoration: 'underline',
+                          color: '#a8ff66',
+                          background: 'none',
                         },
                       }}
                     >
-                      Sign Up
-                    </Link>
+                      Request Invitation
+                    </Button>
                   </Typography>
 
                   <Button
@@ -713,96 +718,100 @@ function Landing() {
             )}
 
             {/* Invitation Request Form */}
-            {currentView === 'invite' && !submitted && (
-              <Paper
-                sx={{
-                  bgcolor: '#1a1a1a',
-                  p: 3,
-                  maxWidth: '400px',
-                  width: '100%',
-                  mb: 4,
-                  border: '1px solid #333',
-                }}
-              >
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-                  <AiIcon sx={{ color: '#C0FF92' }} />
-                  <Typography sx={{ color: '#C0FF92', fontWeight: 500 }}>
-                    Request an Invitation
-                  </Typography>
-                </Box>
-                <form onSubmit={handleInviteRequest}>
-                  <TextField
-                    fullWidth
-                    type="email"
-                    label="Email Address"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    sx={{
-                      mb: 2,
-                      '& .MuiOutlinedInput-root': {
-                        color: '#fff',
-                        '& fieldset': {
-                          borderColor: '#333',
-                        },
-                        '&:hover fieldset': {
-                          borderColor: '#444',
-                        },
-                        '&.Mui-focused fieldset': {
-                          borderColor: '#C0FF92',
-                        },
-                      },
-                      '& .MuiInputLabel-root': {
-                        color: '#888',
-                        '&.Mui-focused': {
-                          color: '#C0FF92',
-                        },
-                      },
-                    }}
-                  />
-                  {error && (
-                    <Alert severity="error" sx={{ mb: 2 }}>
-                      {error}
-                    </Alert>
+            {currentView === 'invite' && (
+              <Box sx={{ width: '100%', maxWidth: '400px', mx: 'auto', p: 3 }}>
+                <Box sx={{ mb: 4, textAlign: 'center' }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2, justifyContent: 'center' }}>
+                    <AiIcon sx={{ color: '#C0FF92' }} />
+                    <Typography sx={{ color: '#C0FF92', fontWeight: 500 }}>
+                      Request an Invitation
+                    </Typography>
+                  </Box>
+                  {!submitted && (
+                    <Typography sx={{ color: '#888' }}>
+                      Join our community of researchers
+                    </Typography>
                   )}
-                  <Button
-                    type="submit"
-                    variant="contained"
-                    fullWidth
-                    sx={{
-                      bgcolor: '#C0FF92',
-                      color: '#111',
-                      '&:hover': {
-                        bgcolor: '#a8ff66',
-                      },
-                    }}
-                  >
-                    Request Invitation
-                  </Button>
-                </form>
-              </Paper>
-            )}
+                </Box>
 
-            {/* Success Message */}
-            {submitted && (
-              <Paper
-                sx={{
-                  bgcolor: '#1a1a1a',
-                  p: 3,
-                  maxWidth: '400px',
-                  width: '100%',
-                  mb: 4,
-                  border: '1px solid #333',
-                  textAlign: 'center',
-                }}
-              >
-                <Typography sx={{ color: '#C0FF92', fontWeight: 500, mb: 1 }}>
-                  Thank you for your interest!
-                </Typography>
-                <Typography sx={{ color: '#ccc', fontSize: '0.95rem' }}>
-                  We've received your invitation request. We'll notify you when access becomes available.
-                </Typography>
-              </Paper>
+                {submitted ? (
+                  <>
+                    <Alert severity="success" sx={{ mb: 3 }}>
+                      Thank you for your interest! We'll notify you when access becomes available.
+                    </Alert>
+                    <Button
+                      fullWidth
+                      onClick={handleBack}
+                      sx={{
+                        color: '#888',
+                        '&:hover': {
+                          color: '#fff',
+                          bgcolor: 'rgba(255,255,255,0.05)',
+                        },
+                      }}
+                    >
+                      Back to Home
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <form onSubmit={handleInviteRequest}>
+                      <TextField
+                        fullWidth
+                        type="email"
+                        label="Email Address"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                        sx={{
+                          mb: 2,
+                          '& .MuiOutlinedInput-root': {
+                            color: '#fff',
+                            '& fieldset': { borderColor: '#333' },
+                            '&:hover fieldset': { borderColor: '#444' },
+                            '&.Mui-focused fieldset': { borderColor: '#C0FF92' },
+                          },
+                          '& .MuiInputLabel-root': {
+                            color: '#888',
+                            '&.Mui-focused': { color: '#C0FF92' },
+                          },
+                        }}
+                      />
+                      {error && (
+                        <Alert severity="error" sx={{ mb: 2 }}>
+                          {error}
+                        </Alert>
+                      )}
+                      <Button
+                        type="submit"
+                        variant="contained"
+                        fullWidth
+                        sx={{
+                          bgcolor: '#C0FF92',
+                          color: '#111',
+                          '&:hover': { bgcolor: '#a8ff66' },
+                          mb: 2,
+                        }}
+                      >
+                        Request Invitation
+                      </Button>
+                    </form>
+                    <Button
+                      fullWidth
+                      onClick={handleBack}
+                      sx={{
+                        color: '#888',
+                        '&:hover': {
+                          color: '#fff',
+                          bgcolor: 'rgba(255,255,255,0.05)',
+                        },
+                      }}
+                    >
+                      Back
+                    </Button>
+                  </>
+                )}
+              </Box>
             )}
           </Box>
 
