@@ -13,8 +13,6 @@ import {
   Refresh as RefreshIcon,
   Edit as EditIcon,
   Add as AddIcon,
-  Mic as MicIcon,
-  EmojiEmotions as EmojiIcon,
   Send as SendIcon,
 } from '@mui/icons-material'
 import { useState } from 'react'
@@ -347,63 +345,26 @@ function ChatArea() {
             }}
           />
           
-          <Box sx={{ 
-            display: 'flex', 
-            gap: { xs: 0.5, sm: 1 }, 
-            alignItems: 'center',
-            flexShrink: 0,
-          }}>
-            {!isMobile && (
-              <>
-                <IconButton
-                  size="medium"
-                  sx={{
-                    color: '#888',
-                    '&:hover': {
-                      color: '#C0FF92',
-                      bgcolor: '#333',
-                    },
-                  }}
-                >
-                  <MicIcon sx={{ fontSize: 20 }} />
-                </IconButton>
-                
-                <IconButton
-                  size="medium"
-                  sx={{
-                    color: '#888',
-                    '&:hover': {
-                      color: '#C0FF92',
-                      bgcolor: '#333',
-                    },
-                  }}
-                >
-                  <EmojiIcon sx={{ fontSize: 20 }} />
-                </IconButton>
-              </>
-            )}
-            
-            <IconButton
-              onClick={handleSendMessage}
-              disabled={!message.trim()}
-              size={isMobile ? 'small' : 'medium'}
-              sx={{
-                bgcolor: message.trim() ? '#C0FF92' : '#333',
-                color: message.trim() ? '#000' : '#666',
-                width: { xs: 36, sm: 40 },
-                height: { xs: 36, sm: 40 },
-                '&:hover': {
-                  bgcolor: message.trim() ? '#A8E87C' : '#444',
-                },
-                '&.Mui-disabled': {
-                  bgcolor: '#333',
-                  color: '#666',
-                },
-              }}
-            >
-              <SendIcon sx={{ fontSize: { xs: 16, sm: 20 } }} />
-            </IconButton>
-          </Box>
+          <IconButton
+            onClick={handleSendMessage}
+            disabled={!message.trim()}
+            size={isMobile ? 'small' : 'medium'}
+            sx={{
+              bgcolor: message.trim() ? '#C0FF92' : '#333',
+              color: message.trim() ? '#000' : '#666',
+              width: { xs: 36, sm: 40 },
+              height: { xs: 36, sm: 40 },
+              '&:hover': {
+                bgcolor: message.trim() ? '#A8E87C' : '#444',
+              },
+              '&.Mui-disabled': {
+                bgcolor: '#333',
+                color: '#666',
+              },
+            }}
+          >
+            <SendIcon sx={{ fontSize: { xs: 16, sm: 20 } }} />
+          </IconButton>
         </Box>
       </Box>
     </Box>
