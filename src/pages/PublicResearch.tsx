@@ -637,24 +637,27 @@ function PublicResearch() {
           <Box
             sx={{
               mt: 6,
-              p: 4,
+              p: 3,
               bgcolor: 'rgba(192, 255, 146, 0.1)',
               borderRadius: 2,
               border: '1px solid rgba(192, 255, 146, 0.2)',
+              maxWidth: '600px',
+              mx: 'auto',
+              textAlign: 'center'
             }}
           >
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
-              <AiIcon style={{ fontSize: 24, color: '#C0FF92' }} />
-              <Typography variant="h5" sx={{ color: '#C0FF92', fontWeight: 500 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1.5, mb: 2 }}>
+              <AiIcon style={{ fontSize: 20, color: '#C0FF92' }} />
+              <Typography sx={{ color: '#C0FF92', fontWeight: 500, fontSize: '1.25rem' }}>
                 Create Your Own AI-Powered Research
               </Typography>
             </Box>
-            <Typography sx={{ color: '#ccc', mb: 3, lineHeight: 1.6 }}>
+            <Typography sx={{ color: '#ccc', mb: 2.5, lineHeight: 1.5, fontSize: '0.95rem' }}>
               Transform your research with our advanced AI tools. Get instant analysis, discover patterns, and generate insights automatically.
             </Typography>
             <Button
               variant="contained"
-              size="large"
+              size="medium"
               component={Link}
               to="/create-research"
               sx={{
@@ -664,7 +667,9 @@ function PublicResearch() {
                   bgcolor: '#a8ff66',
                 },
                 fontWeight: 500,
-                px: 4,
+                px: 3,
+                py: 1,
+                fontSize: '0.9rem',
               }}
             >
               Start Your Research
