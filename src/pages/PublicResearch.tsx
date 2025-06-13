@@ -18,12 +18,12 @@ import {
   TipsAndUpdates as KeyPointsIcon,
   Timeline as TimelineIcon,
   CloseOutlined as CloseIcon,
-  ArrowLeftOutlined as ArrowLeftIcon,
 } from '@mui/icons-material'
 import { useState, useEffect } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import type { ResearchProject } from '../api/research'
 import { getResearchProjectById, addComment, addReply, likeResearch, likeComment, likeReply } from '../api/research'
+import { Link } from 'react-router-dom'
 
 function PublicResearch() {
   const { id } = useParams()
@@ -34,7 +34,6 @@ function PublicResearch() {
   const theme = useTheme()
   const isLargeScreen = useMediaQuery(theme.breakpoints.up('lg'))
   const [showAiAnalysis, setShowAiAnalysis] = useState(true)
-  const navigate = useNavigate()
 
   useEffect(() => {
     if (!id) return
@@ -253,27 +252,6 @@ function PublicResearch() {
         color: '#fff',
       }}
     >
-      {/* Back to Dashboard Button */}
-      <IconButton
-        onClick={() => navigate('/dashboard')}
-        sx={{
-          position: 'fixed',
-          left: 24,
-          top: 24,
-          bgcolor: '#1a1a1a',
-          border: '1px solid #333',
-          color: '#C0FF92',
-          '&:hover': {
-            bgcolor: '#252525',
-          },
-          width: 40,
-          height: 40,
-          zIndex: 1000,
-        }}
-      >
-        <ArrowLeftIcon />
-      </IconButton>
-
       <Box
         sx={{
           maxWidth: '1600px',
@@ -654,6 +632,76 @@ function PublicResearch() {
               </Box>
             ))}
           </Stack>
+
+          {/* Create Your Own Research CTA */}
+          <Box
+            sx={{
+              mt: 6,
+              p: 4,
+              bgcolor: 'rgba(192, 255, 146, 0.1)',
+              borderRadius: 2,
+              border: '1px solid rgba(192, 255, 146, 0.2)',
+            }}
+          >
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
+              <AiIcon style={{ fontSize: 24, color: '#C0FF92' }} />
+              <Typography variant="h5" sx={{ color: '#C0FF92', fontWeight: 500 }}>
+                Create Your Own AI-Powered Research
+              </Typography>
+            </Box>
+            <Typography sx={{ color: '#ccc', mb: 2, lineHeight: 1.6 }}>
+              Transform your research with our advanced AI tools. Get instant analysis, discover hidden patterns,
+              and generate comprehensive insights automatically.
+            </Typography>
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3, mb: 3 }}>
+              {[
+                {
+                  title: 'Smart Analysis',
+                  description: 'AI-powered insights and pattern recognition'
+                },
+                {
+                  title: 'Auto Documentation',
+                  description: 'Automated research documentation and summaries'
+                },
+                {
+                  title: 'Collaboration Tools',
+                  description: 'Real-time collaboration with AI assistance'
+                }
+              ].map((feature, index) => (
+                <Box
+                  key={index}
+                  sx={{
+                    flex: { xs: '1 1 100%', sm: '1 1 calc(33.333% - 16px)' },
+                    minWidth: 0
+                  }}
+                >
+                  <Typography sx={{ color: '#C0FF92', fontWeight: 500, mb: 1 }}>
+                    {feature.title}
+                  </Typography>
+                  <Typography sx={{ color: '#888', fontSize: '14px' }}>
+                    {feature.description}
+                  </Typography>
+                </Box>
+              ))}
+            </Box>
+            <Button
+              variant="contained"
+              size="large"
+              component={Link}
+              to="/create-research"
+              sx={{
+                bgcolor: '#C0FF92',
+                color: '#111',
+                '&:hover': {
+                  bgcolor: '#a8ff66',
+                },
+                fontWeight: 500,
+                px: 4,
+              }}
+            >
+              Start Your Research
+            </Button>
+          </Box>
         </Box>
 
         {/* AI Summary Sidebar - Only show on large screens */}
