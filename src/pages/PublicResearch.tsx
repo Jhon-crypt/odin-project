@@ -18,9 +18,10 @@ import {
   TipsAndUpdates as KeyPointsIcon,
   Timeline as TimelineIcon,
   CloseOutlined as CloseIcon,
+  ArrowLeftOutlined as ArrowLeftIcon,
 } from '@mui/icons-material'
 import { useState, useEffect } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import type { ResearchProject } from '../api/research'
 import { getResearchProjectById, addComment, addReply, likeResearch, likeComment, likeReply } from '../api/research'
 
@@ -33,6 +34,7 @@ function PublicResearch() {
   const theme = useTheme()
   const isLargeScreen = useMediaQuery(theme.breakpoints.up('lg'))
   const [showAiAnalysis, setShowAiAnalysis] = useState(true)
+  const navigate = useNavigate()
 
   useEffect(() => {
     if (!id) return
@@ -251,6 +253,27 @@ function PublicResearch() {
         color: '#fff',
       }}
     >
+      {/* Back to Dashboard Button */}
+      <IconButton
+        onClick={() => navigate('/dashboard')}
+        sx={{
+          position: 'fixed',
+          left: 24,
+          top: 24,
+          bgcolor: '#1a1a1a',
+          border: '1px solid #333',
+          color: '#C0FF92',
+          '&:hover': {
+            bgcolor: '#252525',
+          },
+          width: 40,
+          height: 40,
+          zIndex: 1000,
+        }}
+      >
+        <ArrowLeftIcon />
+      </IconButton>
+
       <Box
         sx={{
           maxWidth: '1600px',
