@@ -8,7 +8,10 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  Button,
 } from '@mui/material'
+import { useNavigate } from 'react-router-dom'
+import { Launch as LaunchIcon } from '@mui/icons-material'
 
 interface ResearchProject {
   id: string
@@ -20,6 +23,8 @@ interface ResearchProject {
 }
 
 function ResearchTable() {
+  const navigate = useNavigate()
+  
   const researchProjects: ResearchProject[] = [
     {
       id: '1',
@@ -54,8 +59,6 @@ function ResearchTable() {
       collaborators: ['David Kim'],
     },
   ]
-
-
 
   const getTypeIcon = (type: string) => {
     switch (type) {
@@ -165,22 +168,34 @@ function ResearchTable() {
                       {getTypeIcon(project.type)}
                     </Typography>
                     <Box sx={{ flex: 1, minWidth: 0 }}>
-                      <Typography
+                      <Button
+                        onClick={() => navigate(`/research/${project.id}`)}
                         sx={{
                           color: '#fff',
                           fontSize: { xs: '12px', sm: '13px', md: '14px' },
                           fontWeight: 'medium',
                           lineHeight: 1.3,
                           mb: { xs: 0.5, sm: 0.75 },
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          display: '-webkit-box',
-                          WebkitLineClamp: { xs: 2, sm: 1 },
-                          WebkitBoxOrient: 'vertical',
+                          textAlign: 'left',
+                          p: 0,
+                          '&:hover': {
+                            color: '#C0FF92',
+                            bgcolor: 'transparent',
+                          },
+                          width: '100%',
+                          justifyContent: 'flex-start',
+                          textTransform: 'none',
                         }}
+                        endIcon={
+                          <LaunchIcon sx={{ 
+                            fontSize: { xs: 14, sm: 16 },
+                            opacity: 0.5,
+                            ml: 1,
+                          }} />
+                        }
                       >
                         {project.title}
-                      </Typography>
+                      </Button>
                       <Box sx={{ 
                         display: 'flex', 
                         flexDirection: { xs: 'column', sm: 'row' },

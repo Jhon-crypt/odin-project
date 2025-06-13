@@ -1,0 +1,552 @@
+import {
+  Box,
+  Typography,
+  Avatar,
+  Paper,
+  Button,
+  TextField,
+  Stack,
+} from '@mui/material'
+import {
+  ThumbUp as LikeIcon,
+  Reply as ReplyIcon,
+} from '@mui/icons-material'
+import { useState, useEffect } from 'react'
+import { useParams } from 'react-router-dom'
+import type { ResearchProject } from '../api/research'
+import { getResearchProjectById, addComment, addReply, likeResearch, likeComment, likeReply } from '../api/research'
+
+function PublicResearch() {
+  const { id } = useParams()
+  const [comment, setComment] = useState('')
+  const [research, setResearch] = useState<ResearchProject | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!id) return
+
+    const fetchResearch = async () => {
+      try {
+        const data = await getResearchProjectById(id)
+        if (!data) {
+          setError('Research project not found')
+          return
+        }
+        setResearch(data)
+      } catch (error) {
+        setError(error instanceof Error ? error.message : 'Failed to load research project')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchResearch()
+  }, [id])
+
+  const handleComment = async () => {
+    if (!comment.trim() || !research || !id) return
+
+    try {
+      const newComment = await addComment(id, comment.trim(), {
+        name: 'Current User', // Replace with actual user data
+        avatar: 'CU',
+        institution: 'Guest'
+      })
+      setResearch({
+        ...research,
+        comments: [newComment, ...research.comments],
+        stats: {
+          ...research.stats,
+          comments: research.stats.comments + 1
+        }
+      })
+      setComment('')
+    } catch (err) {
+      console.error('Failed to add comment:', err)
+    }
+  }
+
+  const handleReply = async (commentId: number) => {
+    if (!research || !id) return
+
+    const replyContent = prompt('Enter your reply:')
+    if (!replyContent?.trim()) return
+
+    try {
+      const newReply = await addReply(id, commentId, replyContent.trim(), {
+        name: 'Current User', // Replace with actual user data
+        avatar: 'CU',
+        institution: 'Guest'
+      })
+      
+      const updatedComments = research.comments.map(comment => {
+        if (comment.id === commentId) {
+          return {
+            ...comment,
+            replies: [...(comment.replies || []), newReply]
+          }
+        }
+        return comment
+      })
+
+      setResearch({
+        ...research,
+        comments: updatedComments,
+        stats: {
+          ...research.stats,
+          comments: research.stats.comments + 1
+        }
+      })
+    } catch (err) {
+      console.error('Failed to add reply:', err)
+    }
+  }
+
+  const handleLike = async () => {
+    if (!research || !id) return
+
+    try {
+      const newLikes = await likeResearch(id)
+      setResearch({
+        ...research,
+        stats: {
+          ...research.stats,
+          likes: newLikes
+        }
+      })
+    } catch (err) {
+      console.error('Failed to like research:', err)
+    }
+  }
+
+  const handleLikeComment = async (commentId: number) => {
+    if (!research || !id) return
+
+    try {
+      const newLikes = await likeComment(id, commentId)
+      const updatedComments = research.comments.map(comment => {
+        if (comment.id === commentId) {
+          return {
+            ...comment,
+            likes: newLikes
+          }
+        }
+        return comment
+      })
+
+      setResearch({
+        ...research,
+        comments: updatedComments
+      })
+    } catch (err) {
+      console.error('Failed to like comment:', err)
+    }
+  }
+
+  const handleLikeReply = async (commentId: number, replyId: number) => {
+    if (!research || !id) return
+
+    try {
+      const newLikes = await likeReply(id, commentId, replyId)
+      const updatedComments = research.comments.map(comment => {
+        if (comment.id === commentId) {
+          return {
+            ...comment,
+            replies: comment.replies?.map(reply => {
+              if (reply.id === replyId) {
+                return {
+                  ...reply,
+                  likes: newLikes
+                }
+              }
+              return reply
+            })
+          }
+        }
+        return comment
+      })
+
+      setResearch({
+        ...research,
+        comments: updatedComments
+      })
+    } catch (err) {
+      console.error('Failed to like reply:', err)
+    }
+  }
+
+  if (loading) {
+    return (
+      <Box
+        sx={{
+          minHeight: '100vh',
+          bgcolor: '#111111',
+          color: '#fff',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <Typography>Loading...</Typography>
+      </Box>
+    )
+  }
+
+  if (error || !research) {
+    return (
+      <Box
+        sx={{
+          minHeight: '100vh',
+          bgcolor: '#111111',
+          color: '#fff',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <Typography color="error">{error || 'Research not found'}</Typography>
+      </Box>
+    )
+  }
+
+  return (
+    <Box
+      sx={{
+        minHeight: '100vh',
+        bgcolor: '#111111',
+        color: '#fff',
+      }}
+    >
+      <Box
+        sx={{
+          maxWidth: '1200px',
+          margin: '0 auto',
+          p: { xs: 2, sm: 3, md: 4 },
+        }}
+      >
+        {/* Author Info */}
+        <Box sx={{ mb: 4 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+            <Avatar
+              sx={{
+                bgcolor: '#C0FF92',
+                color: '#000',
+                width: { xs: 48, sm: 56 },
+                height: { xs: 48, sm: 56 },
+                fontSize: { xs: '18px', sm: '20px' },
+                fontWeight: 'bold',
+              }}
+            >
+              {research.author.avatar}
+            </Avatar>
+            <Box>
+              <Typography
+                variant="h6"
+                sx={{
+                  fontWeight: 'bold',
+                  fontSize: { xs: '16px', sm: '18px', md: '20px' },
+                  mb: 0.5,
+                }}
+              >
+                {research.author.name}
+              </Typography>
+              <Typography
+                sx={{
+                  color: '#888',
+                  fontSize: { xs: '12px', sm: '14px' },
+                }}
+              >
+                {research.author.institution} • {research.author.department}
+              </Typography>
+            </Box>
+          </Box>
+        </Box>
+
+        {/* Research Content */}
+        <Paper
+          sx={{
+            bgcolor: '#1a1a1a',
+            border: '1px solid #333',
+            borderRadius: 2,
+            p: { xs: 2, sm: 3, md: 4 },
+            mb: 3,
+          }}
+        >
+          <Typography
+            variant="h4"
+            sx={{
+              fontWeight: 'bold',
+              fontSize: { xs: '20px', sm: '24px', md: '28px' },
+              mb: 3,
+            }}
+          >
+            {research.title}
+          </Typography>
+          <Typography
+            sx={{
+              color: '#ccc',
+              fontSize: { xs: '14px', sm: '16px' },
+              lineHeight: 1.8,
+              whiteSpace: 'pre-wrap',
+            }}
+          >
+            {research.content}
+          </Typography>
+        </Paper>
+
+        {/* Engagement Stats */}
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 3,
+            mb: 4,
+            color: '#888',
+          }}
+        >
+          <Button
+            startIcon={<LikeIcon />}
+            onClick={handleLike}
+            sx={{
+              color: '#888',
+              '&:hover': { color: '#C0FF92' },
+            }}
+          >
+            {research.stats.likes}
+          </Button>
+          <Typography>{research.stats.comments} Comments</Typography>
+          <Typography>{research.stats.shares} Shares</Typography>
+        </Box>
+
+        {/* Comment Input */}
+        <Box sx={{ mb: 4 }}>
+          <Box
+            sx={{
+              display: 'flex',
+              gap: 2,
+              mb: 3,
+            }}
+          >
+            <Avatar
+              sx={{
+                bgcolor: '#333',
+                width: { xs: 36, sm: 40 },
+                height: { xs: 36, sm: 40 },
+              }}
+            >
+              CU
+            </Avatar>
+            <Box sx={{ flex: 1 }}>
+              <TextField
+                multiline
+                rows={2}
+                placeholder="Add a comment..."
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+                fullWidth
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    bgcolor: '#1a1a1a',
+                    color: '#fff',
+                    '& fieldset': {
+                      borderColor: '#333',
+                    },
+                    '&:hover fieldset': {
+                      borderColor: '#444',
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: '#C0FF92',
+                    },
+                  },
+                }}
+              />
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'flex-end',
+                  mt: 1,
+                }}
+              >
+                <Button
+                  variant="contained"
+                  onClick={handleComment}
+                  disabled={!comment.trim()}
+                  sx={{
+                    bgcolor: '#C0FF92',
+                    color: '#000',
+                    '&:hover': {
+                      bgcolor: '#A8E87C',
+                    },
+                    '&.Mui-disabled': {
+                      bgcolor: '#333',
+                      color: '#666',
+                    },
+                  }}
+                >
+                  Comment
+                </Button>
+              </Box>
+            </Box>
+          </Box>
+        </Box>
+
+        {/* Comments Section */}
+        <Stack spacing={3}>
+          {research.comments.map((comment) => (
+            <Box key={comment.id}>
+              <Box sx={{ display: 'flex', gap: 2 }}>
+                <Avatar
+                  sx={{
+                    bgcolor: '#333',
+                    width: { xs: 36, sm: 40 },
+                    height: { xs: 36, sm: 40 },
+                  }}
+                >
+                  {comment.author.avatar}
+                </Avatar>
+                <Box sx={{ flex: 1 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                    <Typography
+                      sx={{
+                        fontWeight: 'bold',
+                        fontSize: { xs: '13px', sm: '14px' },
+                      }}
+                    >
+                      {comment.author.name}
+                    </Typography>
+                    <Typography
+                      sx={{
+                        color: '#888',
+                        fontSize: { xs: '12px', sm: '13px' },
+                      }}
+                    >
+                      • {comment.author.institution}
+                    </Typography>
+                    <Typography
+                      sx={{
+                        color: '#666',
+                        fontSize: { xs: '12px', sm: '13px' },
+                        ml: 'auto',
+                      }}
+                    >
+                      {comment.timestamp}
+                    </Typography>
+                  </Box>
+                  <Typography
+                    sx={{
+                      color: '#ccc',
+                      fontSize: { xs: '13px', sm: '14px' },
+                      lineHeight: 1.6,
+                      mb: 1,
+                    }}
+                  >
+                    {comment.content}
+                  </Typography>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                    <Button
+                      startIcon={<LikeIcon />}
+                      size="small"
+                      onClick={() => handleLikeComment(comment.id)}
+                      sx={{
+                        color: '#888',
+                        fontSize: { xs: '12px', sm: '13px' },
+                        '&:hover': { color: '#C0FF92' },
+                      }}
+                    >
+                      {comment.likes}
+                    </Button>
+                    <Button
+                      startIcon={<ReplyIcon />}
+                      size="small"
+                      onClick={() => handleReply(comment.id)}
+                      sx={{
+                        color: '#888',
+                        fontSize: { xs: '12px', sm: '13px' },
+                        '&:hover': { color: '#C0FF92' },
+                      }}
+                    >
+                      Reply
+                    </Button>
+                  </Box>
+
+                  {/* Replies */}
+                  {comment.replies && comment.replies.length > 0 && (
+                    <Box sx={{ ml: { xs: 2, sm: 4 }, mt: 2 }}>
+                      {comment.replies.map((reply) => (
+                        <Box key={reply.id} sx={{ display: 'flex', gap: 2, mb: 2 }}>
+                          <Avatar
+                            sx={{
+                              bgcolor: '#333',
+                              width: { xs: 32, sm: 36 },
+                              height: { xs: 32, sm: 36 },
+                            }}
+                          >
+                            {reply.author.avatar}
+                          </Avatar>
+                          <Box sx={{ flex: 1 }}>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                              <Typography
+                                sx={{
+                                  fontWeight: 'bold',
+                                  fontSize: { xs: '12px', sm: '13px' },
+                                }}
+                              >
+                                {reply.author.name}
+                              </Typography>
+                              <Typography
+                                sx={{
+                                  color: '#888',
+                                  fontSize: { xs: '11px', sm: '12px' },
+                                }}
+                              >
+                                • {reply.author.institution}
+                              </Typography>
+                              <Typography
+                                sx={{
+                                  color: '#666',
+                                  fontSize: { xs: '11px', sm: '12px' },
+                                  ml: 'auto',
+                                }}
+                              >
+                                {reply.timestamp}
+                              </Typography>
+                            </Box>
+                            <Typography
+                              sx={{
+                                color: '#ccc',
+                                fontSize: { xs: '12px', sm: '13px' },
+                                lineHeight: 1.6,
+                                mb: 1,
+                              }}
+                            >
+                              {reply.content}
+                            </Typography>
+                            <Button
+                              startIcon={<LikeIcon />}
+                              size="small"
+                              onClick={() => handleLikeReply(comment.id, reply.id)}
+                              sx={{
+                                color: '#888',
+                                fontSize: { xs: '11px', sm: '12px' },
+                                '&:hover': { color: '#C0FF92' },
+                              }}
+                            >
+                              {reply.likes}
+                            </Button>
+                          </Box>
+                        </Box>
+                      ))}
+                    </Box>
+                  )}
+                </Box>
+              </Box>
+            </Box>
+          ))}
+        </Stack>
+      </Box>
+    </Box>
+  )
+}
+
+export default PublicResearch 
