@@ -276,9 +276,12 @@ function PublicResearch() {
           <Typography
             variant="h4"
             sx={{
+              color: '#C0FF92',
               fontWeight: 'bold',
-              fontSize: { xs: '20px', sm: '24px', md: '28px' },
-              mb: 3,
+              fontSize: { xs: '24px', sm: '28px', md: '32px' },
+              mb: 4,
+              borderBottom: '1px solid #333',
+              pb: 2,
             }}
           >
             {research.title}
