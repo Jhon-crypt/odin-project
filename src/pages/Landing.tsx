@@ -17,6 +17,7 @@ import {
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AutoAwesome as AiIcon } from '@mui/icons-material'
+import { supabase } from '../lib/supabaseClient'
 
 function Landing() {
   const [currentView, setCurrentView] = useState('landing') // 'landing', 'login', 'invite'
@@ -86,11 +87,23 @@ function Landing() {
     if (!email.trim()) return
 
     try {
-      // TODO: Implement the actual invite request API call
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      const { error } = await supabase
+        .from('invited_users')
+        .insert([
+          { 
+            email: email.trim(),
+            ip_address: null, // Will be set by RLS policy
+            is_active: true
+          }
+        ])
+        .select()
+
+      if (error) throw error
+
       setSubmitted(true)
       setError(null)
-    } catch {
+    } catch (err) {
+      console.error('Error submitting invitation request:', err)
       setError('Failed to submit invitation request. Please try again.')
     }
   }
