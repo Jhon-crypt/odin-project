@@ -20,13 +20,12 @@ import { useNavigate } from 'react-router-dom'
 import { AutoAwesome as AiIcon } from '@mui/icons-material'
 
 function Landing() {
-  const [currentView, setCurrentView] = useState('landing') // 'landing', 'login', 'signup'
-  const navigate = useNavigate()
-  const isMobile = useMediaQuery('(max-width:767px)')
-  const [showInviteForm, setShowInviteForm] = useState(false)
+  const [currentView, setCurrentView] = useState('landing') // 'landing', 'login', 'invite'
   const [email, setEmail] = useState('')
   const [submitted, setSubmitted] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const navigate = useNavigate()
+  const isMobile = useMediaQuery('(max-width:767px)')
 
   const theme = createTheme({
     palette: {
@@ -63,12 +62,17 @@ function Landing() {
     'https://i.pravatar.cc/150?img=6',
   ]
 
-  const handleLogin = () => {
-    navigate('/dashboard')
-  }
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!email) return
 
-  const handleSignup = () => {
-    navigate('/dashboard')
+    try {
+      // TODO: Implement actual login
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      navigate('/dashboard')
+    } catch {
+      setError('Invalid credentials')
+    }
   }
 
   const handleInviteRequest = async (e: React.FormEvent) => {
@@ -77,7 +81,7 @@ function Landing() {
 
     try {
       // TODO: Implement the actual invite request API call
-      await new Promise(resolve => setTimeout(resolve, 1000)) // Simulated API call
+      await new Promise(resolve => setTimeout(resolve, 1000))
       setSubmitted(true)
       setError(null)
     } catch {
@@ -207,7 +211,10 @@ function Landing() {
                 }}>
                   <Button
                     variant="contained"
-                    onClick={() => setShowInviteForm(true)}
+                    onClick={() => {
+                      setCurrentView('invite')
+                      setError(null)
+                    }}
                     sx={{
                       bgcolor: '#C0FF92',
                       color: '#000',
@@ -230,7 +237,10 @@ function Landing() {
                   
                   <Button
                     variant="outlined"
-                    onClick={() => setCurrentView('login')}
+                    onClick={() => {
+                      setCurrentView('login')
+                      setError(null)
+                    }}
                     sx={{
                       borderColor: '#C0FF92',
                       color: '#C0FF92',
@@ -641,7 +651,7 @@ function Landing() {
                   <Button
                     fullWidth
                     variant="contained"
-                    onClick={handleSignup}
+                    onClick={() => setCurrentView('signup')}
                     sx={{
                       bgcolor: '#C0FF92',
                       color: '#000',
@@ -703,7 +713,7 @@ function Landing() {
             )}
 
             {/* Invitation Request Form */}
-            {showInviteForm && !submitted && (
+            {currentView === 'invite' && !submitted && (
               <Paper
                 sx={{
                   bgcolor: '#1a1a1a',
