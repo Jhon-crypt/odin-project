@@ -299,7 +299,7 @@ function Landing() {
                     maxWidth: { xs: '100%', sm: '320px' },
                   }}
                 >
-                  Analyze, summarize, and collaborate on research papers with AI
+                  Create, Analyze, summarize, and collaborate on research papers with AI
                 </Typography>
 
                 {/* Avatar Group */}
