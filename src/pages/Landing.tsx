@@ -98,11 +98,9 @@ function Landing() {
         .insert([
           { 
             email: email.trim(),
-            ip_address: null,
             is_active: true
           }
         ])
-        .select()
 
       if (error) throw error
 

@@ -21,6 +21,11 @@ CREATE INDEX IF NOT EXISTS idx_invited_users_ip ON invited_users(ip_address);
 -- Enable Row Level Security (RLS)
 ALTER TABLE invited_users ENABLE ROW LEVEL SECURITY;
 
+-- Drop existing policies if they exist
+DROP POLICY IF EXISTS "Allow read access for authenticated users" ON invited_users;
+DROP POLICY IF EXISTS "Allow public inserts for invitation requests" ON invited_users;
+DROP POLICY IF EXISTS "Allow update/delete for service role only" ON invited_users;
+
 -- Create policy to restrict read access to authenticated users
 CREATE POLICY "Allow read access for authenticated users" ON invited_users
     FOR SELECT
@@ -31,7 +36,16 @@ CREATE POLICY "Allow read access for authenticated users" ON invited_users
 CREATE POLICY "Allow public inserts for invitation requests" ON invited_users
     FOR INSERT
     TO public
-    WITH CHECK (true);
+    WITH CHECK (
+        -- Only allow insert with email and is_active
+        email IS NOT NULL AND
+        is_active = true AND
+        -- Ensure other fields are either null or default values
+        (ip_address IS NULL) AND
+        (invited_at IS NULL OR invited_at = CURRENT_TIMESTAMP) AND
+        (last_access_at IS NULL) AND
+        (access_count IS NULL OR access_count = 0)
+    );
 
 -- Create policy to restrict update/delete to service role only
 CREATE POLICY "Allow update/delete for service role only" ON invited_users
