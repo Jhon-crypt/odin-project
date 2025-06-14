@@ -15,6 +15,7 @@ import {
   Alert,
   CircularProgress,
 } from '@mui/material'
+import { LoadingButton } from '@mui/lab'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AutoAwesome as AiIcon } from '@mui/icons-material'
@@ -790,6 +791,10 @@ function Landing() {
                             '& fieldset': { borderColor: '#333' },
                             '&:hover fieldset': { borderColor: '#444' },
                             '&.Mui-focused fieldset': { borderColor: '#C0FF92' },
+                            '&.Mui-disabled': {
+                              opacity: 0.7,
+                              cursor: 'not-allowed',
+                            },
                           },
                           '& .MuiInputLabel-root': {
                             color: '#888',
@@ -802,35 +807,34 @@ function Landing() {
                           {error}
                         </Alert>
                       )}
-                      <Button
+                      <LoadingButton
                         type="submit"
                         variant="contained"
                         fullWidth
-                        disabled={isLoading}
+                        loading={isLoading}
+                        loadingPosition="center"
+                        loadingIndicator={
+                          <CircularProgress 
+                            size={24} 
+                            sx={{ 
+                              color: 'rgba(0, 0, 0, 0.7)',
+                            }} 
+                          />
+                        }
                         sx={{
                           bgcolor: '#C0FF92',
                           color: '#111',
                           '&:hover': { bgcolor: '#a8ff66' },
                           mb: 2,
-                          position: 'relative',
+                          height: '48px',
+                          '&.Mui-disabled': {
+                            bgcolor: '#C0FF92',
+                            opacity: 0.7,
+                          },
                         }}
                       >
-                        {isLoading ? (
-                          <CircularProgress
-                            size={24}
-                            sx={{
-                              color: '#111',
-                              position: 'absolute',
-                              top: '50%',
-                              left: '50%',
-                              marginTop: '-12px',
-                              marginLeft: '-12px',
-                            }}
-                          />
-                        ) : (
-                          'Request Invitation'
-                        )}
-                      </Button>
+                        Request Invitation
+                      </LoadingButton>
                     </form>
                     <Button
                       fullWidth
@@ -841,6 +845,9 @@ function Landing() {
                         '&:hover': {
                           color: '#fff',
                           bgcolor: 'rgba(255,255,255,0.05)',
+                        },
+                        '&.Mui-disabled': {
+                          color: '#666',
                         },
                       }}
                     >
