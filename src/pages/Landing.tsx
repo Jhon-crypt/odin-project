@@ -22,8 +22,10 @@ import { AutoAwesome as AiIcon } from '@mui/icons-material'
 import { supabase } from '../lib/supabaseClient'
 
 function Landing() {
-  const [currentView, setCurrentView] = useState('landing') // 'landing', 'login', 'invite'
+  const [currentView, setCurrentView] = useState('landing') // 'landing', 'login', 'signup'
   const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
   const [submitted, setSubmitted] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
@@ -78,9 +80,32 @@ function Landing() {
     }
   }
 
+  const handleSignup = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!email || !password || !confirmPassword) {
+      setError('Please fill in all fields')
+      return
+    }
+
+    if (password !== confirmPassword) {
+      setError('Passwords do not match')
+      return
+    }
+
+    try {
+      // TODO: Implement actual signup
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      navigate('/dashboard')
+    } catch {
+      setError('Failed to create account')
+    }
+  }
+
   const handleBack = () => {
     setCurrentView('landing')
     setEmail('')
+    setPassword('')
+    setConfirmPassword('')
     setError(null)
     setSubmitted(false)
   }
@@ -129,7 +154,7 @@ function Landing() {
         <Box
           sx={{
             width: { xs: '100%', md: '50%' },
-            minHeight: { xs: '100vh', md: '100vh' },
+            minHeight: { xs: '100vh', md: 'auto' },
             bgcolor: '#111111',
             background: {
               xs: 'linear-gradient(135deg, #1a1a1a 0%, #111111 100%)',
@@ -236,7 +261,7 @@ function Landing() {
                   <Button
                     variant="contained"
                     onClick={() => {
-                      setCurrentView('invite')
+                      setCurrentView('signup')
                       setError(null)
                     }}
                     sx={{
@@ -373,10 +398,18 @@ function Landing() {
                   maxWidth: { xs: '100%', sm: '380px', md: '400px' },
                   px: { xs: 0, sm: 1 },
                 }}>
+                  {error && (
+                    <Alert severity="error" sx={{ mb: 2 }}>
+                      {error}
+                    </Alert>
+                  )}
+
                   <TextField
                     fullWidth
                     type="email"
                     placeholder="Email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     variant="outlined"
                     sx={{
                       mb: { xs: 1.5, sm: 2 },
@@ -410,6 +443,8 @@ function Landing() {
                     fullWidth
                     type="password"
                     placeholder="Password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                     variant="outlined"
                     sx={{
                       mb: { xs: 1.5, sm: 2 },
@@ -439,7 +474,7 @@ function Landing() {
                   />
 
                   <Box sx={{ 
-                    display: 'flex', 
+                    display: 'flex',
                     justifyContent: 'space-between', 
                     alignItems: 'center', 
                     mb: { xs: 2.5, sm: 3 },
@@ -500,7 +535,7 @@ function Landing() {
                       },
                     }}
                   >
-                    Log in
+                    Login
                   </Button>
 
                   <Typography sx={{ 
@@ -511,7 +546,7 @@ function Landing() {
                   }}>
                     Don't have an account?{' '}
                     <Button
-                      onClick={() => setCurrentView('invite')}
+                      onClick={() => setCurrentView('signup')}
                       sx={{
                         color: '#C0FF92',
                         textTransform: 'none',
@@ -568,7 +603,7 @@ function Landing() {
                     fontSize: { xs: '1.25rem', sm: '1.5rem', md: '1.75rem', lg: '2rem' },
                   }}
                 >
-                  Join Odin Project
+                  Create Account
                 </Typography>
 
                 <Box sx={{ 
@@ -576,9 +611,18 @@ function Landing() {
                   maxWidth: { xs: '100%', sm: '380px', md: '400px' },
                   px: { xs: 0, sm: 1 },
                 }}>
+                  {error && (
+                    <Alert severity="error" sx={{ mb: 2 }}>
+                      {error}
+                    </Alert>
+                  )}
+
                   <TextField
                     fullWidth
-                    placeholder="Username"
+                    type="email"
+                    placeholder="Email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     variant="outlined"
                     sx={{
                       mb: { xs: 1.5, sm: 2 },
@@ -586,6 +630,7 @@ function Landing() {
                         bgcolor: '#1a1a1a',
                         color: '#fff',
                         borderRadius: { xs: '8px', sm: '10px', md: '12px' },
+                        fontSize: { xs: '14px', sm: '15px', md: '16px' },
                         '& fieldset': {
                           borderColor: '#333',
                         },
@@ -609,8 +654,10 @@ function Landing() {
 
                   <TextField
                     fullWidth
-                    type="email"
-                    placeholder="Email"
+                    type="password"
+                    placeholder="Password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                     variant="outlined"
                     sx={{
                       mb: { xs: 1.5, sm: 2 },
@@ -642,7 +689,9 @@ function Landing() {
                   <TextField
                     fullWidth
                     type="password"
-                    placeholder="Password"
+                    placeholder="Confirm Password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
                     variant="outlined"
                     sx={{
                       mb: { xs: 2.5, sm: 3 },
@@ -674,7 +723,7 @@ function Landing() {
                   <Button
                     fullWidth
                     variant="contained"
-                    onClick={() => setCurrentView('signup')}
+                    onClick={handleSignup}
                     sx={{
                       bgcolor: '#C0FF92',
                       color: '#000',
