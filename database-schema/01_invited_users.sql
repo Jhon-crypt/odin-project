@@ -27,8 +27,14 @@ CREATE POLICY "Allow read access for authenticated users" ON invited_users
     TO authenticated
     USING (true);
 
--- Create policy to restrict insert/update to service role only
-CREATE POLICY "Allow insert/update for service role only" ON invited_users
+-- Create policy to allow public inserts for invitation requests
+CREATE POLICY "Allow public inserts for invitation requests" ON invited_users
+    FOR INSERT
+    TO public
+    WITH CHECK (true);
+
+-- Create policy to restrict update/delete to service role only
+CREATE POLICY "Allow update/delete for service role only" ON invited_users
     FOR ALL
     TO service_role
     USING (true)

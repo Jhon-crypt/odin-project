@@ -13,6 +13,7 @@ import {
   FormControlLabel,
   useMediaQuery,
   Alert,
+  CircularProgress,
 } from '@mui/material'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -24,6 +25,7 @@ function Landing() {
   const [email, setEmail] = useState('')
   const [submitted, setSubmitted] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
   const navigate = useNavigate()
   const isMobile = useMediaQuery('(max-width:767px)')
 
@@ -86,13 +88,16 @@ function Landing() {
     e.preventDefault()
     if (!email.trim()) return
 
+    setIsLoading(true)
+    setError(null)
+
     try {
       const { error } = await supabase
         .from('invited_users')
         .insert([
           { 
             email: email.trim(),
-            ip_address: null, // Will be set by RLS policy
+            ip_address: null,
             is_active: true
           }
         ])
@@ -101,10 +106,11 @@ function Landing() {
       if (error) throw error
 
       setSubmitted(true)
-      setError(null)
     } catch (err) {
       console.error('Error submitting invitation request:', err)
       setError('Failed to submit invitation request. Please try again.')
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -776,6 +782,7 @@ function Landing() {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         required
+                        disabled={isLoading}
                         sx={{
                           mb: 2,
                           '& .MuiOutlinedInput-root': {
@@ -799,19 +806,36 @@ function Landing() {
                         type="submit"
                         variant="contained"
                         fullWidth
+                        disabled={isLoading}
                         sx={{
                           bgcolor: '#C0FF92',
                           color: '#111',
                           '&:hover': { bgcolor: '#a8ff66' },
                           mb: 2,
+                          position: 'relative',
                         }}
                       >
-                        Request Invitation
+                        {isLoading ? (
+                          <CircularProgress
+                            size={24}
+                            sx={{
+                              color: '#111',
+                              position: 'absolute',
+                              top: '50%',
+                              left: '50%',
+                              marginTop: '-12px',
+                              marginLeft: '-12px',
+                            }}
+                          />
+                        ) : (
+                          'Request Invitation'
+                        )}
                       </Button>
                     </form>
                     <Button
                       fullWidth
                       onClick={handleBack}
+                      disabled={isLoading}
                       sx={{
                         color: '#888',
                         '&:hover': {
