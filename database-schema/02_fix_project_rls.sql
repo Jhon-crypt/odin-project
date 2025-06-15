@@ -1,17 +1,22 @@
--- Drop existing policy
+-- First, disable RLS temporarily to avoid any issues during policy changes
+ALTER TABLE projects DISABLE ROW LEVEL SECURITY;
+
+-- Drop all existing policies on projects
 DROP POLICY IF EXISTS "Users can view projects they have access to" ON projects;
+DROP POLICY IF EXISTS "Users can view their own projects" ON projects;
+DROP POLICY IF EXISTS "Users can view projects they collaborate on" ON projects;
 
--- Create separate policies for owners and collaborators
-CREATE POLICY "Users can view their own projects"
-    ON projects FOR SELECT
-    USING (auth.uid() = created_by);
-
-CREATE POLICY "Users can view projects they collaborate on"
-    ON projects FOR SELECT
+-- Create a single, simple policy
+CREATE POLICY "project_access_policy" ON projects
+    FOR ALL
     USING (
-        EXISTS (
-            SELECT 1 FROM project_collaborators 
-            WHERE project_collaborators.project_id = id 
-            AND project_collaborators.user_id = auth.uid()
+        created_by = auth.uid() OR
+        project_id IN (
+            SELECT project_id 
+            FROM project_collaborators 
+            WHERE user_id = auth.uid()
         )
-    ); 
+    );
+
+-- Re-enable RLS
+ALTER TABLE projects ENABLE ROW LEVEL SECURITY; 
