@@ -149,29 +149,34 @@ function Landing() {
         },
       })
 
-      if (signUpError) throw signUpError
-
-      // Check if the signup was successful but needs email confirmation
-      if (data?.user?.identities?.length === 0) {
-        setError('This email is already registered. Please try logging in instead.')
-        return
+      if (signUpError) {
+        // Handle specific error cases
+        if (signUpError.message.toLowerCase().includes('user already registered')) {
+          setError('This email is already registered. Please try logging in instead.')
+          return
+        }
+        throw signUpError
       }
 
       // After successful signup, create user profile
       if (data.user) {
         const { error: profileError } = await supabase
           .from('users')
-          .insert({
+          .upsert({
             id: data.user.id,
             email: data.user.email,
             display_name: displayName,
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
+          }, {
+            onConflict: 'id',
+            ignoreDuplicates: false
           })
 
         if (profileError) {
           console.error('Error creating user profile:', profileError)
-          throw profileError
+          setError('An unexpected error occurred during signup. Please try again.')
+          return
         }
 
         // Check if email confirmation is required
@@ -189,7 +194,17 @@ function Landing() {
     } catch (err) {
       console.error('Signup error:', err)
       const error = err as AuthError
-      setError(error.message || 'Failed to create account. Please try again.')
+      
+      // Handle common error messages with user-friendly text
+      if (error.message.toLowerCase().includes('duplicate key')) {
+        setError('An unexpected error occurred. Please try again.')
+      } else if (error.message.toLowerCase().includes('weak password')) {
+        setError('Please choose a stronger password. It should be at least 6 characters long.')
+      } else if (error.message.toLowerCase().includes('invalid email')) {
+        setError('Please enter a valid email address.')
+      } else {
+        setError(error.message || 'Failed to create account. Please try again.')
+      }
     } finally {
       setIsLoading(false)
     }
