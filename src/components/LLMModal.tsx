@@ -15,7 +15,7 @@ import {
   Close as CloseIcon,
   Key as KeyIcon,
 } from '@mui/icons-material'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import useLLMStore from '../store/llmStore'
 
 interface LLMModalProps {
@@ -31,14 +31,30 @@ interface LLMModalProps {
 }
 
 function LLMModal({ open, onClose, llmOptions, loading = false }: LLMModalProps) {
-  const { selectedLLM: storedLLM, setLLM } = useLLMStore()
+  const { selectedLLM: storedLLM, apiKey: storedApiKey, setLLM, loadStoredSettings } = useLLMStore()
   const [selectedLLM, setSelectedLLM] = useState<string | null>(storedLLM)
-  const [apiKey, setApiKey] = useState('')
+  const [apiKey, setApiKey] = useState(storedApiKey || '')
 
-  const handleSave = () => {
+  // Load stored settings when modal opens
+  useEffect(() => {
+    if (open) {
+      loadStoredSettings().then(() => {
+        // Update local state with loaded settings
+        setSelectedLLM(storedLLM)
+        if (storedApiKey) setApiKey(storedApiKey)
+      })
+    }
+  }, [open, loadStoredSettings, storedLLM, storedApiKey])
+
+  const handleSave = async () => {
     if (selectedLLM && apiKey) {
-      setLLM(selectedLLM, apiKey)
-      onClose()
+      try {
+        await setLLM(selectedLLM, apiKey)
+        onClose()
+      } catch (error) {
+        console.error('Error saving LLM settings:', error)
+        // You might want to show an error message to the user here
+      }
     }
   }
 
@@ -78,22 +94,13 @@ function LLMModal({ open, onClose, llmOptions, loading = false }: LLMModalProps)
         </Box>
 
         <FormControl fullWidth sx={{ mb: 3 }}>
-          <InputLabel 
-            id="llm-select-label"
-            sx={{ 
-              color: '#888',
-              '&.Mui-focused': {
-                color: '#C0FF92',
-              },
-            }}
-          >
+          <InputLabel id="llm-select-label" sx={{ color: '#888' }}>
             Select LLM
           </InputLabel>
           <Select
             labelId="llm-select-label"
             value={selectedLLM || ''}
             onChange={(e) => setSelectedLLM(e.target.value)}
-            label="Select LLM"
             disabled={loading}
             sx={{
               color: '#fff',
@@ -106,30 +113,8 @@ function LLMModal({ open, onClose, llmOptions, loading = false }: LLMModalProps)
               '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
                 borderColor: '#C0FF92',
               },
-              '& .MuiSelect-icon': {
+              '& .MuiSvgIcon-root': {
                 color: '#888',
-              },
-            }}
-            MenuProps={{
-              PaperProps: {
-                sx: {
-                  bgcolor: '#1a1a1a',
-                  border: '1px solid #333',
-                  maxHeight: 400,
-                  '& .MuiMenuItem-root': {
-                    color: '#ccc',
-                    '&:hover': {
-                      bgcolor: '#333',
-                    },
-                    '&.Mui-selected': {
-                      bgcolor: 'rgba(192, 255, 146, 0.1)',
-                      color: '#C0FF92',
-                      '&:hover': {
-                        bgcolor: 'rgba(192, 255, 146, 0.2)',
-                      },
-                    },
-                  },
-                },
               },
             }}
           >
