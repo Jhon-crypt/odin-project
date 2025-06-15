@@ -4,56 +4,47 @@ import {
   Paper,
   IconButton,
   CircularProgress,
+  TextField,
 } from '@mui/material'
 import DescriptionIcon from '@mui/icons-material/Description'
 import EditIcon from '@mui/icons-material/Edit'
 import SaveIcon from '@mui/icons-material/Save'
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import useCanvasStore from '../store/canvasStore'
-import type { 
-  CanvasItem, 
-  TextContent, 
-  NoteContent, 
-  LinkContent, 
-  ImageContent, 
-  FileContent 
-} from '../types/database'
-
-function getItemText(item: CanvasItem): string {
-  switch (item.type) {
-    case 'text':
-    case 'note':
-      return (item.content as TextContent | NoteContent).text;
-    case 'link':
-      return (item.content as LinkContent).title;
-    case 'image':
-      return (item.content as ImageContent).alt || 'Image';
-    case 'file':
-      return (item.content as FileContent).name;
-    default:
-      return '';
-  }
-}
+import useResearchStore from '../store/researchStore'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 
 function ResearchCanvas() {
   const { id: projectId } = useParams()
-  const { items, isLoading, error, fetchItems } = useCanvasStore()
-  const [isEditing, setIsEditing] = useState(false)
+  const {
+    content,
+    isLoading,
+    error,
+    isEditing,
+    fetchDocument,
+    updateDocument,
+    setIsEditing,
+  } = useResearchStore()
+  const [editableContent, setEditableContent] = useState(content)
 
   useEffect(() => {
     if (projectId) {
-      fetchItems(projectId)
+      fetchDocument(projectId)
     }
-  }, [projectId, fetchItems])
+  }, [projectId, fetchDocument])
+
+  useEffect(() => {
+    setEditableContent(content)
+  }, [content])
+
+  const handleSave = async () => {
+    if (!projectId) return
+    await updateDocument(projectId, editableContent)
+    setIsEditing(false)
+  }
 
   if (!projectId) return null
-
-  // Combine all text content into a single document
-  const documentContent = items
-    .filter(item => item.type === 'text' || item.type === 'note')
-    .map(item => getItemText(item))
-    .join('\n\n')
 
   return (
     <Box
@@ -94,7 +85,7 @@ function ResearchCanvas() {
         </Box>
         
         <IconButton
-          onClick={() => setIsEditing(!isEditing)}
+          onClick={() => isEditing ? handleSave() : setIsEditing(true)}
           size="small"
           sx={{
             color: '#C0FF92',
@@ -143,10 +134,29 @@ function ResearchCanvas() {
               p: { xs: 2, sm: 3, md: 4 },
             }}
           >
-            {items.length === 0 ? (
-              <Typography color="#666" align="center">
-                Add items from the chat to start building your research document
-              </Typography>
+            {isEditing ? (
+              <TextField
+                multiline
+                fullWidth
+                value={editableContent}
+                onChange={(e) => setEditableContent(e.target.value)}
+                variant="outlined"
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    color: '#ccc',
+                    bgcolor: '#1a1a1a',
+                    '& fieldset': {
+                      borderColor: '#333',
+                    },
+                    '&:hover fieldset': {
+                      borderColor: '#444',
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: '#C0FF92',
+                    },
+                  },
+                }}
+              />
             ) : (
               <Box
                 sx={{
@@ -154,7 +164,6 @@ function ResearchCanvas() {
                   fontSize: { xs: '14px', sm: '15px', md: '16px' },
                   lineHeight: { xs: 1.6, sm: 1.8 },
                   fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
-                  whiteSpace: 'pre-wrap',
                   '& h1, & h2, & h3': {
                     color: '#fff',
                     fontWeight: 'bold',
@@ -180,9 +189,58 @@ function ResearchCanvas() {
                   '& li': {
                     mb: 1,
                   },
+                  '& code': {
+                    bgcolor: '#1a1a1a',
+                    p: 0.5,
+                    borderRadius: 1,
+                    fontFamily: 'monospace',
+                  },
+                  '& pre': {
+                    bgcolor: '#1a1a1a',
+                    p: 2,
+                    borderRadius: 1,
+                    overflowX: 'auto',
+                    '& code': {
+                      p: 0,
+                    },
+                  },
+                  '& blockquote': {
+                    borderLeft: '4px solid #C0FF92',
+                    pl: 2,
+                    ml: 0,
+                    my: 2,
+                    color: '#888',
+                  },
+                  '& a': {
+                    color: '#C0FF92',
+                    textDecoration: 'none',
+                    '&:hover': {
+                      textDecoration: 'underline',
+                    },
+                  },
+                  '& img': {
+                    maxWidth: '100%',
+                    height: 'auto',
+                    borderRadius: 1,
+                  },
+                  '& table': {
+                    borderCollapse: 'collapse',
+                    width: '100%',
+                    mb: 2,
+                  },
+                  '& th, & td': {
+                    border: '1px solid #333',
+                    p: 1,
+                  },
+                  '& th': {
+                    bgcolor: '#1a1a1a',
+                    fontWeight: 'bold',
+                  },
                 }}
               >
-                {documentContent}
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                  {content}
+                </ReactMarkdown>
               </Box>
             )}
           </Paper>
