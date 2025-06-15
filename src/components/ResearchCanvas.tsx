@@ -14,9 +14,14 @@ import { useParams } from 'react-router-dom'
 import useResearchStore from '../store/researchStore'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+import useCanvasStore from '../store/canvasStore'
 
 function ResearchCanvas() {
   const { id: projectId } = useParams()
+  const [localContent, setLocalContent] = useState('')
+  const [localTitle, setLocalTitle] = useState('')
+  const [isTitleEditing, setIsTitleEditing] = useState(false)
+
   const {
     content,
     title,
@@ -27,27 +32,44 @@ function ResearchCanvas() {
     updateDocument,
     setIsEditing,
   } = useResearchStore()
-  const [editableContent, setEditableContent] = useState(content)
-  const [editableTitle, setEditableTitle] = useState(title)
+
+  const { items } = useCanvasStore()
 
   useEffect(() => {
     if (projectId) {
       fetchDocument(projectId)
     }
-  }, [projectId, fetchDocument])
+  }, [projectId, fetchDocument, items])
 
   useEffect(() => {
-    setEditableContent(content)
-    setEditableTitle(title)
+    setLocalContent(content)
+    setLocalTitle(title)
   }, [content, title])
 
-  const handleSave = async () => {
-    if (!projectId) return
-    await updateDocument(projectId, editableContent, editableTitle)
-    setIsEditing(false)
+  const handleEdit = () => {
+    setIsEditing(true)
+    setLocalContent(content)
   }
 
-  if (!projectId) return null
+  const handleSave = async () => {
+    if (projectId) {
+      await updateDocument(projectId, localContent, localTitle)
+      setIsEditing(false)
+      setIsTitleEditing(false)
+    }
+  }
+
+  const handleTitleEdit = () => {
+    setIsTitleEditing(true)
+  }
+
+  if (error) {
+    return (
+      <Box sx={{ p: 3, color: 'error.main' }}>
+        <Typography>Error: {error}</Typography>
+      </Box>
+    )
+  }
 
   return (
     <Box
@@ -75,10 +97,12 @@ function ResearchCanvas() {
             color: '#C0FF92', 
             fontSize: { xs: 18, sm: 20 } 
           }} />
-          {isEditing ? (
+          {isTitleEditing ? (
             <TextField
-              value={editableTitle}
-              onChange={(e) => setEditableTitle(e.target.value)}
+              value={localTitle}
+              onChange={(e) => setLocalTitle(e.target.value)}
+              onBlur={handleSave}
+              onKeyPress={(e) => e.key === 'Enter' && handleSave()}
               variant="standard"
               sx={{
                 flex: 1,
@@ -97,6 +121,7 @@ function ResearchCanvas() {
                   },
                 },
               }}
+              autoFocus
             />
           ) : (
             <Typography
@@ -105,7 +130,10 @@ function ResearchCanvas() {
                 color: '#C0FF92',
                 fontWeight: 'bold',
                 fontSize: { xs: '14px', sm: '16px', md: '18px' },
+                cursor: 'pointer',
+                '&:hover': { opacity: 0.8 },
               }}
+              onClick={handleTitleEdit}
             >
               {title}
             </Typography>
@@ -113,7 +141,7 @@ function ResearchCanvas() {
         </Box>
         
         <IconButton
-          onClick={() => isEditing ? handleSave() : setIsEditing(true)}
+          onClick={isEditing ? handleSave : handleEdit}
           size="small"
           sx={{
             color: '#C0FF92',
@@ -167,8 +195,8 @@ function ResearchCanvas() {
               <TextField
                 multiline
                 fullWidth
-                value={editableContent}
-                onChange={(e) => setEditableContent(e.target.value)}
+                value={localContent}
+                onChange={(e) => setLocalContent(e.target.value)}
                 variant="outlined"
                 sx={{
                   '& .MuiOutlinedInput-root': {

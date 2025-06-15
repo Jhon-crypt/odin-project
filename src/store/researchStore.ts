@@ -3,16 +3,18 @@ import { supabase } from '../lib/supabaseClient'
 
 interface ResearchStore {
   content: string
+  title: string
   isLoading: boolean
   error: string | null
   isEditing: boolean
   fetchDocument: (projectId: string) => Promise<void>
-  updateDocument: (projectId: string, content: string) => Promise<void>
+  updateDocument: (projectId: string, content: string, title?: string) => Promise<void>
   setIsEditing: (isEditing: boolean) => void
 }
 
 const useResearchStore = create<ResearchStore>((set) => ({
   content: '',
+  title: '',
   isLoading: false,
   error: null,
   isEditing: false,
@@ -21,37 +23,34 @@ const useResearchStore = create<ResearchStore>((set) => ({
     try {
       set({ isLoading: true, error: null })
       
-      // First check if a document exists
-      const { data: existingDoc, error: fetchError } = await supabase
-        .from('research_documents')
-        .select('content')
+      // Fetch canvas items
+      const { data: canvasItems, error: canvasError } = await supabase
+        .from('canvas_items')
+        .select('*')
         .eq('project_id', projectId)
+        .order('created_at', { ascending: true })
+
+      if (canvasError) throw canvasError
+
+      // Combine all text content from canvas items
+      const content = canvasItems
+        ?.filter(item => item.type === 'text')
+        .map(item => (item.content as { text: string }).text)
+        .join('\n\n') || ''
+
+      // Get project title
+      const { data: project, error: projectError } = await supabase
+        .from('projects')
+        .select('name')
+        .eq('id', projectId)
         .single()
 
-      if (fetchError && fetchError.code !== 'PGRST116') { // PGRST116 is "no rows returned"
-        throw fetchError
-      }
+      if (projectError) throw projectError
 
-      // If no document exists, create one
-      if (!existingDoc) {
-        const user = (await supabase.auth.getUser()).data.user
-        if (!user) throw new Error('User not authenticated')
-
-        const { data: newDoc, error: createError } = await supabase
-          .from('research_documents')
-          .insert({
-            project_id: projectId,
-            content: '',
-            created_by: user.id,
-          })
-          .select('content')
-          .single()
-
-        if (createError) throw createError
-        set({ content: newDoc?.content || '' })
-      } else {
-        set({ content: existingDoc.content || '' })
-      }
+      set({ 
+        content,
+        title: project?.name || 'Untitled Research'
+      })
     } catch (error) {
       set({ error: (error as Error).message })
       console.error('Error fetching document:', error)
@@ -60,23 +59,49 @@ const useResearchStore = create<ResearchStore>((set) => ({
     }
   },
 
-  updateDocument: async (projectId: string, content: string) => {
+  updateDocument: async (projectId: string, content: string, title?: string) => {
     try {
       set({ isLoading: true, error: null })
       const user = (await supabase.auth.getUser()).data.user
       if (!user) throw new Error('User not authenticated')
 
-      const { error: updateError } = await supabase
-        .from('research_documents')
-        .upsert({
+      // Update project title if provided
+      if (title !== undefined) {
+        const { error: titleError } = await supabase
+          .from('projects')
+          .update({ name: title })
+          .eq('id', projectId)
+
+        if (titleError) throw titleError
+      }
+
+      // Update canvas items
+      // First, remove all existing text items
+      const { error: deleteError } = await supabase
+        .from('canvas_items')
+        .delete()
+        .eq('project_id', projectId)
+        .eq('type', 'text')
+
+      if (deleteError) throw deleteError
+
+      // Then add the new content as a single text item
+      const { error: insertError } = await supabase
+        .from('canvas_items')
+        .insert({
           project_id: projectId,
-          content,
+          type: 'text',
+          content: { text: content },
+          position: { x: 0, y: 0 },
           created_by: user.id,
-          updated_at: new Date().toISOString(),
         })
 
-      if (updateError) throw updateError
-      set({ content })
+      if (insertError) throw insertError
+
+      set((state) => ({ 
+        content,
+        title: title !== undefined ? title : state.title
+      }))
     } catch (error) {
       set({ error: (error as Error).message })
       console.error('Error updating document:', error)
