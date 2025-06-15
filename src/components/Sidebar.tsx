@@ -234,6 +234,7 @@ function Sidebar({ activeProject }: SidebarProps) {
                   borderRadius: '8px',
                   mx: 1,
                   py: { xs: 1, sm: 1.5 },
+                  mb: 1,
                   bgcolor: project.name === activeProject ? '#C0FF92' : 'transparent',
                   color: project.name === activeProject ? '#000' : '#ccc',
                   '&:hover': {
