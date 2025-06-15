@@ -21,17 +21,19 @@ import LLMModal from './LLMModal'
 import UserProfile from './UserProfile'
 import useLLMStore from '../store/llmStore'
 import useProjectStore from '../store/projectStore'
+import googleAIService from '../services/googleAIService'
+import type { Model } from '../types/models'
 
 interface SidebarProps {
   activeProject: string
 }
 
-const llmOptions = [
+// Static LLM options for OpenAI and Anthropic
+const staticLLMOptions = [
   { id: 'gpt-4', name: 'GPT-4', provider: 'OpenAI' },
   { id: 'gpt-3.5-turbo', name: 'GPT-3.5 Turbo', provider: 'OpenAI' },
   { id: 'claude-3-opus', name: 'Claude 3 Opus', provider: 'Anthropic' },
   { id: 'claude-3-sonnet', name: 'Claude 3 Sonnet', provider: 'Anthropic' },
-  { id: 'gemini-pro', name: 'Gemini Pro', provider: 'Google' },
 ]
 
 function Sidebar({ activeProject }: SidebarProps) {
@@ -39,8 +41,37 @@ function Sidebar({ activeProject }: SidebarProps) {
   const [isLLMModalOpen, setIsLLMModalOpen] = useState(false)
   const { selectedLLM } = useLLMStore()
   const { projects, loading, error, fetchProjects, createProject } = useProjectStore()
+  const [llmOptions, setLLMOptions] = useState(staticLLMOptions)
+  const [loadingModels, setLoadingModels] = useState(false)
   
   const selectedLLMDetails = llmOptions.find(llm => llm.id === selectedLLM)
+
+  // Fetch Google AI models when component mounts
+  useEffect(() => {
+    const fetchGoogleModels = async () => {
+      setLoadingModels(true)
+      try {
+        const models = await googleAIService.fetchModels()
+        const googleOptions = models
+          // Include all Gemini models
+          .filter(model => model.name.includes('gemini'))
+          .map(model => ({
+            id: model.name,
+            name: model.displayName || model.name,
+            provider: 'Google'
+          }))
+        
+        console.log('Google models:', googleOptions) // For debugging
+        setLLMOptions([...staticLLMOptions, ...googleOptions])
+      } catch (error) {
+        console.error('Error fetching Google AI models:', error)
+      } finally {
+        setLoadingModels(false)
+      }
+    }
+
+    fetchGoogleModels()
+  }, [])
   
   useEffect(() => {
     fetchProjects()
@@ -293,6 +324,7 @@ function Sidebar({ activeProject }: SidebarProps) {
         open={isLLMModalOpen}
         onClose={() => setIsLLMModalOpen(false)}
         llmOptions={llmOptions}
+        loading={loadingModels}
       />
     </Box>
   )

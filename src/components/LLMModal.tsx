@@ -9,6 +9,7 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
+  CircularProgress,
 } from '@mui/material'
 import {
   Close as CloseIcon,
@@ -24,10 +25,12 @@ interface LLMModalProps {
     id: string
     name: string
     provider: string
+    description?: string
   }>
+  loading?: boolean
 }
 
-function LLMModal({ open, onClose, llmOptions }: LLMModalProps) {
+function LLMModal({ open, onClose, llmOptions, loading = false }: LLMModalProps) {
   const { selectedLLM: storedLLM, setLLM } = useLLMStore()
   const [selectedLLM, setSelectedLLM] = useState<string | null>(storedLLM)
   const [apiKey, setApiKey] = useState('')
@@ -91,6 +94,7 @@ function LLMModal({ open, onClose, llmOptions }: LLMModalProps) {
             value={selectedLLM || ''}
             onChange={(e) => setSelectedLLM(e.target.value)}
             label="Select LLM"
+            disabled={loading}
             sx={{
               color: '#fff',
               '& .MuiOutlinedInput-notchedOutline': {
@@ -129,16 +133,27 @@ function LLMModal({ open, onClose, llmOptions }: LLMModalProps) {
               },
             }}
           >
-            {llmOptions.map((option) => (
-              <MenuItem key={option.id} value={option.id}>
-                <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                  <Typography variant="body1">{option.name}</Typography>
-                  <Typography variant="caption" sx={{ color: '#888' }}>
-                    {option.provider}
-                  </Typography>
+            {loading ? (
+              <MenuItem disabled>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                  <CircularProgress size={20} sx={{ color: '#C0FF92' }} />
+                  <Typography>Loading models...</Typography>
                 </Box>
               </MenuItem>
-            ))}
+            ) : (
+              llmOptions.map((option) => (
+                <MenuItem key={option.id} value={option.id}>
+                  <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                    <Typography variant="body1">
+                      {option.name}
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: '#888' }}>
+                      {option.provider}
+                    </Typography>
+                  </Box>
+                </MenuItem>
+              ))
+            )}
           </Select>
         </FormControl>
 
@@ -148,6 +163,7 @@ function LLMModal({ open, onClose, llmOptions }: LLMModalProps) {
             type="password"
             value={apiKey}
             onChange={(e) => setApiKey(e.target.value)}
+            disabled={loading}
             InputProps={{
               startAdornment: <KeyIcon sx={{ color: '#888', mr: 1 }} />,
             }}
@@ -188,7 +204,7 @@ function LLMModal({ open, onClose, llmOptions }: LLMModalProps) {
           </Button>
           <Button
             onClick={handleSave}
-            disabled={!selectedLLM || !apiKey}
+            disabled={!selectedLLM || !apiKey || loading}
             variant="contained"
             sx={{
               bgcolor: '#C0FF92',
