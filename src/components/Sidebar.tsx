@@ -5,31 +5,46 @@ import {
   ListItem,
   ListItemIcon,
   ListItemText,
-  Avatar,
   Button,
   Divider,
+  Skeleton,
 } from '@mui/material'
 import {
   Search as SearchIcon,
   Folder as ProjectIcon,
   Add as AddIcon,
+  SmartToy as LLMIcon,
 } from '@mui/icons-material'
 import { useNavigate } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import LLMModal from './LLMModal'
+import UserProfile from './UserProfile'
+import useLLMStore from '../store/llmStore'
+import useProjectStore from '../store/projectStore'
 
 interface SidebarProps {
   activeProject: string
 }
 
+const llmOptions = [
+  { id: 'gpt-4', name: 'GPT-4', provider: 'OpenAI' },
+  { id: 'gpt-3.5-turbo', name: 'GPT-3.5 Turbo', provider: 'OpenAI' },
+  { id: 'claude-3-opus', name: 'Claude 3 Opus', provider: 'Anthropic' },
+  { id: 'claude-3-sonnet', name: 'Claude 3 Sonnet', provider: 'Anthropic' },
+  { id: 'gemini-pro', name: 'Gemini Pro', provider: 'Google' },
+]
+
 function Sidebar({ activeProject }: SidebarProps) {
   const navigate = useNavigate()
+  const [isLLMModalOpen, setIsLLMModalOpen] = useState(false)
+  const { selectedLLM } = useLLMStore()
+  const { projects, loading, error, fetchProjects } = useProjectStore()
   
-  const projects = [
-    'AI Research Papers',
-    'Machine Learning Studies',
-    'Data Science Analysis',
-    'Neural Networks',
-    'Computer Vision',
-  ]
+  const selectedLLMDetails = llmOptions.find(llm => llm.id === selectedLLM)
+  
+  useEffect(() => {
+    fetchProjects()
+  }, [fetchProjects])
 
   return (
     <Box
@@ -116,37 +131,80 @@ function Sidebar({ activeProject }: SidebarProps) {
         </Typography>
         
         <List sx={{ p: 0 }}>
-          {projects.map((project, index) => (
+          {loading ? (
+            // Loading skeletons
+            [...Array(3)].map((_, index) => (
+              <ListItem
+                key={index}
+                sx={{
+                  borderRadius: '8px',
+                  mx: 1,
+                  py: { xs: 1, sm: 1.5 },
+                }}
+              >
+                <ListItemIcon sx={{ minWidth: { xs: 32, sm: 36 } }}>
+                  <Skeleton variant="circular" width={20} height={20} />
+                </ListItemIcon>
+                <Skeleton variant="text" width="80%" height={24} />
+              </ListItem>
+            ))
+          ) : error ? (
             <ListItem
-              key={index}
               sx={{
                 borderRadius: '8px',
                 mx: 1,
                 py: { xs: 1, sm: 1.5 },
-                bgcolor: project === activeProject ? '#C0FF92' : 'transparent',
-                color: project === activeProject ? '#000' : '#ccc',
-                '&:hover': {
-                  bgcolor: project === activeProject ? '#C0FF92' : '#333',
-                },
+                color: '#ff6b6b',
               }}
             >
-              <ListItemIcon sx={{ minWidth: { xs: 32, sm: 36 } }}>
-                <ProjectIcon
-                  sx={{
-                    color: project === activeProject ? '#000' : '#888',
-                    fontSize: { xs: 18, sm: 20 },
+              <Typography variant="body2">Failed to load projects</Typography>
+            </ListItem>
+          ) : projects.length === 0 ? (
+            <ListItem
+              sx={{
+                borderRadius: '8px',
+                mx: 1,
+                py: { xs: 1, sm: 1.5 },
+                color: '#888',
+              }}
+            >
+              <Typography variant="body2">No projects yet</Typography>
+            </ListItem>
+          ) : (
+            projects.map((project) => (
+              <ListItem
+                key={project.id}
+                sx={{
+                  borderRadius: '8px',
+                  mx: 1,
+                  py: { xs: 1, sm: 1.5 },
+                  bgcolor: project.name === activeProject ? '#C0FF92' : 'transparent',
+                  color: project.name === activeProject ? '#000' : '#ccc',
+                  '&:hover': {
+                    bgcolor: project.name === activeProject ? '#C0FF92' : '#333',
+                  },
+                  cursor: 'pointer',
+                }}
+                onClick={() => navigate(`/projects/${project.id}`)}
+              >
+                <ListItemIcon sx={{ minWidth: { xs: 32, sm: 36 } }}>
+                  <ProjectIcon
+                    sx={{
+                      color: project.name === activeProject ? '#000' : '#888',
+                      fontSize: { xs: 18, sm: 20 },
+                    }}
+                  />
+                </ListItemIcon>
+                <ListItemText
+                  primary={project.name}
+                  primaryTypographyProps={{
+                    fontSize: { xs: '13px', sm: '14px' },
+                    fontWeight: project.name === activeProject ? 'bold' : 'normal',
                   }}
                 />
-              </ListItemIcon>
-              <ListItemText
-                primary={project}
-                primaryTypographyProps={{
-                  fontSize: { xs: '13px', sm: '14px' },
-                  fontWeight: project === activeProject ? 'bold' : 'normal',
-                }}
-              />
-            </ListItem>
-          ))}
+              </ListItem>
+            ))
+          )}
         </List>
 
         {/* Add Project Button */}
@@ -175,60 +233,59 @@ function Sidebar({ activeProject }: SidebarProps) {
         </Box>
       </Box>
 
-      {/* User Profile at Bottom */}
-      <Box
-        onClick={() => navigate('/profile')}
-        sx={{
-          p: { xs: 2, sm: 3 },
-          borderTop: '1px solid #333',
-          flexShrink: 0,
-          cursor: 'pointer',
-          '&:hover': {
-            bgcolor: '#333',
-          },
-          transition: 'background-color 0.2s ease',
-        }}
-      >
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-          <Avatar
-            sx={{
-              width: { xs: 32, sm: 36 },
-              height: { xs: 32, sm: 36 },
-              bgcolor: '#C0FF92',
-              color: '#000',
-              fontSize: { xs: '12px', sm: '14px' },
-              fontWeight: 'bold',
-            }}
-          >
-            EL
-          </Avatar>
-          <Box sx={{ flex: 1, minWidth: 0 }}>
-            <Typography
-              sx={{
-                color: '#fff',
-                fontSize: { xs: '13px', sm: '14px' },
-                fontWeight: 'bold',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
-              }}
-            >
-              Emily Liu
-            </Typography>
-            <Typography
-              sx={{
-                color: '#888',
-                fontSize: { xs: '11px', sm: '12px' },
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
-              }}
-            >
-              emily@research.ai
-            </Typography>
-          </Box>
-        </Box>
+      <Divider sx={{ borderColor: '#333', mx: 2, my: 2 }} />
+
+      {/* LLM Section */}
+      <Box sx={{ px: { xs: 1, sm: 2 }, pb: 2 }}>
+        <Typography
+          variant="caption"
+          sx={{
+            color: '#888',
+            fontWeight: 'bold',
+            textTransform: 'uppercase',
+            letterSpacing: 1,
+            px: 2,
+            mb: 1,
+            display: 'block',
+            fontSize: { xs: '10px', sm: '11px' },
+          }}
+        >
+          Language Models
+        </Typography>
+
+        <Button
+          startIcon={<LLMIcon sx={{ fontSize: { xs: 16, sm: 18 } }} />}
+          fullWidth
+          variant="outlined"
+          size="small"
+          onClick={() => setIsLLMModalOpen(true)}
+          sx={{
+            borderColor: '#333',
+            color: '#ccc',
+            textTransform: 'none',
+            justifyContent: 'flex-start',
+            fontSize: { xs: '13px', sm: '14px' },
+            py: { xs: 1, sm: 1.5 },
+            '&:hover': {
+              borderColor: '#C0FF92',
+              color: '#C0FF92',
+              bgcolor: 'rgba(192, 255, 146, 0.1)',
+            },
+          }}
+        >
+          {selectedLLM ? selectedLLMDetails?.name : 'Configure LLM'}
+        </Button>
       </Box>
+
+      {/* User Profile */}
+      <UserProfile />
+
+      {/* LLM Modal */}
+      <LLMModal
+        open={isLLMModalOpen}
+        onClose={() => setIsLLMModalOpen(false)}
+        llmOptions={llmOptions}
+      />
     </Box>
   )
 }
