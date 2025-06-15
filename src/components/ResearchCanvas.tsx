@@ -19,6 +19,7 @@ function ResearchCanvas() {
   const { id: projectId } = useParams()
   const {
     content,
+    title,
     isLoading,
     error,
     isEditing,
@@ -27,6 +28,7 @@ function ResearchCanvas() {
     setIsEditing,
   } = useResearchStore()
   const [editableContent, setEditableContent] = useState(content)
+  const [editableTitle, setEditableTitle] = useState(title)
 
   useEffect(() => {
     if (projectId) {
@@ -36,11 +38,12 @@ function ResearchCanvas() {
 
   useEffect(() => {
     setEditableContent(content)
-  }, [content])
+    setEditableTitle(title)
+  }, [content, title])
 
   const handleSave = async () => {
     if (!projectId) return
-    await updateDocument(projectId, editableContent)
+    await updateDocument(projectId, editableContent, editableTitle)
     setIsEditing(false)
   }
 
@@ -67,21 +70,46 @@ function ResearchCanvas() {
         justifyContent: 'space-between',
         flexShrink: 0,
       }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flex: 1 }}>
           <DescriptionIcon sx={{ 
             color: '#C0FF92', 
             fontSize: { xs: 18, sm: 20 } 
           }} />
-          <Typography
-            variant="h6"
-            sx={{
-              color: '#C0FF92',
-              fontWeight: 'bold',
-              fontSize: { xs: '14px', sm: '16px', md: '18px' },
-            }}
-          >
-            Research Document
-          </Typography>
+          {isEditing ? (
+            <TextField
+              value={editableTitle}
+              onChange={(e) => setEditableTitle(e.target.value)}
+              variant="standard"
+              sx={{
+                flex: 1,
+                '& .MuiInputBase-root': {
+                  color: '#C0FF92',
+                  fontSize: { xs: '14px', sm: '16px', md: '18px' },
+                  fontWeight: 'bold',
+                  '&:before, &:after': {
+                    borderColor: '#333',
+                  },
+                  '&:hover:before': {
+                    borderColor: '#444 !important',
+                  },
+                  '&.Mui-focused:after': {
+                    borderColor: '#C0FF92',
+                  },
+                },
+              }}
+            />
+          ) : (
+            <Typography
+              variant="h6"
+              sx={{
+                color: '#C0FF92',
+                fontWeight: 'bold',
+                fontSize: { xs: '14px', sm: '16px', md: '18px' },
+              }}
+            >
+              {title}
+            </Typography>
+          )}
         </Box>
         
         <IconButton
@@ -94,6 +122,7 @@ function ResearchCanvas() {
             '&:hover': {
               bgcolor: '#333',
             },
+            ml: 2,
           }}
         >
           {isEditing ? (
