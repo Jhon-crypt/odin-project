@@ -37,6 +37,7 @@ interface ChatStore {
   error: string | null;
   fetchMessages: (projectId: string) => Promise<void>;
   sendMessage: (projectId: string, content: string, images?: File[]) => Promise<void>;
+  deleteMessage: (messageId: string) => Promise<void>;
 }
 
 const useChatStore = create<ChatStore>((set, get) => ({
@@ -179,6 +180,30 @@ const useChatStore = create<ChatStore>((set, get) => ({
       }
       
       set({ error: errorMessage });
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  deleteMessage: async (messageId: string) => {
+    try {
+      set({ isLoading: true, error: null });
+      
+      // Delete message from database
+      const { error: deleteError } = await supabase
+        .from('chat_messages')
+        .delete()
+        .eq('id', messageId);
+
+      if (deleteError) throw deleteError;
+
+      // Update local state
+      set(state => ({
+        messages: state.messages.filter(msg => msg.id !== messageId)
+      }));
+    } catch (error) {
+      console.error('Error deleting message:', error);
+      set({ error: 'Failed to delete message. Please try again.' });
     } finally {
       set({ isLoading: false });
     }

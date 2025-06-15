@@ -9,22 +9,31 @@ import {
   Avatar,
   Button,
   Input,
+  Menu,
+  MenuItem,
 } from '@mui/material'
 import SendIcon from '@mui/icons-material/Send'
 import SmartToyIcon from '@mui/icons-material/SmartToy'
 import AddIcon from '@mui/icons-material/Add'
 import RemoveIcon from '@mui/icons-material/Remove'
 import ImageIcon from '@mui/icons-material/Image'
+import MoreVertIcon from '@mui/icons-material/MoreVert'
+import DeleteIcon from '@mui/icons-material/Delete'
+import DoneAllIcon from '@mui/icons-material/DoneAll'
+import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile'
 import { useParams } from 'react-router-dom'
 import useChatStore from '../store/chatStore'
 import useCanvasStore from '../store/canvasStore'
 import useAuth from '../hooks/useAuth'
+import { format } from 'date-fns'
 
 function ChatArea() {
   const { id: projectId } = useParams()
   const [input, setInput] = useState('')
   const [selectedImages, setSelectedImages] = useState<File[]>([])
   const [canvasStates, setCanvasStates] = useState<Record<string, string>>({})
+  const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null)
+  const [selectedMessageId, setSelectedMessageId] = useState<string | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { user } = useAuth()
@@ -35,6 +44,7 @@ function ChatArea() {
     error: chatError,
     fetchMessages,
     sendMessage,
+    deleteMessage,
   } = useChatStore()
 
   const {
@@ -133,6 +143,34 @@ function ChatArea() {
     }
   };
 
+  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, messageId: string) => {
+    event.stopPropagation();
+    setSelectedMessageId(messageId);
+    setMenuAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setMenuAnchorEl(null);
+    setSelectedMessageId(null);
+  };
+
+  const handleDeleteMessage = async () => {
+    if (selectedMessageId) {
+      await deleteMessage(selectedMessageId);
+      handleMenuClose();
+    }
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes < 1024) return bytes + ' B'
+    else if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB'
+    else return (bytes / (1024 * 1024)).toFixed(1) + ' MB'
+  }
+
+  const formatMessageTime = (dateString: string) => {
+    return format(new Date(dateString), 'HH:mm')
+  }
+
   if (!projectId) return null
 
   return (
@@ -165,6 +203,10 @@ function ChatArea() {
               alignSelf: message.role === 'user' ? 'flex-end' : 'flex-start',
               maxWidth: '80%',
               width: 'auto',
+              position: 'relative',
+              '&:hover .message-actions, &:hover .message-menu': {
+                opacity: 1,
+              },
             }}
           >
             {message.role === 'assistant' && (
@@ -182,46 +224,111 @@ function ChatArea() {
             <Box sx={{ 
               display: 'flex', 
               flexDirection: 'column', 
-              gap: 1,
+              gap: 0.5,
               width: 'auto',
+              position: 'relative',
             }}>
-              <Paper
+              {/* Sender Name */}
+              <Typography
                 sx={{
-                  p: { xs: 1.5, sm: 2 },
-                  bgcolor: message.role === 'user' ? '#C0FF92' : '#333',
-                  color: message.role === 'user' ? '#1a1a1a' : '#fff',
-                  borderRadius: 2,
-                  width: 'auto',
+                  fontSize: '14px',
+                  color: message.role === 'user' ? '#C0FF92' : '#888',
+                  ml: message.role === 'user' ? 'auto' : 0,
+                  mr: message.role === 'user' ? 1 : 0,
                 }}
               >
-                <Typography 
-                  sx={{ 
-                    fontSize: { xs: '14px', sm: '15px' },
-                    lineHeight: 1.5,
-                    whiteSpace: 'pre-wrap',
+                {message.role === 'user' ? user?.email?.split('@')[0] || 'You' : 'AI Assistant'}
+              </Typography>
+
+              <Box sx={{ display: 'flex', alignItems: 'flex-end', gap: 1 }}>
+                <Paper
+                  sx={{
+                    p: { xs: 1.5, sm: 2 },
+                    bgcolor: message.role === 'user' ? '#C0FF92' : '#333',
+                    color: message.role === 'user' ? '#1a1a1a' : '#fff',
+                    borderRadius: 2,
+                    width: 'auto',
+                    position: 'relative',
                   }}
                 >
-                  {message.content}
-                </Typography>
-                {message.images && message.images.length > 0 && (
-                  <Box sx={{ mt: 2, display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                    {message.images.map((image, index) => (
-                      <Box
-                        key={index}
-                        component="img"
-                        src={image}
-                        alt={`Uploaded image ${index + 1}`}
-                        sx={{
-                          maxWidth: '200px',
-                          maxHeight: '200px',
-                          borderRadius: 1,
-                          objectFit: 'contain',
-                        }}
-                      />
-                    ))}
+                  {/* Message Content */}
+                  <Typography 
+                    sx={{ 
+                      fontSize: { xs: '14px', sm: '15px' },
+                      lineHeight: 1.5,
+                      whiteSpace: 'pre-wrap',
+                    }}
+                  >
+                    {message.content}
+                  </Typography>
+
+                  {/* File Attachments */}
+                  {message.images && message.images.length > 0 && (
+                    <Box sx={{ mt: 2, display: 'flex', flexDirection: 'column', gap: 1 }}>
+                      {message.images.map((image, index) => (
+                        <Box
+                          key={index}
+                          sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 1,
+                            p: 1,
+                            bgcolor: message.role === 'user' ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)',
+                            borderRadius: 1,
+                          }}
+                        >
+                          <InsertDriveFileIcon sx={{ fontSize: 20 }} />
+                          <Box sx={{ flex: 1, minWidth: 0 }}>
+                            <Typography noWrap sx={{ fontSize: '14px' }}>
+                              {image.split('/').pop()}
+                            </Typography>
+                            <Typography sx={{ fontSize: '12px', color: message.role === 'user' ? 'rgba(0,0,0,0.6)' : '#888' }}>
+                              {formatFileSize(1.2 * 1024 * 1024)} {/* Example size */}
+                            </Typography>
+                          </Box>
+                        </Box>
+                      ))}
+                    </Box>
+                  )}
+
+                  {/* Message Time and Status */}
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 0.5,
+                      justifyContent: 'flex-end',
+                      mt: 1,
+                      opacity: 0.7,
+                    }}
+                  >
+                    <Typography sx={{ fontSize: '12px' }}>
+                      {formatMessageTime(message.created_at)}
+                    </Typography>
+                    {message.role === 'user' && (
+                      <DoneAllIcon sx={{ fontSize: 16, color: message.role === 'user' ? '#1a1a1a' : '#C0FF92' }} />
+                    )}
                   </Box>
-                )}
-              </Paper>
+                </Paper>
+                
+                <IconButton
+                  className="message-menu"
+                  size="small"
+                  onClick={(e) => handleMenuOpen(e, message.id)}
+                  sx={{
+                    opacity: 0,
+                    transition: 'opacity 0.2s',
+                    color: '#888',
+                    alignSelf: 'center',
+                    '&:hover': {
+                      color: '#fff',
+                      bgcolor: 'rgba(255,255,255,0.1)',
+                    },
+                  }}
+                >
+                  <MoreVertIcon sx={{ fontSize: 20 }} />
+                </IconButton>
+              </Box>
 
               {message.role === 'assistant' && (
                 <Button
@@ -265,6 +372,40 @@ function ChatArea() {
         ))}
         <div ref={messagesEndRef} />
       </Box>
+
+      {/* Message Actions Menu */}
+      <Menu
+        anchorEl={menuAnchorEl}
+        open={Boolean(menuAnchorEl)}
+        onClose={handleMenuClose}
+        anchorOrigin={{
+          vertical: 'top',
+          horizontal: 'right',
+        }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'left',
+        }}
+        PaperProps={{
+          sx: {
+            bgcolor: '#262626',
+            border: '1px solid #333',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+            '& .MuiMenuItem-root': {
+              fontSize: '14px',
+              color: '#fff',
+              '&:hover': {
+                bgcolor: '#333',
+              },
+            },
+          },
+        }}
+      >
+        <MenuItem onClick={handleDeleteMessage}>
+          <DeleteIcon sx={{ mr: 1, fontSize: 20, color: '#ff4444' }} />
+          Delete Message
+        </MenuItem>
+      </Menu>
 
       {/* Input Area */}
       <Box

@@ -12,11 +12,17 @@ import {
   useMediaQuery,
   Alert,
   CircularProgress,
+  IconButton,
+  InputAdornment,
 } from '@mui/material'
 import { LoadingButton } from '@mui/lab'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { AutoAwesome as AiIcon } from '@mui/icons-material'
+import { 
+  AutoAwesome as AiIcon,
+  Visibility as VisibilityIcon,
+  VisibilityOff as VisibilityOffIcon,
+} from '@mui/icons-material'
 import { supabase } from '../lib/supabaseClient'
 
 interface AuthError {
@@ -33,6 +39,8 @@ function Landing() {
   const [submitted, setSubmitted] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const navigate = useNavigate()
   const isMobile = useMediaQuery('(max-width:767px)')
 
@@ -512,11 +520,25 @@ function Landing() {
                 <TextField
                   fullWidth
                   label="Password"
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   disabled={isLoading}
                   required
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          aria-label="toggle password visibility"
+                          onClick={() => setShowPassword(!showPassword)}
+                          edge="end"
+                          sx={{ color: '#888' }}
+                        >
+                          {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
                 />
 
                 <LoadingButton
@@ -606,23 +628,51 @@ function Landing() {
                     <TextField
                       fullWidth
                       label="Password"
-                      type="password"
+                      type={showPassword ? 'text' : 'password'}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       disabled={isLoading}
                       required
                       autoComplete="new-password"
+                      InputProps={{
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            <IconButton
+                              aria-label="toggle password visibility"
+                              onClick={() => setShowPassword(!showPassword)}
+                              edge="end"
+                              sx={{ color: '#888' }}
+                            >
+                              {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                            </IconButton>
+                          </InputAdornment>
+                        ),
+                      }}
                     />
 
                     <TextField
                       fullWidth
                       label="Confirm Password"
-                      type="password"
+                      type={showConfirmPassword ? 'text' : 'password'}
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       disabled={isLoading}
                       required
                       autoComplete="new-password"
+                      InputProps={{
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            <IconButton
+                              aria-label="toggle confirm password visibility"
+                              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                              edge="end"
+                              sx={{ color: '#888' }}
+                            >
+                              {showConfirmPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                            </IconButton>
+                          </InputAdornment>
+                        ),
+                      }}
                     />
 
                     <LoadingButton
