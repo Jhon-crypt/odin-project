@@ -22,10 +22,7 @@ import UserProfile from './UserProfile'
 import useLLMStore from '../store/llmStore'
 import useProjectStore from '../store/projectStore'
 import googleAIService from '../services/googleAIService'
-
-interface SidebarProps {
-  activeProject?: string
-}
+import { supabase } from '../lib/supabaseClient'
 
 interface LLMOption {
   id: string;
@@ -38,21 +35,43 @@ const staticLLMOptions: LLMOption[] = [
   // Removed OpenAI and Anthropic models - only using Google models
 ]
 
-function Sidebar({ activeProject }: SidebarProps) {
+function Sidebar() {
   const navigate = useNavigate()
-  const { id: currentProjectId } = useParams() // Get current project ID from URL
+  const { id: currentProjectId } = useParams()
   const [isLLMModalOpen, setIsLLMModalOpen] = useState(false)
-  const { selectedLLM, loadStoredSettings } = useLLMStore()
+  const { selectedLLM, loadStoredSettings, initialized } = useLLMStore()
   const { projects, loading, error, fetchProjects, createProject } = useProjectStore()
   const [llmOptions, setLLMOptions] = useState(staticLLMOptions)
   const [loadingModels, setLoadingModels] = useState(false)
   
   const selectedLLMDetails = llmOptions.find(llm => llm.id === selectedLLM)
 
-  // Load stored LLM settings when component mounts
+  // Load stored LLM settings when component mounts or auth state changes
   useEffect(() => {
-    loadStoredSettings()
-  }, [loadStoredSettings])
+    const loadSettings = async () => {
+      try {
+        if (!initialized) {
+          await loadStoredSettings()
+        }
+      } catch (error) {
+        console.error('Error loading LLM settings:', error)
+      }
+    }
+
+    // Initial load
+    loadSettings()
+
+    // Subscribe to auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session) {
+        loadSettings()
+      }
+    })
+
+    return () => {
+      subscription.unsubscribe()
+    }
+  }, [loadStoredSettings, initialized])
 
   // Fetch Google AI models when component mounts
   useEffect(() => {

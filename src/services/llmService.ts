@@ -18,13 +18,13 @@ export async function saveUserLLMSettings(modelId: string, apiKey: string) {
     let llmConfigId: string
 
     if (!existingConfig) {
-      // Create new configuration
+      // Create new configuration for Google model
       const { data: newConfig, error: createError } = await supabase
         .from('llm_configurations')
         .insert({
           model_id: modelId,
           provider: 'Google',
-          display_name: modelId,
+          display_name: modelId.split('/').pop() || modelId, // Get the last part of the model path
           description: 'Google AI model',
           is_deprecated: false
         })
@@ -39,17 +39,17 @@ export async function saveUserLLMSettings(modelId: string, apiKey: string) {
       llmConfigId = existingConfig.id
     }
 
-    // Update any existing settings for this user and LLM config to inactive
-    const { error: updateError } = await supabase
+    // First, deactivate all active settings for this user
+    const { error: deactivateError } = await supabase
       .from('user_llm_settings')
       .update({ is_active: false })
       .eq('user_id', user.user.id)
-      .eq('llm_config_id', llmConfigId)
+      .eq('is_active', true)
 
-    if (updateError) throw updateError
+    if (deactivateError) throw deactivateError
 
-    // Use upsert to handle both insert and update cases
-    const { error: settingsError } = await supabase
+    // Then upsert the new settings
+    const { data: newSettings, error: settingsError } = await supabase
       .from('user_llm_settings')
       .upsert(
         {
@@ -63,10 +63,49 @@ export async function saveUserLLMSettings(modelId: string, apiKey: string) {
           ignoreDuplicates: false
         }
       )
+      .select(`
+        *,
+        llm_configuration:llm_configurations (
+          model_id,
+          provider,
+          display_name,
+          description
+        )
+      `)
+      .single()
 
-    if (settingsError) throw settingsError
+    if (settingsError) {
+      // If there's a unique constraint error, try to update the existing record
+      if (settingsError.code === '23505') {
+        const { data: updatedSettings, error: updateError } = await supabase
+          .from('user_llm_settings')
+          .update({
+            encrypted_api_key: apiKey,
+            is_active: true
+          })
+          .eq('user_id', user.user.id)
+          .eq('llm_config_id', llmConfigId)
+          .select(`
+            *,
+            llm_configuration:llm_configurations (
+              model_id,
+              provider,
+              display_name,
+              description
+            )
+          `)
+          .single()
 
-    return true
+        if (updateError) throw updateError
+        if (!updatedSettings) throw new Error('Failed to update settings')
+        return updatedSettings
+      }
+      throw settingsError
+    }
+
+    if (!newSettings) throw new Error('Failed to save settings')
+    return newSettings
+
   } catch (error) {
     console.error('Error saving LLM settings:', error)
     throw error
