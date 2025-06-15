@@ -5,15 +5,17 @@ ALTER TABLE llm_configurations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE user_llm_settings ENABLE ROW LEVEL SECURITY;
 
 -- Policies for llm_configurations table
-CREATE POLICY "Allow public read access to llm_configurations"
+CREATE POLICY "Enable read access for all users"
 ON llm_configurations FOR SELECT
-TO authenticated
 USING (true);
 
-CREATE POLICY "Allow authenticated users to create llm_configurations"
+CREATE POLICY "Enable insert access for all users"
 ON llm_configurations FOR INSERT
-TO authenticated
 WITH CHECK (true);
+
+CREATE POLICY "Enable update access for all users"
+ON llm_configurations FOR UPDATE
+USING (true);
 
 -- Policies for user_llm_settings table
 CREATE POLICY "Users can view their own llm settings"

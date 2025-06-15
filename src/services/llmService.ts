@@ -7,17 +7,19 @@ export async function saveUserLLMSettings(modelId: string, apiKey: string) {
     if (!user.user) throw new Error('User not authenticated')
 
     // First, ensure the LLM configuration exists
-    let { data: llmConfig, error: llmConfigError } = await supabase
+    const { data: existingConfig, error: configError } = await supabase
       .from('llm_configurations')
       .select('id')
       .eq('model_id', modelId)
-      .single()
+      .maybeSingle()
 
-    if (llmConfigError || !llmConfig) {
-      // If the configuration doesn't exist, create it
-      const { data: newLLMConfig, error: createError } = await supabase
+    let llmConfigId: string
+
+    if (!existingConfig) {
+      // Create new configuration
+      const { data: newConfig, error: createError } = await supabase
         .from('llm_configurations')
-        .upsert({
+        .insert({
           model_id: modelId,
           provider: 'Google',
           display_name: modelId,
@@ -28,9 +30,11 @@ export async function saveUserLLMSettings(modelId: string, apiKey: string) {
         .single()
 
       if (createError) throw createError
-      if (!newLLMConfig) throw new Error('Failed to create LLM configuration')
+      if (!newConfig) throw new Error('Failed to create LLM configuration')
       
-      llmConfig = newLLMConfig
+      llmConfigId = newConfig.id
+    } else {
+      llmConfigId = existingConfig.id
     }
 
     // Deactivate any existing active settings for this user
@@ -43,10 +47,10 @@ export async function saveUserLLMSettings(modelId: string, apiKey: string) {
     // Insert new settings
     const { error: settingsError } = await supabase
       .from('user_llm_settings')
-      .upsert({
+      .insert({
         user_id: user.user.id,
-        llm_config_id: llmConfig.id,
-        encrypted_api_key: apiKey, // Note: In production, this should be properly encrypted
+        llm_config_id: llmConfigId,
+        encrypted_api_key: apiKey,
         is_active: true
       })
 
@@ -77,7 +81,7 @@ export async function getUserLLMSettings(): Promise<UserLLMSetting | null> {
       `)
       .eq('user_id', user.user.id)
       .eq('is_active', true)
-      .single()
+      .maybeSingle()
 
     if (error) throw error
     
