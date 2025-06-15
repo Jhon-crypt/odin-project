@@ -5,12 +5,35 @@ import {
   Box,
   useMediaQuery,
   Drawer,
+  Typography,
 } from '@mui/material'
 import { useState } from 'react'
 import Sidebar from '../components/Sidebar'
 import ProjectHeader from '../components/ProjectHeader'
-import ChatArea from '../components/ChatArea'
-import ResearchCanvas from '../components/ResearchCanvas'
+
+function EmptyState() {
+  return (
+    <Box
+      sx={{
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        color: '#888',
+        p: 3,
+        textAlign: 'center',
+      }}
+    >
+      <Typography variant="h6" sx={{ mb: 2, color: '#ccc' }}>
+        No Project Selected
+      </Typography>
+      <Typography>
+        Select a project from the sidebar or create a new one to get started
+      </Typography>
+    </Box>
+  )
+}
 
 function Dashboard() {
   const [leftDrawerOpen, setLeftDrawerOpen] = useState(false)
@@ -68,9 +91,10 @@ function Dashboard() {
               flexShrink: 0,
               height: '100vh',
               overflow: 'hidden',
+              borderRight: '1px solid #333',
             }}
           >
-            <Sidebar activeProject="AI Research Papers" />
+            <Sidebar activeProject="" />
           </Box>
         ) : (
           <Drawer
@@ -78,7 +102,7 @@ function Dashboard() {
             open={leftDrawerOpen}
             onClose={() => setLeftDrawerOpen(false)}
             ModalProps={{
-              keepMounted: true, // Better open performance on mobile
+              keepMounted: true,
             }}
             PaperProps={{
               sx: {
@@ -89,7 +113,7 @@ function Dashboard() {
               },
             }}
           >
-            <Sidebar activeProject="AI Research Papers" />
+            <Sidebar activeProject="" />
           </Drawer>
         )}
 
@@ -103,6 +127,7 @@ function Dashboard() {
             minWidth: 0,
             width: '100%',
             height: '100vh',
+            borderRight: isLargeDesktop ? '1px solid #333' : 'none',
           }}
         >
           {/* Top Header */}
@@ -110,11 +135,12 @@ function Dashboard() {
             sx={{
               flexShrink: 0,
               width: '100%',
+              borderBottom: '1px solid #333',
             }}
           >
             <ProjectHeader
-              projectTitle="AI Research Papers"
-              projectSubtitle="Collaborative analysis of machine learning publications"
+              projectTitle="Research Project"
+              projectSubtitle="Select or create a project to get started"
               onLeftMenuClick={() => setLeftDrawerOpen(true)}
               onRightMenuClick={() => setRightDrawerOpen(true)}
             />
@@ -128,7 +154,7 @@ function Dashboard() {
               width: '100%',
             }}
           >
-            <ChatArea />
+            <EmptyState />
           </Box>
         </Box>
 
@@ -140,9 +166,10 @@ function Dashboard() {
               flexShrink: 0,
               height: '100vh',
               overflow: 'hidden',
+              borderLeft: '1px solid #333',
             }}
           >
-            <ResearchCanvas />
+            <EmptyState />
           </Box>
         ) : (
           <Drawer
@@ -161,7 +188,7 @@ function Dashboard() {
               },
             }}
           >
-            <ResearchCanvas />
+            <EmptyState />
           </Drawer>
         )}
       </Box>
