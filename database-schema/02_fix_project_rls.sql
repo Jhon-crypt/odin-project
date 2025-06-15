@@ -5,16 +5,18 @@ ALTER TABLE projects DISABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Users can view projects they have access to" ON projects;
 DROP POLICY IF EXISTS "Users can view their own projects" ON projects;
 DROP POLICY IF EXISTS "Users can view projects they collaborate on" ON projects;
+DROP POLICY IF EXISTS "project_access_policy" ON projects;
 
--- Create a single, simple policy
+-- Create a single, simple policy for all operations
 CREATE POLICY "project_access_policy" ON projects
     FOR ALL
     USING (
         created_by = auth.uid() OR
-        id IN (
-            SELECT project_id 
-            FROM project_collaborators 
-            WHERE user_id = auth.uid()
+        EXISTS (
+            SELECT 1 
+            FROM project_collaborators pc 
+            WHERE pc.project_id = projects.id 
+            AND pc.user_id = auth.uid()
         )
     );
 
