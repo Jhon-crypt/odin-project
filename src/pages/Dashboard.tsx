@@ -94,7 +94,7 @@ function Dashboard() {
               borderRight: '1px solid #333',
             }}
           >
-            <Sidebar activeProject="" />
+            <Sidebar />
           </Box>
         ) : (
           <Drawer
@@ -113,7 +113,7 @@ function Dashboard() {
               },
             }}
           >
-            <Sidebar activeProject="" />
+            <Sidebar />
           </Drawer>
         )}
 

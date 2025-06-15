@@ -84,7 +84,7 @@ function ProjectPage() {
         {/* Sidebar - Always visible on desktop, drawer on mobile */}
         {!isMobile ? (
           <Box sx={{ width: 280, flexShrink: 0 }}>
-            <Sidebar activeProject={currentProject?.name || ''} />
+            <Sidebar />
           </Box>
         ) : (
           <Drawer
@@ -101,7 +101,7 @@ function ProjectPage() {
               },
             }}
           >
-            <Sidebar activeProject={currentProject?.name || ''} />
+            <Sidebar />
           </Drawer>
         )}
 

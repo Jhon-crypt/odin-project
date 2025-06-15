@@ -15,7 +15,7 @@ import {
   Add as AddIcon,
   SmartToy as LLMIcon,
 } from '@mui/icons-material'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import LLMModal from './LLMModal'
 import UserProfile from './UserProfile'
@@ -24,7 +24,7 @@ import useProjectStore from '../store/projectStore'
 import googleAIService from '../services/googleAIService'
 
 interface SidebarProps {
-  activeProject: string
+  activeProject?: string
 }
 
 interface LLMOption {
@@ -40,6 +40,7 @@ const staticLLMOptions: LLMOption[] = [
 
 function Sidebar({ activeProject }: SidebarProps) {
   const navigate = useNavigate()
+  const { id: currentProjectId } = useParams() // Get current project ID from URL
   const [isLLMModalOpen, setIsLLMModalOpen] = useState(false)
   const { selectedLLM, loadStoredSettings } = useLLMStore()
   const { projects, loading, error, fetchProjects, createProject } = useProjectStore()
@@ -196,6 +197,7 @@ function Sidebar({ activeProject }: SidebarProps) {
                   borderRadius: '8px',
                   mx: 1,
                   py: { xs: 1, sm: 1.5 },
+                  mb: 1,
                 }}
               >
                 <ListItemIcon sx={{ minWidth: { xs: 32, sm: 36 } }}>
@@ -210,6 +212,7 @@ function Sidebar({ activeProject }: SidebarProps) {
                 borderRadius: '8px',
                 mx: 1,
                 py: { xs: 1, sm: 1.5 },
+                mb: 1,
                 color: '#ff6b6b',
               }}
             >
@@ -221,6 +224,7 @@ function Sidebar({ activeProject }: SidebarProps) {
                 borderRadius: '8px',
                 mx: 1,
                 py: { xs: 1, sm: 1.5 },
+                mb: 1,
                 color: '#888',
               }}
             >
@@ -235,10 +239,10 @@ function Sidebar({ activeProject }: SidebarProps) {
                   mx: 1,
                   py: { xs: 1, sm: 1.5 },
                   mb: 1,
-                  bgcolor: project.name === activeProject ? '#C0FF92' : 'transparent',
-                  color: project.name === activeProject ? '#000' : '#ccc',
+                  bgcolor: project.id === currentProjectId ? '#C0FF92' : 'transparent',
+                  color: project.id === currentProjectId ? '#000' : '#ccc',
                   '&:hover': {
-                    bgcolor: project.name === activeProject ? '#C0FF92' : '#333',
+                    bgcolor: project.id === currentProjectId ? '#C0FF92' : '#333',
                   },
                   cursor: 'pointer',
                 }}
@@ -247,7 +251,7 @@ function Sidebar({ activeProject }: SidebarProps) {
                 <ListItemIcon sx={{ minWidth: { xs: 32, sm: 36 } }}>
                   <ProjectIcon
                     sx={{
-                      color: project.name === activeProject ? '#000' : '#888',
+                      color: project.id === currentProjectId ? '#000' : '#888',
                       fontSize: { xs: 18, sm: 20 },
                     }}
                   />
@@ -256,7 +260,7 @@ function Sidebar({ activeProject }: SidebarProps) {
                   primary={project.name}
                   primaryTypographyProps={{
                     fontSize: { xs: '13px', sm: '14px' },
-                    fontWeight: project.name === activeProject ? 'bold' : 'normal',
+                    fontWeight: project.id === currentProjectId ? 'bold' : 'normal',
                   }}
                 />
               </ListItem>
