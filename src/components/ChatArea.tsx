@@ -163,7 +163,8 @@ function ChatArea() {
               gap: 2,
               alignItems: 'flex-start',
               alignSelf: message.role === 'user' ? 'flex-end' : 'flex-start',
-              maxWidth: '85%',
+              maxWidth: '80%',
+              width: 'auto',
             }}
           >
             {message.role === 'assistant' && (
@@ -178,13 +179,19 @@ function ChatArea() {
               </Avatar>
             )}
             
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+            <Box sx={{ 
+              display: 'flex', 
+              flexDirection: 'column', 
+              gap: 1,
+              width: 'auto',
+            }}>
               <Paper
                 sx={{
                   p: { xs: 1.5, sm: 2 },
                   bgcolor: message.role === 'user' ? '#C0FF92' : '#333',
                   color: message.role === 'user' ? '#1a1a1a' : '#fff',
                   borderRadius: 2,
+                  width: 'auto',
                 }}
               >
                 <Typography 
