@@ -6,6 +6,7 @@ import PublicResearch from './pages/PublicResearch'
 import AuthCallback from './pages/AuthCallback'
 import ProtectedRoute from './components/ProtectedRoute'
 import { AuthProvider } from './contexts/AuthContext'
+import ProjectPage from './pages/ProjectPage'
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
           />
           <Route path="/research/:id" element={<PublicResearch />} />
           <Route path="/auth/callback" element={<AuthCallback />} />
+          <Route path="/projects/:id" element={<ProjectPage />} />
         </Routes>
       </Router>
     </AuthProvider>

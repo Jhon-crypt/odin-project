@@ -16,9 +16,10 @@ interface ProjectStore {
   loading: boolean
   error: string | null
   fetchProjects: () => Promise<void>
+  createProject: () => Promise<string | null>
 }
 
-const useProjectStore = create<ProjectStore>((set) => ({
+const useProjectStore = create<ProjectStore>((set, get) => ({
   projects: [],
   loading: false,
   error: null,
@@ -38,6 +39,34 @@ const useProjectStore = create<ProjectStore>((set) => ({
       set({ error: 'Failed to fetch projects', loading: false })
     }
   },
+  createProject: async () => {
+    set({ loading: true, error: null })
+    try {
+      const { data, error } = await supabase
+        .from('projects')
+        .insert([
+          {
+            name: 'Untitled',
+            description: '',
+            status: 'active'
+          }
+        ])
+        .select()
+        .single()
+
+      if (error) throw error
+
+      // Add the new project to the state
+      const projects = get().projects
+      set({ projects: [data, ...projects], loading: false })
+      
+      return data.id
+    } catch (error) {
+      console.error('Error creating project:', error)
+      set({ error: 'Failed to create project', loading: false })
+      return null
+    }
+  }
 }))
 
 export default useProjectStore 

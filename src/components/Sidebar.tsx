@@ -38,13 +38,20 @@ function Sidebar({ activeProject }: SidebarProps) {
   const navigate = useNavigate()
   const [isLLMModalOpen, setIsLLMModalOpen] = useState(false)
   const { selectedLLM } = useLLMStore()
-  const { projects, loading, error, fetchProjects } = useProjectStore()
+  const { projects, loading, error, fetchProjects, createProject } = useProjectStore()
   
   const selectedLLMDetails = llmOptions.find(llm => llm.id === selectedLLM)
   
   useEffect(() => {
     fetchProjects()
   }, [fetchProjects])
+
+  const handleAddProject = async () => {
+    const newProjectId = await createProject()
+    if (newProjectId) {
+      navigate(`/projects/${newProjectId}`)
+    }
+  }
 
   return (
     <Box
@@ -214,6 +221,7 @@ function Sidebar({ activeProject }: SidebarProps) {
             fullWidth
             variant="outlined"
             size="small"
+            onClick={handleAddProject}
             sx={{
               borderColor: '#333',
               color: '#ccc',
