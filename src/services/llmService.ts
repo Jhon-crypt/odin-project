@@ -13,15 +13,16 @@ export async function saveUserLLMSettings(modelId: string, apiKey: string) {
       .eq('model_id', modelId)
       .single()
 
-    if (llmConfigError) {
+    if (llmConfigError || !llmConfig) {
       // If the configuration doesn't exist, create it
       const { data: newLLMConfig, error: createError } = await supabase
         .from('llm_configurations')
-        .insert({
+        .upsert({
           model_id: modelId,
           provider: 'Google',
           display_name: modelId,
-          description: 'Google AI model'
+          description: 'Google AI model',
+          is_deprecated: false
         })
         .select('id')
         .single()
@@ -31,8 +32,6 @@ export async function saveUserLLMSettings(modelId: string, apiKey: string) {
       
       llmConfig = newLLMConfig
     }
-
-    if (!llmConfig) throw new Error('Failed to get or create LLM configuration')
 
     // Deactivate any existing active settings for this user
     await supabase
@@ -44,7 +43,7 @@ export async function saveUserLLMSettings(modelId: string, apiKey: string) {
     // Insert new settings
     const { error: settingsError } = await supabase
       .from('user_llm_settings')
-      .insert({
+      .upsert({
         user_id: user.user.id,
         llm_config_id: llmConfig.id,
         encrypted_api_key: apiKey, // Note: In production, this should be properly encrypted
