@@ -1,35 +1,27 @@
-interface GoogleAIModel {
-  name: string;
-  version: string;
-  displayName: string;
-  description: string;
-  inputTokenLimit: number;
-  outputTokenLimit: number;
-  supportedGenerationMethods: string[];
-  temperature: number;
-  topP: number;
-  topK: number;
-}
+import { Model } from '../types/models';
 
-interface GoogleAIModelsResponse {
-  models: GoogleAIModel[];
-}
-
-const GOOGLE_AI_API_KEY = 'AIzaSyAYfYRdSiq1GIWSHNXzZR-XiXMivOE3hf0';
 const BASE_URL = 'https://generativelanguage.googleapis.com/v1beta';
 
-export async function fetchGoogleAIModels(): Promise<GoogleAIModel[]> {
+interface ModelResponse {
+  models: Model[];
+}
+
+export async function fetchModels(): Promise<Model[]> {
   try {
-    const response = await fetch(`${BASE_URL}/models?key=${GOOGLE_AI_API_KEY}`);
-    
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+    const apiKey = import.meta.env.VITE_GOOGLE_AI_API_KEY;
+    if (!apiKey) {
+      throw new Error('Google AI API key not found in environment variables');
     }
-    
-    const data: GoogleAIModelsResponse = await response.json();
+
+    const response = await fetch(`${BASE_URL}/models?key=${apiKey}`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch models');
+    }
+
+    const data: ModelResponse = await response.json();
     return data.models;
   } catch (error) {
-    console.error('Error fetching Google AI models:', error);
+    console.error('Error fetching models:', error);
     throw error;
   }
 }
@@ -40,6 +32,6 @@ export function formatModelName(name: string): string {
 }
 
 export default {
-  fetchGoogleAIModels,
+  fetchModels,
   formatModelName,
 }; 
