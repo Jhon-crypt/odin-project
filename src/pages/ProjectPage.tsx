@@ -5,13 +5,39 @@ import {
   useMediaQuery,
   Drawer,
   CssBaseline,
+  Typography,
 } from '@mui/material'
 import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import ProjectHeader from '../components/ProjectHeader'
 import ChatArea from '../components/ChatArea'
 import ResearchCanvas from '../components/ResearchCanvas'
+import Sidebar from '../components/Sidebar'
 import useProjectStore from '../store/projectStore'
+
+function EmptyState() {
+  return (
+    <Box
+      sx={{
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        color: '#888',
+        p: 3,
+        textAlign: 'center',
+      }}
+    >
+      <Typography variant="h6" sx={{ mb: 2, color: '#ccc' }}>
+        No Project Selected
+      </Typography>
+      <Typography>
+        Select a project from the sidebar or create a new one to get started
+      </Typography>
+    </Box>
+  )
+}
 
 function ProjectPage() {
   const { id } = useParams()
@@ -55,6 +81,31 @@ function ProjectPage() {
           bgcolor: '#111111',
         }}
       >
+        {/* Sidebar - Always visible on desktop, drawer on mobile */}
+        {!isMobile ? (
+          <Box sx={{ width: 280, flexShrink: 0 }}>
+            <Sidebar activeProject={currentProject?.name || ''} />
+          </Box>
+        ) : (
+          <Drawer
+            open={leftDrawerOpen}
+            onClose={() => setLeftDrawerOpen(false)}
+            ModalProps={{
+              keepMounted: true,
+            }}
+            PaperProps={{
+              sx: {
+                width: '280px',
+                bgcolor: '#1a1a1a',
+                borderRight: '1px solid #333',
+              },
+            }}
+          >
+            <Sidebar activeProject={currentProject?.name || ''} />
+          </Drawer>
+        )}
+
+        {/* Main Content */}
         <Box
           sx={{
             flex: 1,
@@ -89,7 +140,7 @@ function ProjectPage() {
               width: '100%',
             }}
           >
-            <ChatArea />
+            {id ? <ChatArea /> : <EmptyState />}
           </Box>
         </Box>
 
@@ -103,7 +154,7 @@ function ProjectPage() {
               overflow: 'hidden',
             }}
           >
-            <ResearchCanvas />
+            {id ? <ResearchCanvas /> : <EmptyState />}
           </Box>
         ) : (
           <Drawer
@@ -122,7 +173,7 @@ function ProjectPage() {
               },
             }}
           >
-            <ResearchCanvas />
+            {id ? <ResearchCanvas /> : <EmptyState />}
           </Drawer>
         )}
       </Box>
