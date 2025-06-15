@@ -42,12 +42,17 @@ const staticLLMOptions: LLMOption[] = [
 function Sidebar({ activeProject }: SidebarProps) {
   const navigate = useNavigate()
   const [isLLMModalOpen, setIsLLMModalOpen] = useState(false)
-  const { selectedLLM } = useLLMStore()
+  const { selectedLLM, loadStoredSettings } = useLLMStore()
   const { projects, loading, error, fetchProjects, createProject } = useProjectStore()
   const [llmOptions, setLLMOptions] = useState(staticLLMOptions)
   const [loadingModels, setLoadingModels] = useState(false)
   
   const selectedLLMDetails = llmOptions.find(llm => llm.id === selectedLLM)
+
+  // Load stored LLM settings when component mounts
+  useEffect(() => {
+    loadStoredSettings()
+  }, [loadStoredSettings])
 
   // Fetch Google AI models when component mounts
   useEffect(() => {

@@ -89,4 +89,28 @@ export interface Database {
       };
     };
   };
+}
+
+export type Provider = 'OpenAI' | 'Anthropic' | 'Google';
+
+export interface LLMConfiguration {
+  id: string;
+  model_id: string;
+  provider: Provider;
+  display_name: string;
+  description: string | null;
+  is_deprecated: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface UserLLMSetting {
+  id: string;
+  user_id: string;
+  llm_config_id: string;
+  encrypted_api_key: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+  llm_configuration?: LLMConfiguration;
 } 
