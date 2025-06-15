@@ -47,6 +47,27 @@ const useProjectStore = create<ProjectStore>((set, get) => ({
       if (userError) throw userError
       if (!user) throw new Error('No user found')
 
+      // Check if user exists in users table
+      const { data: existingUser, error: userCheckError } = await supabase
+        .from('users')
+        .select('id')
+        .eq('id', user.id)
+        .single()
+
+      // If user doesn't exist, create them
+      if (!existingUser) {
+        const { error: createUserError } = await supabase
+          .from('users')
+          .insert([{
+            id: user.id,
+            display_name: user.email?.split('@')[0] || 'Anonymous',
+            email: user.email || '',
+            avatar_url: user.user_metadata?.avatar_url || null
+          }])
+        if (createUserError) throw createUserError
+      }
+
+      // Now create the project
       const { data, error } = await supabase
         .from('projects')
         .insert([
