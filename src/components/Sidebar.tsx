@@ -28,12 +28,15 @@ interface SidebarProps {
   activeProject: string
 }
 
+interface LLMOption {
+  id: string;
+  name: string;
+  provider: string;
+}
+
 // Static LLM options for OpenAI and Anthropic
-const staticLLMOptions = [
-  { id: 'gpt-4', name: 'GPT-4', provider: 'OpenAI' },
-  { id: 'gpt-3.5-turbo', name: 'GPT-3.5 Turbo', provider: 'OpenAI' },
-  { id: 'claude-3-opus', name: 'Claude 3 Opus', provider: 'Anthropic' },
-  { id: 'claude-3-sonnet', name: 'Claude 3 Sonnet', provider: 'Anthropic' },
+const staticLLMOptions: LLMOption[] = [
+  // Removed OpenAI and Anthropic models - only using Google models
 ]
 
 function Sidebar({ activeProject }: SidebarProps) {
@@ -52,14 +55,25 @@ function Sidebar({ activeProject }: SidebarProps) {
       setLoadingModels(true)
       try {
         const models = await googleAIService.fetchModels()
+        const seenModelIds = new Set()
         const googleOptions = models
-          // Include all Gemini models
-          .filter(model => model.name.includes('gemini'))
-          .map(model => ({
-            id: model.name,
-            name: model.displayName || model.name,
-            provider: 'Google'
-          }))
+          // Include Gemini models but exclude vision models
+          .filter(model => 
+            model.name.includes('gemini') && 
+            !model.name.toLowerCase().includes('vision')
+          )
+          .reduce<Array<{ id: string; name: string; provider: string }>>((unique, model) => {
+            const modelId = model.name
+            if (!seenModelIds.has(modelId)) {
+              seenModelIds.add(modelId)
+              unique.push({
+                id: modelId,
+                name: model.displayName || model.name,
+                provider: 'Google'
+              })
+            }
+            return unique
+          }, [])
         
         console.log('Google models:', googleOptions) // For debugging
         setLLMOptions([...staticLLMOptions, ...googleOptions])
