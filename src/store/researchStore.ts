@@ -20,16 +20,41 @@ const useResearchStore = create<ResearchStore>((set) => ({
   fetchDocument: async (projectId: string) => {
     try {
       set({ isLoading: true, error: null })
-      const { data, error } = await supabase
+      
+      // First check if a document exists
+      const { data: existingDoc, error: fetchError } = await supabase
         .from('research_documents')
         .select('content')
         .eq('project_id', projectId)
         .single()
 
-      if (error) throw error
-      set({ content: data?.content || '' })
+      if (fetchError && fetchError.code !== 'PGRST116') { // PGRST116 is "no rows returned"
+        throw fetchError
+      }
+
+      // If no document exists, create one
+      if (!existingDoc) {
+        const user = (await supabase.auth.getUser()).data.user
+        if (!user) throw new Error('User not authenticated')
+
+        const { data: newDoc, error: createError } = await supabase
+          .from('research_documents')
+          .insert({
+            project_id: projectId,
+            content: '',
+            created_by: user.id,
+          })
+          .select('content')
+          .single()
+
+        if (createError) throw createError
+        set({ content: newDoc?.content || '' })
+      } else {
+        set({ content: existingDoc.content || '' })
+      }
     } catch (error) {
       set({ error: (error as Error).message })
+      console.error('Error fetching document:', error)
     } finally {
       set({ isLoading: false })
     }
@@ -41,18 +66,20 @@ const useResearchStore = create<ResearchStore>((set) => ({
       const user = (await supabase.auth.getUser()).data.user
       if (!user) throw new Error('User not authenticated')
 
-      const { error } = await supabase
+      const { error: updateError } = await supabase
         .from('research_documents')
         .upsert({
           project_id: projectId,
           content,
           created_by: user.id,
+          updated_at: new Date().toISOString(),
         })
 
-      if (error) throw error
+      if (updateError) throw updateError
       set({ content })
     } catch (error) {
       set({ error: (error as Error).message })
+      console.error('Error updating document:', error)
     } finally {
       set({ isLoading: false })
     }
