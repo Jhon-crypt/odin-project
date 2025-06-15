@@ -42,13 +42,19 @@ const useProjectStore = create<ProjectStore>((set, get) => ({
   createProject: async () => {
     set({ loading: true, error: null })
     try {
+      // Get the current user
+      const { data: { user }, error: userError } = await supabase.auth.getUser()
+      if (userError) throw userError
+      if (!user) throw new Error('No user found')
+
       const { data, error } = await supabase
         .from('projects')
         .insert([
           {
             name: 'Untitled',
             description: '',
-            status: 'active'
+            status: 'active',
+            created_by: user.id
           }
         ])
         .select()
