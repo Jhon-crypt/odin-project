@@ -161,14 +161,14 @@ const useChatStore = create<ChatStore>((set, get) => ({
         }
       }
       
-      // Insert error message as system message
+      // Insert error message as assistant message
       try {
         await supabase
           .from('chat_messages')
           .insert({
             project_id: projectId,
             content: errorMessage,
-            role: 'system',
+            role: 'assistant',
             user_id: (await supabase.auth.getUser()).data.user?.id
           });
         

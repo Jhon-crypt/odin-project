@@ -22,7 +22,6 @@ import UserProfile from './UserProfile'
 import useLLMStore from '../store/llmStore'
 import useProjectStore from '../store/projectStore'
 import googleAIService from '../services/googleAIService'
-import type { Model } from '../types/models'
 
 interface SidebarProps {
   activeProject: string
