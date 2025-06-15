@@ -12,129 +12,119 @@
       padding: 0;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
-      background-color: #ffffff;
-      color: #000000;
+      background-color: #f5f5f5;
     }
     .container {
       max-width: 600px;
-      margin: 0 auto;
-      padding: 48px 24px;
+      margin: 40px auto;
+      padding: 40px;
+      background: #111111;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
-    .card {
-      background-color: #ffffff;
-      border-radius: 5px;
-      border: 1px solid #eaeaea;
-      padding: 48px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    .header {
+      text-align: center;
+      margin-bottom: 32px;
     }
     .logo {
       width: 0;
       height: 0;
-      border-left: 20px solid transparent;
-      border-right: 20px solid transparent;
-      border-bottom: 35px solid #000;
-      margin: 0 auto 32px;
+      border-left: 32px solid transparent;
+      border-right: 32px solid transparent;
+      border-bottom: 48px solid #C0FF92;
+      margin: 0 auto 24px;
     }
-    h1 {
-      font-size: 20px;
-      font-weight: 500;
-      margin: 0 0 24px;
-      text-align: left;
-      color: #000000;
-    }
-    p {
-      font-size: 15px;
+    .content {
+      color: #ffffff;
+      font-size: 16px;
       line-height: 1.6;
-      margin: 16px 0;
-      color: #666666;
+    }
+    .greeting {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 24px;
+      color: #ffffff;
+    }
+    .message {
+      margin-bottom: 32px;
+      color: #e0e0e0;
     }
     .button {
       display: inline-block;
-      background-color: #000000;
-      color: #ffffff;
+      background-color: #C0FF92;
+      color: #000000;
       text-decoration: none;
-      padding: 12px 24px;
-      border-radius: 5px;
-      font-weight: 500;
-      font-size: 14px;
+      padding: 16px 32px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 16px;
       margin: 24px 0;
       transition: background-color 0.2s;
     }
     .button:hover {
-      background-color: #333333;
-    }
-    .divider {
-      height: 1px;
-      background-color: #eaeaea;
-      margin: 32px 0;
-      border: none;
+      background-color: #A8E67A;
     }
     .footer {
-      text-align: left;
-      margin-top: 32px;
+      margin-top: 48px;
+      padding-top: 24px;
+      border-top: 1px solid #333333;
+      text-align: center;
+      color: #888888;
+      font-size: 14px;
     }
     .footer p {
-      font-size: 13px;
-      color: #666666;
       margin: 8px 0;
     }
     .footer a {
-      color: #0070f3;
+      color: #C0FF92;
       text-decoration: none;
     }
     .footer a:hover {
       text-decoration: underline;
     }
-    .muted {
+    .disclaimer {
+      margin-top: 24px;
       color: #666666;
       font-size: 14px;
     }
     @media (max-width: 600px) {
       .container {
-        padding: 24px 16px;
-      }
-      .card {
+        margin: 0;
         padding: 24px;
+        border-radius: 0;
       }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <div class="card">
+    <div class="header">
       <div class="logo"></div>
+    </div>
+    
+    <div class="content">
+      <div class="greeting">Hi {{ .Email }},</div>
       
-      <h1>Hi {{ .Email }},</h1>
-      
-      <p>
-        There was a request to create an account for Odin Project using this email address.
-        If this was you, please verify your email address by clicking the button below.
-      </p>
+      <div class="message">
+        Thanks for signing up for <strong>Odin Project</strong>! We're excited to have you join our community of researchers and academics. Please confirm your email address to get started.
+      </div>
       
       <div style="text-align: center;">
-        <a href="{{ .ConfirmationURL }}" class="button">Verify Email Address</a>
+        <a href="{{ .ConfirmationURL }}" class="button">Confirm Email Address</a>
       </div>
       
-      <p class="muted">
-        If you didn't request this email, you can safely ignore it.
+      <div class="disclaimer">
+        If you didn't create an account with Odin Project, you can safely ignore this email.
+      </div>
+    </div>
+    
+    <div class="footer">
+      <p>
+        If you've got questions, ask us at <a href="mailto:support@odinproject.com">support@odinproject.com</a>
       </p>
-      
-      <hr class="divider">
-      
-      <div class="footer">
-        <p>
-          If you're having trouble with the button above, copy and paste the URL below into your web browser:
-        </p>
-        <p style="margin-bottom: 24px;">
-          <a href="{{ .ConfirmationURL }}">{{ .ConfirmationURL }}</a>
-        </p>
-        <p>
-          © 2024 Odin Project. All rights reserved.
-        </p>
-        <p>
-          <a href="{{ .SiteURL }}">Odin Project</a> · AI-Powered Research Paper Tool
-        </p>
-      </div>
+      <p>
+        Copyright © 2024 Odin Project. All rights reserved.
+      </p>
     </div>
   </div>
 </body>
