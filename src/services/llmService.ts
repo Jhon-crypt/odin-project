@@ -1,5 +1,5 @@
 import { supabase } from '../lib/supabaseClient'
-import type { LLMConfiguration, UserLLMSetting } from '../types/database'
+import type { UserLLMSetting } from '../types/database'
 
 export async function saveUserLLMSettings(modelId: string, apiKey: string) {
   try {
@@ -12,6 +12,8 @@ export async function saveUserLLMSettings(modelId: string, apiKey: string) {
       .select('id')
       .eq('model_id', modelId)
       .maybeSingle()
+
+    if (configError) throw configError
 
     let llmConfigId: string
 
