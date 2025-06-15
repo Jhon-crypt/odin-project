@@ -15,11 +15,10 @@ CREATE POLICY "project_select_policy" ON projects
 
 CREATE POLICY "project_insert_policy" ON projects
     FOR INSERT
-    WITH CHECK (auth.uid() IS NOT NULL)
-    -- Set created_by to the current user if not provided
-    USING (
+    WITH CHECK (
+        auth.uid() IS NOT NULL AND
         CASE 
-            WHEN created_by IS NULL THEN auth.uid() = auth.uid()
+            WHEN created_by IS NULL THEN true
             ELSE created_by = auth.uid()
         END
     );
