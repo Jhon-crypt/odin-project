@@ -27,7 +27,7 @@ interface ResearchStore {
   setIsEditing: (isEditing: boolean) => void
 }
 
-const useResearchStore = create<ResearchStore>((set) => ({
+const useResearchStore = create<ResearchStore>((set, get) => ({
   content: '',
   isLoading: false,
   error: null,
@@ -110,7 +110,9 @@ const useResearchStore = create<ResearchStore>((set) => ({
       }
 
       console.log('Canvas item created successfully')
-      set({ content: content.trim() })
+      
+      // Fetch the latest data to update the view
+      await get().fetchDocument(projectId)
     } catch (error) {
       console.error('Error in updateDocument:', error)
       set({ 
