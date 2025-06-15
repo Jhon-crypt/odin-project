@@ -23,6 +23,11 @@ CREATE POLICY "project_insert_policy" ON projects
         END
     );
 
+CREATE POLICY "project_update_policy" ON projects
+    FOR UPDATE
+    USING (created_by = auth.uid())
+    WITH CHECK (created_by = auth.uid());
+
 -- Re-enable RLS
 ALTER TABLE projects ENABLE ROW LEVEL SECURITY;
 
