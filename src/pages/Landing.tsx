@@ -26,6 +26,7 @@ function Landing() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
+  const [displayName, setDisplayName] = useState('')
   const [submitted, setSubmitted] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
@@ -69,20 +70,49 @@ function Landing() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!email) return
+    if (!email || !password) {
+      setError('Please fill in all fields')
+      return
+    }
+
+    setIsLoading(true)
+    setError(null)
 
     try {
-      // TODO: Implement actual login
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      const { data, error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      })
+
+      if (signInError) throw signInError
+
+      // After successful login, create or update user profile
+      if (data.user) {
+        const { error: profileError } = await supabase
+          .from('users')
+          .upsert({
+            id: data.user.id,
+            email: data.user.email,
+            display_name: data.user.email?.split('@')[0] || 'User',
+          })
+
+        if (profileError) {
+          console.error('Error updating user profile:', profileError)
+        }
+      }
+
       navigate('/dashboard')
-    } catch {
+    } catch (err) {
+      console.error('Login error:', err)
       setError('Invalid credentials')
+    } finally {
+      setIsLoading(false)
     }
   }
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!email || !password || !confirmPassword) {
+    if (!email || !password || !confirmPassword || !displayName) {
       setError('Please fill in all fields')
       return
     }
@@ -92,12 +122,60 @@ function Landing() {
       return
     }
 
+    setIsLoading(true)
+    setError(null)
+
     try {
-      // TODO: Implement actual signup
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      navigate('/dashboard')
-    } catch {
-      setError('Failed to create account')
+      const { data, error: signUpError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
+          data: {
+            display_name: displayName,
+          },
+        },
+      })
+
+      if (signUpError) throw signUpError
+
+      // Check if the signup was successful but needs email confirmation
+      if (data?.user?.identities?.length === 0) {
+        setError('This email is already registered. Please try logging in instead.')
+        return
+      }
+
+      // After successful signup, create user profile
+      if (data.user) {
+        const { error: profileError } = await supabase
+          .from('users')
+          .insert({
+            id: data.user.id,
+            email: data.user.email,
+            display_name: displayName,
+          })
+
+        if (profileError) {
+          console.error('Error creating user profile:', profileError)
+        }
+
+        // Check if email confirmation is required
+        if (!data.session) {
+          setSubmitted(true)
+          // Log the confirmation URL if in development
+          if (process.env.NODE_ENV === 'development') {
+            console.info('Development mode - check email confirmation link:', data.user.confirmation_sent_at)
+          }
+        } else {
+          // If no email confirmation required, redirect to dashboard
+          navigate('/dashboard')
+        }
+      }
+    } catch (err: any) {
+      console.error('Signup error:', err)
+      setError(err.message || 'Failed to create account. Please try again.')
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -106,8 +184,10 @@ function Landing() {
     setEmail('')
     setPassword('')
     setConfirmPassword('')
+    setDisplayName('')
     setError(null)
     setSubmitted(false)
+    setIsLoading(false)
   }
 
   const handleInviteRequest = async (e: React.FormEvent) => {
@@ -367,421 +447,181 @@ function Landing() {
             )}
 
             {currentView === 'login' && (
-              <>
-                <Avatar
-                  sx={{
-                    width: { xs: 48, sm: 56, md: 64, lg: 72 },
-                    height: { xs: 48, sm: 56, md: 64, lg: 72 },
-                    bgcolor: '#333',
-                    fontSize: { xs: '1.2rem', sm: '1.5rem', md: '1.75rem', lg: '2rem' },
-                    fontWeight: 'bold',
-                    mb: { xs: 1.5, sm: 2 },
-                  }}
-                >
-                  🔬
-                </Avatar>
-
-                <Typography
-                  variant="h4"
-                  sx={{
-                    fontWeight: 'bold',
-                    color: '#ffffff',
-                    mb: { xs: 2, sm: 2.5, md: 3 },
-                    fontSize: { xs: '1.25rem', sm: '1.5rem', md: '1.75rem', lg: '2rem' },
-                  }}
-                >
+              <Box
+                component="form"
+                onSubmit={handleLogin}
+                sx={{
+                  width: '100%',
+                  maxWidth: { xs: '100%', sm: '380px', md: '400px' },
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 2,
+                }}
+              >
+                <Typography variant="h4" sx={{ mb: 2, fontWeight: 'bold' }}>
                   Welcome Back
                 </Typography>
 
-                <Box sx={{ 
-                  width: '100%', 
-                  maxWidth: { xs: '100%', sm: '380px', md: '400px' },
-                  px: { xs: 0, sm: 1 },
-                }}>
-                  {error && (
-                    <Alert severity="error" sx={{ mb: 2 }}>
-                      {error}
-                    </Alert>
-                  )}
+                {error && (
+                  <Alert severity="error" sx={{ mb: 2 }}>
+                    {error}
+                  </Alert>
+                )}
 
-                  <TextField
-                    fullWidth
-                    type="email"
-                    placeholder="Email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    variant="outlined"
-                    sx={{
-                      mb: { xs: 1.5, sm: 2 },
-                      '& .MuiOutlinedInput-root': {
-                        bgcolor: '#1a1a1a',
-                        color: '#fff',
-                        borderRadius: { xs: '8px', sm: '10px', md: '12px' },
-                        fontSize: { xs: '14px', sm: '15px', md: '16px' },
-                        '& fieldset': {
-                          borderColor: '#333',
-                        },
-                        '&:hover fieldset': {
-                          borderColor: '#555',
-                        },
-                        '&.Mui-focused fieldset': {
-                          borderColor: '#C0FF92',
-                        },
-                      },
-                      '& .MuiInputBase-input': {
-                        py: { xs: 1.25, sm: 1.5 },
-                        fontSize: { xs: '14px', sm: '15px', md: '16px' },
-                      },
-                      '& .MuiInputBase-input::placeholder': {
-                        color: '#888',
-                        opacity: 1,
-                      },
-                    }}
-                  />
+                <TextField
+                  fullWidth
+                  label="Email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  disabled={isLoading}
+                  required
+                />
 
-                  <TextField
-                    fullWidth
-                    type="password"
-                    placeholder="Password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    variant="outlined"
-                    sx={{
-                      mb: { xs: 1.5, sm: 2 },
-                      '& .MuiOutlinedInput-root': {
-                        bgcolor: '#1a1a1a',
-                        color: '#fff',
-                        borderRadius: { xs: '8px', sm: '10px', md: '12px' },
-                        '& fieldset': {
-                          borderColor: '#333',
-                        },
-                        '&:hover fieldset': {
-                          borderColor: '#555',
-                        },
-                        '&.Mui-focused fieldset': {
-                          borderColor: '#C0FF92',
-                        },
-                      },
-                      '& .MuiInputBase-input': {
-                        py: { xs: 1.25, sm: 1.5 },
-                        fontSize: { xs: '14px', sm: '15px', md: '16px' },
-                      },
-                      '& .MuiInputBase-input::placeholder': {
-                        color: '#888',
-                        opacity: 1,
-                      },
-                    }}
-                  />
+                <TextField
+                  fullWidth
+                  label="Password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  disabled={isLoading}
+                  required
+                />
 
-                  <Box sx={{ 
-                    display: 'flex',
-                    justifyContent: 'space-between', 
-                    alignItems: 'center', 
-                    mb: { xs: 2.5, sm: 3 },
-                    flexDirection: { xs: 'column', sm: 'row' },
-                    gap: { xs: 1.5, sm: 0 },
-                  }}>
-                    <FormControlLabel
-                      control={
-                        <Checkbox
-                          sx={{
-                            color: '#555',
-                            '&.Mui-checked': {
-                              color: '#C0FF92',
-                            },
-                          }}
-                        />
-                      }
-                      label={
-                        <Typography sx={{ 
-                          color: '#888', 
-                          fontSize: { xs: '0.8rem', sm: '0.85rem', md: '0.9rem' },
-                        }}>
-                          Remember me
-                        </Typography>
-                      }
-                    />
-                    <Link 
-                      href="#" 
-                      sx={{ 
-                        color: '#C0FF92', 
-                        textDecoration: 'none', 
-                        fontSize: { xs: '0.8rem', sm: '0.85rem', md: '0.9rem' },
-                        '&:hover': {
-                          textDecoration: 'underline',
-                        },
-                      }}
-                    >
-                      Forgot Password?
-                    </Link>
-                  </Box>
+                <LoadingButton
+                  type="submit"
+                  variant="contained"
+                  fullWidth
+                  loading={isLoading}
+                  sx={{
+                    mt: 2,
+                    bgcolor: '#C0FF92',
+                    color: '#000',
+                    '&:hover': {
+                      bgcolor: '#A8E67A',
+                    },
+                  }}
+                >
+                  Sign In
+                </LoadingButton>
 
-                  <Button
-                    fullWidth
-                    variant="contained"
-                    onClick={handleLogin}
-                    sx={{
-                      bgcolor: '#C0FF92',
-                      color: '#000',
-                      fontWeight: 'bold',
-                      py: { xs: 1.5, sm: 1.5 },
-                      borderRadius: { xs: '8px', sm: '10px', md: '12px' },
-                      textTransform: 'none',
-                      mb: { xs: 2.5, sm: 3 },
-                      fontSize: { xs: '0.9rem', sm: '0.95rem', md: '1rem' },
-                      minHeight: '48px',
-                      '&:hover': {
-                        bgcolor: '#A8E67A',
-                      },
-                    }}
-                  >
-                    Login
-                  </Button>
-
-                  <Typography sx={{ 
-                    color: '#888', 
-                    textAlign: 'center',
-                    fontSize: { xs: '0.8rem', sm: '0.85rem', md: '0.9rem' },
-                    mb: { xs: 2, sm: 2 },
-                  }}>
-                    Don't have an account?{' '}
-                    <Button
-                      onClick={() => setCurrentView('signup')}
-                      sx={{
-                        color: '#C0FF92',
-                        textTransform: 'none',
-                        '&:hover': {
-                          color: '#a8ff66',
-                          background: 'none',
-                        },
-                      }}
-                    >
-                      Request Invitation
-                    </Button>
-                  </Typography>
-
-                  <Button
-                    onClick={() => setCurrentView('landing')}
-                    sx={{
-                      color: '#888',
-                      textTransform: 'none',
-                      fontSize: { xs: '0.8rem', sm: '0.85rem', md: '0.9rem' },
-                      minHeight: '44px',
-                      '&:hover': {
-                        color: '#aaa',
-                        bgcolor: 'rgba(255,255,255,0.05)',
-                      },
-                    }}
-                  >
-                    ← Back to Home
-                  </Button>
-                </Box>
-              </>
+                <Button
+                  variant="text"
+                  onClick={handleBack}
+                  disabled={isLoading}
+                  sx={{ mt: 1, color: '#888' }}
+                >
+                  Back
+                </Button>
+              </Box>
             )}
 
             {currentView === 'signup' && (
-              <>
-                <Avatar
-                  sx={{
-                    width: { xs: 48, sm: 56, md: 64, lg: 72 },
-                    height: { xs: 48, sm: 56, md: 64, lg: 72 },
-                    bgcolor: '#333',
-                    fontSize: { xs: '1.2rem', sm: '1.5rem', md: '1.75rem', lg: '2rem' },
-                    fontWeight: 'bold',
-                    mb: { xs: 1.5, sm: 2 },
-                  }}
-                >
-                  🔬
-                </Avatar>
-
-                <Typography
-                  variant="h4"
-                  sx={{
-                    fontWeight: 'bold',
-                    color: '#ffffff',
-                    mb: { xs: 2, sm: 2.5, md: 3 },
-                    fontSize: { xs: '1.25rem', sm: '1.5rem', md: '1.75rem', lg: '2rem' },
-                  }}
-                >
+              <Box
+                component="form"
+                onSubmit={handleSignup}
+                sx={{
+                  width: '100%',
+                  maxWidth: { xs: '100%', sm: '380px', md: '400px' },
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 2,
+                }}
+              >
+                <Typography variant="h4" sx={{ mb: 2, fontWeight: 'bold' }}>
                   Create Account
                 </Typography>
 
-                <Box sx={{ 
-                  width: '100%', 
-                  maxWidth: { xs: '100%', sm: '380px', md: '400px' },
-                  px: { xs: 0, sm: 1 },
-                }}>
-                  {error && (
-                    <Alert severity="error" sx={{ mb: 2 }}>
-                      {error}
-                    </Alert>
-                  )}
+                {error && (
+                  <Alert severity="error" sx={{ mb: 2 }}>
+                    {error}
+                  </Alert>
+                )}
 
-                  <TextField
-                    fullWidth
-                    type="email"
-                    placeholder="Email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    variant="outlined"
-                    sx={{
-                      mb: { xs: 1.5, sm: 2 },
-                      '& .MuiOutlinedInput-root': {
-                        bgcolor: '#1a1a1a',
-                        color: '#fff',
-                        borderRadius: { xs: '8px', sm: '10px', md: '12px' },
-                        fontSize: { xs: '14px', sm: '15px', md: '16px' },
-                        '& fieldset': {
-                          borderColor: '#333',
-                        },
-                        '&:hover fieldset': {
-                          borderColor: '#555',
-                        },
-                        '&.Mui-focused fieldset': {
-                          borderColor: '#C0FF92',
-                        },
-                      },
-                      '& .MuiInputBase-input': {
-                        py: { xs: 1.25, sm: 1.5 },
-                        fontSize: { xs: '14px', sm: '15px', md: '16px' },
-                      },
-                      '& .MuiInputBase-input::placeholder': {
-                        color: '#888',
-                        opacity: 1,
-                      },
-                    }}
-                  />
+                {submitted ? (
+                  <Alert severity="success" sx={{ mb: 2 }}>
+                    <div>
+                      <strong>Account created successfully!</strong>
+                      <p style={{ margin: '8px 0 0' }}>
+                        Please check your email (including spam folder) for a verification link.
+                      </p>
+                    </div>
+                  </Alert>
+                ) : (
+                  <>
+                    <TextField
+                      fullWidth
+                      label="Display Name"
+                      type="text"
+                      value={displayName}
+                      onChange={(e) => setDisplayName(e.target.value)}
+                      disabled={isLoading}
+                      required
+                      autoComplete="name"
+                      placeholder="How should we call you?"
+                    />
 
-                  <TextField
-                    fullWidth
-                    type="password"
-                    placeholder="Password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    variant="outlined"
-                    sx={{
-                      mb: { xs: 1.5, sm: 2 },
-                      '& .MuiOutlinedInput-root': {
-                        bgcolor: '#1a1a1a',
-                        color: '#fff',
-                        borderRadius: { xs: '8px', sm: '10px', md: '12px' },
-                        '& fieldset': {
-                          borderColor: '#333',
-                        },
-                        '&:hover fieldset': {
-                          borderColor: '#555',
-                        },
-                        '&.Mui-focused fieldset': {
-                          borderColor: '#C0FF92',
-                        },
-                      },
-                      '& .MuiInputBase-input': {
-                        py: { xs: 1.25, sm: 1.5 },
-                        fontSize: { xs: '14px', sm: '15px', md: '16px' },
-                      },
-                      '& .MuiInputBase-input::placeholder': {
-                        color: '#888',
-                        opacity: 1,
-                      },
-                    }}
-                  />
+                    <TextField
+                      fullWidth
+                      label="Email"
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      disabled={isLoading}
+                      required
+                      autoComplete="email"
+                    />
 
-                  <TextField
-                    fullWidth
-                    type="password"
-                    placeholder="Confirm Password"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    variant="outlined"
-                    sx={{
-                      mb: { xs: 2.5, sm: 3 },
-                      '& .MuiOutlinedInput-root': {
-                        bgcolor: '#1a1a1a',
-                        color: '#fff',
-                        borderRadius: { xs: '8px', sm: '10px', md: '12px' },
-                        '& fieldset': {
-                          borderColor: '#333',
-                        },
-                        '&:hover fieldset': {
-                          borderColor: '#555',
-                        },
-                        '&.Mui-focused fieldset': {
-                          borderColor: '#C0FF92',
-                        },
-                      },
-                      '& .MuiInputBase-input': {
-                        py: { xs: 1.25, sm: 1.5 },
-                        fontSize: { xs: '14px', sm: '15px', md: '16px' },
-                      },
-                      '& .MuiInputBase-input::placeholder': {
-                        color: '#888',
-                        opacity: 1,
-                      },
-                    }}
-                  />
+                    <TextField
+                      fullWidth
+                      label="Password"
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      disabled={isLoading}
+                      required
+                      autoComplete="new-password"
+                    />
 
-                  <Button
-                    fullWidth
-                    variant="contained"
-                    onClick={handleSignup}
-                    sx={{
-                      bgcolor: '#C0FF92',
-                      color: '#000',
-                      fontWeight: 'bold',
-                      py: { xs: 1.5, sm: 1.5 },
-                      borderRadius: { xs: '8px', sm: '10px', md: '12px' },
-                      textTransform: 'none',
-                      mb: { xs: 2.5, sm: 3 },
-                      fontSize: { xs: '0.9rem', sm: '0.95rem', md: '1rem' },
-                      minHeight: '48px',
-                      '&:hover': {
-                        bgcolor: '#A8E67A',
-                      },
-                    }}
-                  >
-                    Create Account
-                  </Button>
+                    <TextField
+                      fullWidth
+                      label="Confirm Password"
+                      type="password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      disabled={isLoading}
+                      required
+                      autoComplete="new-password"
+                    />
 
-                  <Typography sx={{ 
-                    color: '#888', 
-                    textAlign: 'center',
-                    fontSize: { xs: '0.8rem', sm: '0.85rem', md: '0.9rem' },
-                    mb: { xs: 2, sm: 2 },
-                  }}>
-                    Already have an account?{' '}
-                    <Link
-                      href="#"
-                      onClick={() => setCurrentView('login')}
-                      sx={{ 
-                        color: '#C0FF92', 
-                        textDecoration: 'none', 
-                        cursor: 'pointer',
+                    <LoadingButton
+                      type="submit"
+                      variant="contained"
+                      fullWidth
+                      loading={isLoading}
+                      sx={{
+                        mt: 2,
+                        bgcolor: '#C0FF92',
+                        color: '#000',
                         '&:hover': {
-                          textDecoration: 'underline',
+                          bgcolor: '#A8E67A',
                         },
                       }}
                     >
-                      Log In
-                    </Link>
-                  </Typography>
+                      Sign Up
+                    </LoadingButton>
+                  </>
+                )}
 
-                  <Button
-                    onClick={() => setCurrentView('landing')}
-                    sx={{
-                      color: '#888',
-                      textTransform: 'none',
-                      fontSize: { xs: '0.8rem', sm: '0.85rem', md: '0.9rem' },
-                      minHeight: '44px',
-                      '&:hover': {
-                        color: '#aaa',
-                        bgcolor: 'rgba(255,255,255,0.05)',
-                      },
-                    }}
-                  >
-                    ← Back to Home
-                  </Button>
-                </Box>
-              </>
+                <Button
+                  variant="text"
+                  onClick={handleBack}
+                  disabled={isLoading}
+                  sx={{ mt: 1, color: '#888' }}
+                >
+                  Back
+                </Button>
+              </Box>
             )}
 
             {/* Invitation Request Form */}
