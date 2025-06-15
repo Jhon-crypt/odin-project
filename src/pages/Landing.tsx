@@ -9,8 +9,6 @@ import {
   AvatarGroup,
   Link,
   TextField,
-  Checkbox,
-  FormControlLabel,
   useMediaQuery,
   Alert,
   CircularProgress,
@@ -20,6 +18,11 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AutoAwesome as AiIcon } from '@mui/icons-material'
 import { supabase } from '../lib/supabaseClient'
+
+interface AuthError {
+  message: string;
+  status?: number;
+}
 
 function Landing() {
   const [currentView, setCurrentView] = useState('landing') // 'landing', 'login', 'signup'
@@ -94,6 +97,9 @@ function Landing() {
             id: data.user.id,
             email: data.user.email,
             display_name: data.user.email?.split('@')[0] || 'User',
+            updated_at: new Date().toISOString(),
+          }, {
+            onConflict: 'id'
           })
 
         if (profileError) {
@@ -104,7 +110,8 @@ function Landing() {
       navigate('/dashboard')
     } catch (err) {
       console.error('Login error:', err)
-      setError('Invalid credentials')
+      const error = err as AuthError
+      setError(error.message || 'Invalid credentials')
     } finally {
       setIsLoading(false)
     }
@@ -119,6 +126,11 @@ function Landing() {
 
     if (password !== confirmPassword) {
       setError('Passwords do not match')
+      return
+    }
+
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters long')
       return
     }
 
@@ -153,10 +165,13 @@ function Landing() {
             id: data.user.id,
             email: data.user.email,
             display_name: displayName,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
           })
 
         if (profileError) {
           console.error('Error creating user profile:', profileError)
+          throw profileError
         }
 
         // Check if email confirmation is required
@@ -171,9 +186,10 @@ function Landing() {
           navigate('/dashboard')
         }
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error('Signup error:', err)
-      setError(err.message || 'Failed to create account. Please try again.')
+      const error = err as AuthError
+      setError(error.message || 'Failed to create account. Please try again.')
     } finally {
       setIsLoading(false)
     }

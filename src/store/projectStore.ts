@@ -48,7 +48,7 @@ const useProjectStore = create<ProjectStore>((set, get) => ({
       if (!user) throw new Error('No user found')
 
       // Check if user exists in users table
-      const { data: existingUser, error: userCheckError } = await supabase
+      const { data: existingUser } = await supabase
         .from('users')
         .select('id')
         .eq('id', user.id)
