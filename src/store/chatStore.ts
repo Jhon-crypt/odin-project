@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { supabase } from '../lib/supabaseClient'
 import type { ChatMessage } from '../types/database'
 import useLLMStore from './llmStore'
+import { generateContent } from '../services/geminiService'
 
 const SYSTEM_PROMPT = `You are now an advanced, autonomous AI tasked with conducting deep and thorough research on any information provided to you. Your objective is to analyze, investigate, and synthesize data from a vast array of sources to produce a comprehensive, detailed, and insightful response.
 
@@ -102,44 +103,9 @@ const useChatStore = create<ChatStore>((set, get) => ({
         throw new Error('No model or API key configured');
       }
 
-      // Call Gemini API
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-goog-api-key': apiKey,
-        },
-        body: JSON.stringify({
-          contents: [
-            {
-              role: 'user',
-              parts: [
-                { text: SYSTEM_PROMPT }
-              ]
-            },
-            {
-              role: 'model',
-              parts: [
-                { text: 'I understand and will act as an advanced research AI assistant.' }
-              ]
-            },
-            {
-              role: 'user',
-              parts: [
-                { text: content },
-                ...(imageUrls.map(url => ({ image_url: url })))
-              ]
-            }
-          ]
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to get AI response');
-      }
-
-      const aiResponseData = await response.json();
-      const aiResponse = aiResponseData.candidates[0].content.parts[0].text;
+      // Call Gemini API through our service
+      const response = await generateContent(modelName, apiKey, SYSTEM_PROMPT + '\n\n' + content, imageUrls);
+      const aiResponse = response.candidates[0].content.parts[0].text;
       
       // Insert AI response
       const { error: aiMsgError } = await supabase
