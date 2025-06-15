@@ -21,7 +21,16 @@ const useLLMStore = create<LLMState>()(
           set({ selectedLLM: llm, apiKey })
         } catch (error) {
           console.error('Error saving LLM settings:', error)
-          throw error
+          // Check for specific error types and provide user-friendly messages
+          if (error instanceof Error) {
+            if (error.message.includes('duplicate key value violates unique constraint')) {
+              throw new Error('You already have settings for this LLM model. Your settings will be updated.')
+            } else if (error.message.includes('not authenticated')) {
+              throw new Error('Please sign in to save your LLM settings.')
+            }
+          }
+          // If no specific error is matched, throw a generic error
+          throw new Error('Unable to save LLM settings. Please try again.')
         }
       },
       loadStoredSettings: async () => {
@@ -35,6 +44,7 @@ const useLLMStore = create<LLMState>()(
           }
         } catch (error) {
           console.error('Error loading LLM settings:', error)
+          // Don't throw here as we want to fail silently on load
         }
       },
       clearLLM: () => set({ selectedLLM: null, apiKey: null }),

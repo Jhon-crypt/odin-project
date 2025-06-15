@@ -39,22 +39,30 @@ export async function saveUserLLMSettings(modelId: string, apiKey: string) {
       llmConfigId = existingConfig.id
     }
 
-    // Deactivate any existing active settings for this user
-    await supabase
+    // Update any existing settings for this user and LLM config to inactive
+    const { error: updateError } = await supabase
       .from('user_llm_settings')
       .update({ is_active: false })
       .eq('user_id', user.user.id)
-      .eq('is_active', true)
+      .eq('llm_config_id', llmConfigId)
 
-    // Insert new settings
+    if (updateError) throw updateError
+
+    // Use upsert to handle both insert and update cases
     const { error: settingsError } = await supabase
       .from('user_llm_settings')
-      .insert({
-        user_id: user.user.id,
-        llm_config_id: llmConfigId,
-        encrypted_api_key: apiKey,
-        is_active: true
-      })
+      .upsert(
+        {
+          user_id: user.user.id,
+          llm_config_id: llmConfigId,
+          encrypted_api_key: apiKey,
+          is_active: true
+        },
+        {
+          onConflict: 'user_id,llm_config_id',
+          ignoreDuplicates: false
+        }
+      )
 
     if (settingsError) throw settingsError
 

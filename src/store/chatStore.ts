@@ -2,7 +2,7 @@ import { create } from 'zustand'
 import { supabase } from '../lib/supabaseClient'
 import type { ChatMessage } from '../types/database'
 import useLLMStore from './llmStore'
-import { generateContent } from '../services/geminiService'
+import { GoogleGenerativeAI } from '@google/generative-ai'
 
 const SYSTEM_PROMPT = `You are now an advanced, autonomous AI tasked with conducting deep and thorough research on any information provided to you. Your objective is to analyze, investigate, and synthesize data from a vast array of sources to produce a comprehensive, detailed, and insightful response.
 
@@ -100,19 +100,38 @@ const useChatStore = create<ChatStore>((set, get) => ({
       // Get the selected model and API key
       const { selectedLLM: modelName, apiKey } = useLLMStore.getState();
       if (!modelName || !apiKey) {
-        throw new Error('No model or API key configured');
+        throw new Error('Please configure your LLM settings first');
       }
 
-      // Call Gemini API through our service
-      const response = await generateContent(modelName, apiKey, SYSTEM_PROMPT + '\n\n' + content, imageUrls);
-      const aiResponse = response.candidates[0].content.parts[0].text;
+      // Initialize Google AI
+      const genAI = new GoogleGenerativeAI(apiKey);
+      const model = genAI.getGenerativeModel({ model: modelName });
+
+      // Start a chat
+      const chat = model.startChat({
+        history: [
+          {
+            role: "user",
+            parts: [{ text: SYSTEM_PROMPT }],
+          },
+          {
+            role: "model",
+            parts: [{ text: "I understand and will act as an advanced research AI assistant." }],
+          }
+        ],
+      });
+
+      // Send message and get response
+      const result = await chat.sendMessage(content);
+      const aiResponse = await result.response;
+      const responseText = aiResponse.text();
       
       // Insert AI response
       const { error: aiMsgError } = await supabase
         .from('chat_messages')
         .insert({
           project_id: projectId,
-          content: aiResponse,
+          content: responseText,
           role: 'assistant',
           user_id: (await supabase.auth.getUser()).data.user?.id
         });
@@ -122,7 +141,44 @@ const useChatStore = create<ChatStore>((set, get) => ({
       // Fetch updated messages
       await get().fetchMessages(projectId);
     } catch (error) {
-      set({ error: (error as Error).message });
+      console.error('Chat error:', error);
+      let errorMessage = 'An error occurred while processing your message.';
+      
+      if (error instanceof Error) {
+        const errorStr = error.toString().toLowerCase();
+        
+        // Handle rate limit errors
+        if (errorStr.includes('quota exceeded') || errorStr.includes('rate_limit_exceeded')) {
+          errorMessage = "You've reached the API rate limit. Please wait a moment before sending another message.";
+        }
+        // Handle authentication errors
+        else if (errorStr.includes('authentication') || errorStr.includes('api key')) {
+          errorMessage = "There's an issue with your API key. Please check your LLM configuration.";
+        }
+        // Handle network errors
+        else if (errorStr.includes('network') || errorStr.includes('fetch')) {
+          errorMessage = "Unable to connect to the AI service. Please check your internet connection.";
+        }
+      }
+      
+      // Insert error message as system message
+      try {
+        await supabase
+          .from('chat_messages')
+          .insert({
+            project_id: projectId,
+            content: errorMessage,
+            role: 'system',
+            user_id: (await supabase.auth.getUser()).data.user?.id
+          });
+        
+        // Fetch updated messages to show the error
+        await get().fetchMessages(projectId);
+      } catch (insertError) {
+        console.error('Error inserting error message:', insertError);
+      }
+      
+      set({ error: errorMessage });
     } finally {
       set({ isLoading: false });
     }
