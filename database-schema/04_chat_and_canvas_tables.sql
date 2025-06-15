@@ -66,6 +66,34 @@ CREATE POLICY "Users can create messages in their projects" ON chat_messages
         )
     );
 
+-- Add DELETE policy for chat messages
+CREATE POLICY "Users can delete messages in their projects" ON chat_messages
+    FOR DELETE
+    USING (
+        EXISTS (
+            SELECT 1 FROM projects p
+            WHERE p.id = chat_messages.project_id
+            AND (
+                p.created_by = auth.uid()
+                OR
+                EXISTS (
+                    SELECT 1 FROM project_collaborators pc 
+                    WHERE pc.project_id = p.id 
+                    AND pc.user_id = auth.uid()
+                )
+            )
+        )
+        AND (
+            user_id = auth.uid() -- User can delete their own messages
+            OR
+            EXISTS ( -- Project owner can delete any message
+                SELECT 1 FROM projects p
+                WHERE p.id = chat_messages.project_id
+                AND p.created_by = auth.uid()
+            )
+        )
+    );
+
 -- RLS Policies for canvas_items
 ALTER TABLE canvas_items ENABLE ROW LEVEL SECURITY;
 
