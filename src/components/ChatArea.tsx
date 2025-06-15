@@ -26,6 +26,8 @@ import useChatStore from '../store/chatStore'
 import useCanvasStore from '../store/canvasStore'
 import useAuth from '../hooks/useAuth'
 import { format } from 'date-fns'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 
 function ChatArea() {
   const { id: projectId } = useParams()
@@ -249,18 +251,95 @@ function ChatArea() {
                     borderRadius: 2,
                     width: 'auto',
                     position: 'relative',
+                    '& .markdown-content': {
+                      fontSize: { xs: '14px', sm: '15px' },
+                      lineHeight: 1.5,
+                      '& h1, & h2, & h3, & h4, & h5, & h6': {
+                        color: message.role === 'user' ? '#1a1a1a' : '#fff',
+                        fontWeight: 'bold',
+                        mt: 2,
+                        mb: 1,
+                      },
+                      '& h1': { fontSize: '1.5em' },
+                      '& h2': { fontSize: '1.3em' },
+                      '& h3': { fontSize: '1.2em' },
+                      '& h4': { fontSize: '1.1em' },
+                      '& h5, & h6': { fontSize: '1em' },
+                      '& p': {
+                        my: 1,
+                      },
+                      '& ul, & ol': {
+                        pl: 3,
+                        my: 1,
+                      },
+                      '& li': {
+                        mb: 0.5,
+                      },
+                      '& code': {
+                        bgcolor: message.role === 'user' ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)',
+                        p: 0.5,
+                        borderRadius: 0.5,
+                        fontFamily: 'monospace',
+                      },
+                      '& pre': {
+                        bgcolor: message.role === 'user' ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)',
+                        p: 1,
+                        borderRadius: 1,
+                        overflow: 'auto',
+                        '& code': {
+                          bgcolor: 'transparent',
+                          p: 0,
+                        },
+                      },
+                      '& blockquote': {
+                        borderLeft: `3px solid ${message.role === 'user' ? '#1a1a1a' : '#C0FF92'}`,
+                        pl: 2,
+                        my: 1,
+                        color: message.role === 'user' ? 'rgba(0,0,0,0.7)' : 'rgba(255,255,255,0.7)',
+                      },
+                      '& a': {
+                        color: message.role === 'user' ? '#006600' : '#C0FF92',
+                        textDecoration: 'none',
+                        '&:hover': {
+                          textDecoration: 'underline',
+                        },
+                      },
+                      '& img': {
+                        maxWidth: '100%',
+                        borderRadius: 1,
+                      },
+                      '& table': {
+                        borderCollapse: 'collapse',
+                        width: '100%',
+                        my: 2,
+                      },
+                      '& th, & td': {
+                        border: `1px solid ${message.role === 'user' ? 'rgba(0,0,0,0.2)' : 'rgba(255,255,255,0.2)'}`,
+                        p: 1,
+                      },
+                      '& th': {
+                        bgcolor: message.role === 'user' ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.05)',
+                      },
+                      '& hr': {
+                        border: 'none',
+                        borderTop: `1px solid ${message.role === 'user' ? 'rgba(0,0,0,0.2)' : 'rgba(255,255,255,0.2)'}`,
+                        my: 2,
+                      },
+                      '& strong': {
+                        color: message.role === 'user' ? '#004400' : '#d4ffb3',
+                      },
+                      '& em': {
+                        fontStyle: 'italic',
+                      },
+                    },
                   }}
                 >
                   {/* Message Content */}
-                  <Typography 
-                    sx={{ 
-                      fontSize: { xs: '14px', sm: '15px' },
-                      lineHeight: 1.5,
-                      whiteSpace: 'pre-wrap',
-                    }}
-                  >
-                    {message.content}
-                  </Typography>
+                  <Box className="markdown-content">
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                      {message.content}
+                    </ReactMarkdown>
+                  </Box>
 
                   {/* File Attachments */}
                   {message.images && message.images.length > 0 && (
