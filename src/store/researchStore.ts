@@ -1,110 +1,121 @@
 import { create } from 'zustand'
 import { supabase } from '../lib/supabaseClient'
 
+interface CanvasItem {
+  id: string
+  project_id: string
+  type: string
+  content: {
+    text: string
+  }
+  position: {
+    x: number
+    y: number
+  }
+  created_by: string
+  created_at: string
+  updated_at: string
+}
+
 interface ResearchStore {
   content: string
-  title: string
   isLoading: boolean
   error: string | null
   isEditing: boolean
   fetchDocument: (projectId: string) => Promise<void>
-  updateDocument: (projectId: string, content: string, title?: string) => Promise<void>
+  updateDocument: (projectId: string, content: string) => Promise<void>
   setIsEditing: (isEditing: boolean) => void
 }
 
 const useResearchStore = create<ResearchStore>((set) => ({
   content: '',
-  title: '',
   isLoading: false,
   error: null,
   isEditing: false,
 
   fetchDocument: async (projectId: string) => {
+    console.log('Fetching canvas items for project:', projectId)
     try {
       set({ isLoading: true, error: null })
       
-      // Fetch canvas items
-      const { data: canvasItems, error: canvasError } = await supabase
+      // Get all canvas items for this project
+      const { data: items, error: fetchError } = await supabase
         .from('canvas_items')
         .select('*')
         .eq('project_id', projectId)
+        .eq('type', 'text')
         .order('created_at', { ascending: true })
 
-      if (canvasError) throw canvasError
+      console.log('Fetch result:', { items, fetchError })
 
-      // Combine all text content from canvas items
-      const content = canvasItems
-        ?.filter(item => item.type === 'text')
-        .map(item => (item.content as { text: string }).text)
-        .join('\n\n') || ''
+      if (fetchError) {
+        console.error('Error fetching canvas items:', fetchError)
+        throw fetchError
+      }
 
-      // Get project title
-      const { data: project, error: projectError } = await supabase
-        .from('projects')
-        .select('name')
-        .eq('id', projectId)
-        .single()
+      if (!items || items.length === 0) {
+        console.log('No canvas items found')
+        set({ content: '' })
+        return
+      }
 
-      if (projectError) throw projectError
+      // Filter out empty items and combine their texts
+      const combinedContent = (items as CanvasItem[])
+        .filter(item => item.content?.text?.trim())
+        .map(item => item.content.text.trim())
+        .join('\n\n')
 
-      set({ 
-        content,
-        title: project?.name || 'Untitled Research'
-      })
+      console.log('Combined content:', combinedContent)
+      set({ content: combinedContent })
     } catch (error) {
-      set({ error: (error as Error).message })
-      console.error('Error fetching document:', error)
+      console.error('Error in fetchDocument:', error)
+      set({ 
+        error: error instanceof Error ? error.message : 'An error occurred while fetching the document',
+        content: '' // Reset content on error
+      })
     } finally {
       set({ isLoading: false })
     }
   },
 
-  updateDocument: async (projectId: string, content: string, title?: string) => {
+  updateDocument: async (projectId: string, content: string) => {
+    console.log('Creating new canvas item for project:', projectId)
     try {
       set({ isLoading: true, error: null })
-      const user = (await supabase.auth.getUser()).data.user
-      if (!user) throw new Error('User not authenticated')
-
-      // Update project title if provided
-      if (title !== undefined) {
-        const { error: titleError } = await supabase
-          .from('projects')
-          .update({ name: title })
-          .eq('id', projectId)
-
-        if (titleError) throw titleError
+      
+      const { data: user, error: userError } = await supabase.auth.getUser()
+      if (userError) {
+        console.error('Error getting user:', userError)
+        throw userError
+      }
+      if (!user?.user) {
+        console.error('No user found')
+        throw new Error('User not authenticated')
       }
 
-      // Update canvas items
-      // First, remove all existing text items
-      const { error: deleteError } = await supabase
-        .from('canvas_items')
-        .delete()
-        .eq('project_id', projectId)
-        .eq('type', 'text')
-
-      if (deleteError) throw deleteError
-
-      // Then add the new content as a single text item
-      const { error: insertError } = await supabase
+      // Create a new canvas item with the content
+      const { error: createError } = await supabase
         .from('canvas_items')
         .insert({
           project_id: projectId,
           type: 'text',
-          content: { text: content },
+          content: { text: content.trim() },
           position: { x: 0, y: 0 },
-          created_by: user.id,
+          created_by: user.user.id,
         })
 
-      if (insertError) throw insertError
+      if (createError) {
+        console.error('Error creating canvas item:', createError)
+        throw new Error('Failed to create canvas item')
+      }
 
-      set((state) => ({ 
-        content,
-        title: title !== undefined ? title : state.title
-      }))
+      console.log('Canvas item created successfully')
+      set({ content: content.trim() })
     } catch (error) {
-      set({ error: (error as Error).message })
-      console.error('Error updating document:', error)
+      console.error('Error in updateDocument:', error)
+      set({ 
+        error: error instanceof Error ? error.message : 'An error occurred while updating the document'
+      })
     } finally {
       set({ isLoading: false })
     }
