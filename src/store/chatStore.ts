@@ -55,8 +55,11 @@ const useChatStore = create<ChatStore>((set, get) => ({
         .order('created_at', { ascending: true });
 
       if (error) throw error;
+      
+      // Clear existing messages and set new ones
       set({ messages: data || [] });
     } catch (error) {
+      console.error('Error fetching messages:', error);
       set({ error: (error as Error).message });
     } finally {
       set({ isLoading: false });
@@ -189,6 +192,31 @@ const useChatStore = create<ChatStore>((set, get) => ({
     try {
       set({ isLoading: true, error: null });
       
+      // Get message details first to check for images
+      const { data: message, error: fetchError } = await supabase
+        .from('chat_messages')
+        .select('*')
+        .eq('id', messageId)
+        .single();
+
+      if (fetchError) throw fetchError;
+
+      // Delete images from storage if they exist
+      if (message?.images && message.images.length > 0) {
+        for (const imageUrl of message.images) {
+          const path = imageUrl.split('/').pop(); // Get filename from URL
+          if (path) {
+            const { error: storageError } = await supabase.storage
+              .from('chat-images')
+              .remove([path]);
+            
+            if (storageError) {
+              console.error('Error deleting image:', storageError);
+            }
+          }
+        }
+      }
+
       // Delete message from database
       const { error: deleteError } = await supabase
         .from('chat_messages')
