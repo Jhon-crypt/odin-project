@@ -136,26 +136,32 @@ function ChatArea() {
     event.preventDefault()
   }
 
-  const handleCanvasAction = async (messageId: string, content: string) => {
+  const handleAddToCanvas = async (messageContent: string) => {
     if (!projectId) return;
-    
-    if (canvasStates[messageId]) {
-      // Remove from canvas
-      await removeItem(canvasStates[messageId]);
-      setCanvasStates(prev => {
-        const next = { ...prev };
-        delete next[messageId];
-        return next;
-      });
-    } else {
-      // Add to canvas
-      const itemId = await addItem(projectId, content, 'text');
-      if (itemId) {
+    try {
+      const itemId = await addItem(messageContent, projectId);
+      if (itemId && selectedMessageId) {
         setCanvasStates(prev => ({
           ...prev,
-          [messageId]: itemId
+          [selectedMessageId]: itemId
         }));
       }
+    } catch (error) {
+      console.error('Failed to add item to canvas:', error);
+    }
+  };
+
+  const handleRemoveFromCanvas = async (messageId: string, itemId: string) => {
+    if (!projectId) return;
+    try {
+      await removeItem(itemId, projectId);
+      setCanvasStates(prev => {
+        const newState = { ...prev };
+        delete newState[messageId];
+        return newState;
+      });
+    } catch (error) {
+      console.error('Failed to remove item from canvas:', error);
     }
   };
 
@@ -428,7 +434,14 @@ function ChatArea() {
                   className="message-actions"
                   startIcon={canvasStates[message.id] ? <RemoveIcon /> : <AddIcon />}
                   size="small"
-                  onClick={() => handleCanvasAction(message.id, message.content)}
+                  onClick={() => {
+                    setSelectedMessageId(message.id);
+                    if (canvasStates[message.id]) {
+                      handleRemoveFromCanvas(message.id, canvasStates[message.id]);
+                    } else {
+                      handleAddToCanvas(message.content);
+                    }
+                  }}
                   disabled={isCanvasLoading}
                   sx={{
                     alignSelf: 'flex-start',

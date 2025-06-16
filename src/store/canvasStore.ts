@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { supabase } from '../lib/supabaseClient'
 import type { CanvasItem, TextContent } from '../types/database'
 
 export interface CanvasStore {
@@ -13,7 +14,7 @@ export interface CanvasStore {
   clearCanvas: () => void
 }
 
-const useCanvasStore = create<CanvasStore>((set) => ({
+const useCanvasStore = create<CanvasStore>((set, get) => ({
   items: [],
   isLoading: false,
   error: null,
@@ -21,10 +22,14 @@ const useCanvasStore = create<CanvasStore>((set) => ({
   fetchItems: async (projectId: string) => {
     set({ isLoading: true, error: null })
     try {
-      const response = await fetch(`/api/projects/${projectId}/canvas`)
-      if (!response.ok) throw new Error('Failed to fetch canvas items')
-      const items = await response.json()
-      set({ items, isLoading: false })
+      const { data, error } = await supabase
+        .from('canvas_items')
+        .select('*')
+        .eq('project_id', projectId)
+        .order('created_at', { ascending: true })
+
+      if (error) throw error
+      set({ items: data || [], isLoading: false })
     } catch (error) {
       set({ error: (error as Error).message, isLoading: false })
     }
@@ -33,30 +38,38 @@ const useCanvasStore = create<CanvasStore>((set) => ({
   addItem: async (content: string, projectId: string) => {
     set({ isLoading: true, error: null })
     try {
-      const newItem: Partial<CanvasItem> = {
-        project_id: projectId,
-        type: 'text',
-        content: { text: content } as TextContent,
-        position: { x: 0, y: 0 },
-        created_by: 'user', // This should be replaced with actual user ID
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
+      const user = (await supabase.auth.getUser()).data.user
+      if (!user) throw new Error('User not authenticated')
+
+      // Calculate a reasonable position for the new item
+      const items = get().items
+      const position = {
+        x: (items.length * 50) % 800, // Spread items horizontally, wrap at 800px
+        y: Math.floor(items.length / 16) * 50, // Move to next row every 16 items
       }
 
-      const response = await fetch(`/api/projects/${projectId}/canvas`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newItem),
-      })
-      if (!response.ok) throw new Error('Failed to add item to canvas')
-      const { id } = await response.json()
-      
-      const fullItem: CanvasItem = { id, ...newItem } as CanvasItem
-      set((state) => ({
-        items: [...state.items, fullItem],
+      const { data, error } = await supabase
+        .from('canvas_items')
+        .insert({
+          project_id: projectId,
+          type: 'text',
+          content: { text: content },
+          position,
+          created_by: user.id,
+        })
+        .select()
+        .single()
+
+      if (error) throw error
+
+      // Update local state immediately
+      set(state => ({
+        items: [...state.items, data],
         isLoading: false,
+        error: null
       }))
-      return id
+
+      return data.id
     } catch (error) {
       set({ error: (error as Error).message, isLoading: false })
       throw error
@@ -64,16 +77,32 @@ const useCanvasStore = create<CanvasStore>((set) => ({
   },
 
   removeItem: async (itemId: string, projectId: string) => {
-    set({ isLoading: true, error: null })
+    // Update state immediately for responsive UI
+    const currentItems = get().items
+    set(state => ({
+      items: state.items.filter(item => item.id !== itemId),
+      isLoading: true,
+      error: null
+    }))
+
     try {
-      const response = await fetch(`/api/projects/${projectId}/canvas/${itemId}`, {
-        method: 'DELETE',
-      })
-      if (!response.ok) throw new Error('Failed to remove item from canvas')
-      set((state) => ({
-        items: state.items.filter((item) => item.id !== itemId),
-        isLoading: false,
-      }))
+      const { error } = await supabase
+        .from('canvas_items')
+        .delete()
+        .eq('id', itemId)
+        .eq('project_id', projectId)
+
+      if (error) {
+        // Revert state if deletion fails
+        set(state => ({
+          items: currentItems,
+          isLoading: false,
+          error: 'Failed to remove item from canvas'
+        }))
+        throw error
+      }
+
+      set({ isLoading: false })
     } catch (error) {
       set({ error: (error as Error).message, isLoading: false })
       throw error
@@ -83,17 +112,22 @@ const useCanvasStore = create<CanvasStore>((set) => ({
   updateItem: async (itemId: string, content: string, projectId: string) => {
     set({ isLoading: true, error: null })
     try {
-      const response = await fetch(`/api/projects/${projectId}/canvas/${itemId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: { text: content } }),
-      })
-      if (!response.ok) throw new Error('Failed to update canvas item')
-      set((state) => ({
-        items: state.items.map((item) =>
-          item.id === itemId ? { ...item, content: { text: content } as TextContent } : item
+      const { error } = await supabase
+        .from('canvas_items')
+        .update({ content: { text: content } })
+        .eq('id', itemId)
+        .eq('project_id', projectId)
+
+      if (error) throw error
+
+      // Update local state
+      set(state => ({
+        items: state.items.map(item =>
+          item.id === itemId
+            ? { ...item, content: { text: content } as TextContent }
+            : item
         ),
-        isLoading: false,
+        isLoading: false
       }))
     } catch (error) {
       set({ error: (error as Error).message, isLoading: false })
@@ -103,16 +137,16 @@ const useCanvasStore = create<CanvasStore>((set) => ({
 
   isItemInCanvas: async (content: string, projectId: string) => {
     try {
-      const response = await fetch(`/api/projects/${projectId}/canvas/check`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content }),
-      })
-      if (!response.ok) throw new Error('Failed to check canvas item')
-      const { id } = await response.json()
-      return id || null
-    } catch (error) {
-      console.error('Error checking canvas item:', error)
+      const { data, error } = await supabase
+        .from('canvas_items')
+        .select('id')
+        .eq('project_id', projectId)
+        .eq('content->>text', content)
+        .single()
+
+      if (error) return null
+      return data.id
+    } catch {
       return null
     }
   },
