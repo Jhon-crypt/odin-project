@@ -56,12 +56,24 @@ function ChatArea() {
     isItemInCanvas,
   } = useCanvasStore()
 
+  // Reset states when project changes
+  useEffect(() => {
+    setInput('')
+    setSelectedImages([])
+    setCanvasStates({})
+    setMenuAnchorEl(null)
+    setSelectedMessageId(null)
+  }, [projectId])
+
+  // Fetch messages when project changes
   useEffect(() => {
     if (projectId) {
+      console.log('ChatArea: Fetching messages for project:', projectId)
       fetchMessages(projectId)
     }
-  }, [projectId, fetchMessages])
+  }, [projectId]) // Remove fetchMessages from dependencies
 
+  // Scroll to bottom when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
@@ -69,9 +81,11 @@ function ChatArea() {
   // Check canvas state for each AI message
   useEffect(() => {
     const checkCanvasStates = async () => {
+      if (!projectId) return;
+      
       const states: Record<string, string> = {};
       for (const message of messages) {
-        if (message.role === 'assistant' && projectId) {
+        if (message.role === 'assistant') {
           const itemId = await isItemInCanvas(message.content, projectId);
           if (itemId) {
             states[message.id] = itemId;
@@ -82,7 +96,7 @@ function ChatArea() {
     };
     
     checkCanvasStates();
-  }, [messages, projectId, isItemInCanvas, canvasStates]);
+  }, [messages, projectId, isItemInCanvas]);
 
   const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || [])
