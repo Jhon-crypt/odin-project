@@ -61,6 +61,13 @@ const useCanvasStore = create<CanvasStore>((set, get) => ({
         .single();
 
       if (error) throw error;
+      
+      // Immediately update local state with the new item
+      set(state => ({
+        items: [...state.items, data]
+      }));
+      
+      // Then fetch all items to ensure consistency
       await get().fetchItems(projectId);
       return data.id;
     } catch (error) {

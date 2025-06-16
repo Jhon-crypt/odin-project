@@ -82,7 +82,7 @@ function ChatArea() {
     };
     
     checkCanvasStates();
-  }, [messages, projectId, isItemInCanvas]);
+  }, [messages, projectId, isItemInCanvas, canvasStates]);
 
   const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || [])
