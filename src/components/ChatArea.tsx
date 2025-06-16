@@ -34,9 +34,9 @@ function ChatArea() {
   const [input, setInput] = useState('')
   const [selectedImages, setSelectedImages] = useState<File[]>([])
   const [canvasStates, setCanvasStates] = useState<Record<string, string>>({})
+  const [loadingStates, setLoadingStates] = useState<Record<string, boolean>>({})
   const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null)
   const [selectedMessageId, setSelectedMessageId] = useState<string | null>(null)
-  const [isAddingToCanvas, setIsAddingToCanvas] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { user } = useAuth()
@@ -61,6 +61,7 @@ function ChatArea() {
     setInput('')
     setSelectedImages([])
     setCanvasStates({})
+    setLoadingStates({})
     setMenuAnchorEl(null)
     setSelectedMessageId(null)
   }, [projectId])
@@ -136,28 +137,28 @@ function ChatArea() {
     event.preventDefault()
   }
 
-  const handleAddToCanvas = async (messageContent: string) => {
+  const handleAddToCanvas = async (messageId: string, messageContent: string) => {
     if (!projectId) return;
-    setIsAddingToCanvas(true);
     try {
+      setLoadingStates(prev => ({ ...prev, [messageId]: true }));
       const itemId = await addItem(messageContent, projectId);
-      if (itemId && selectedMessageId) {
+      if (itemId) {
         setCanvasStates(prev => ({
           ...prev,
-          [selectedMessageId]: itemId
+          [messageId]: itemId
         }));
       }
     } catch (error) {
       console.error('Failed to add item to canvas:', error);
     } finally {
-      setIsAddingToCanvas(false);
+      setLoadingStates(prev => ({ ...prev, [messageId]: false }));
     }
   };
 
   const handleRemoveFromCanvas = async (messageId: string, itemId: string) => {
     if (!projectId) return;
-    setIsAddingToCanvas(true);
     try {
+      setLoadingStates(prev => ({ ...prev, [messageId]: true }));
       await removeItem(itemId, projectId);
       setCanvasStates(prev => {
         const newState = { ...prev };
@@ -167,7 +168,7 @@ function ChatArea() {
     } catch (error) {
       console.error('Failed to remove item from canvas:', error);
     } finally {
-      setIsAddingToCanvas(false);
+      setLoadingStates(prev => ({ ...prev, [messageId]: false }));
     }
   };
 
@@ -436,37 +437,43 @@ function ChatArea() {
               </Box>
                 
               {message.role === 'assistant' && (
-                <Box sx={{ mt: 1, display: 'flex', justifyContent: 'flex-end' }}>
-                  <Button
-                    startIcon={
-                      isAddingToCanvas ? (
-                        <CircularProgress size={20} sx={{ color: '#C0FF92' }} />
-                      ) : canvasStates[message.id] ? (
-                        <RemoveIcon />
-                      ) : (
-                        <AddIcon />
-                      )
+                <Button
+                  className="message-actions"
+                  startIcon={
+                    loadingStates[message.id] ? (
+                      <CircularProgress size={16} sx={{ color: '#C0FF92' }} />
+                    ) : canvasStates[message.id] ? (
+                      <RemoveIcon />
+                    ) : (
+                      <AddIcon />
+                    )
+                  }
+                  size="small"
+                  onClick={() => {
+                    if (canvasStates[message.id]) {
+                      handleRemoveFromCanvas(message.id, canvasStates[message.id]);
+                    } else {
+                      handleAddToCanvas(message.id, message.content);
                     }
-                    size="small"
-                    onClick={() => {
-                      setSelectedMessageId(message.id);
-                      if (canvasStates[message.id]) {
-                        handleRemoveFromCanvas(message.id, canvasStates[message.id]);
-                      } else {
-                        handleAddToCanvas(message.content);
-                      }
-                    }}
-                    disabled={isAddingToCanvas}
-                    sx={{
-                      color: '#C0FF92',
-                      '&:hover': {
-                        bgcolor: 'rgba(192, 255, 146, 0.08)',
-                      },
-                    }}
-                  >
-                    {canvasStates[message.id] ? 'Remove from Canvas' : 'Add to Canvas'}
-                  </Button>
-                </Box>
+                  }}
+                  disabled={loadingStates[message.id]}
+                  sx={{
+                    alignSelf: 'flex-start',
+                    color: canvasStates[message.id] ? '#ff4444' : '#C0FF92',
+                    borderColor: canvasStates[message.id] ? '#ff4444' : '#C0FF92',
+                    fontSize: '12px',
+                    py: 0.5,
+                    opacity: 0,
+                    transition: 'opacity 0.2s ease-in-out',
+                    '&:hover': {
+                      borderColor: canvasStates[message.id] ? '#ff6666' : '#d4ffb3',
+                      bgcolor: 'rgba(255, 68, 68, 0.1)',
+                    },
+                  }}
+                  variant="outlined"
+                >
+                  {canvasStates[message.id] ? 'Remove from Canvas' : 'Add to Canvas'}
+                </Button>
               )}
             </Box>
 
