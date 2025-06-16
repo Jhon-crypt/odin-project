@@ -36,6 +36,7 @@ function ChatArea() {
   const [canvasStates, setCanvasStates] = useState<Record<string, string>>({})
   const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null)
   const [selectedMessageId, setSelectedMessageId] = useState<string | null>(null)
+  const [isAddingToCanvas, setIsAddingToCanvas] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { user } = useAuth()
@@ -50,7 +51,6 @@ function ChatArea() {
   } = useChatStore()
 
   const {
-    isLoading: isCanvasLoading,
     addItem,
     removeItem,
     isItemInCanvas,
@@ -138,6 +138,7 @@ function ChatArea() {
 
   const handleAddToCanvas = async (messageContent: string) => {
     if (!projectId) return;
+    setIsAddingToCanvas(true);
     try {
       const itemId = await addItem(messageContent, projectId);
       if (itemId && selectedMessageId) {
@@ -148,11 +149,14 @@ function ChatArea() {
       }
     } catch (error) {
       console.error('Failed to add item to canvas:', error);
+    } finally {
+      setIsAddingToCanvas(false);
     }
   };
 
   const handleRemoveFromCanvas = async (messageId: string, itemId: string) => {
     if (!projectId) return;
+    setIsAddingToCanvas(true);
     try {
       await removeItem(itemId, projectId);
       setCanvasStates(prev => {
@@ -162,6 +166,8 @@ function ChatArea() {
       });
     } catch (error) {
       console.error('Failed to remove item from canvas:', error);
+    } finally {
+      setIsAddingToCanvas(false);
     }
   };
 
@@ -219,7 +225,7 @@ function ChatArea() {
           <Box
             key={message.id}
             sx={{
-              display: 'flex',
+            display: 'flex', 
               gap: 2,
               alignItems: 'flex-start',
               alignSelf: message.role === 'user' ? 'flex-end' : 'flex-start',
@@ -232,9 +238,9 @@ function ChatArea() {
             }}
           >
             {message.role === 'assistant' && (
-              <Avatar 
-                sx={{ 
-                  bgcolor: '#C0FF92',
+            <Avatar
+              sx={{
+                bgcolor: '#C0FF92',
                   width: { xs: 32, sm: 36 },
                   height: { xs: 32, sm: 36 },
                 }}
@@ -243,8 +249,8 @@ function ChatArea() {
               </Avatar>
             )}
             
-            <Box sx={{ 
-              display: 'flex', 
+          <Box sx={{ 
+            display: 'flex', 
               flexDirection: 'column', 
               gap: 0.5,
               width: 'auto',
@@ -261,7 +267,7 @@ function ChatArea() {
               >
                 {message.role === 'user' ? user?.email?.split('@')[0] || 'You' : 'AI Assistant'}
               </Typography>
-
+              
               <Box sx={{ display: 'flex', alignItems: 'flex-end', gap: 1 }}>
                 <Paper
                   sx={{
@@ -352,8 +358,8 @@ function ChatArea() {
                         fontStyle: 'italic',
                       },
                     },
-                  }}
-                >
+                    }}
+                  >
                   {/* Message Content */}
                   <Box className="markdown-content">
                     <ReactMarkdown remarkPlugins={[remarkGfm]}>
@@ -367,9 +373,9 @@ function ChatArea() {
                       {message.images.map((image, index) => (
                         <Box
                           key={index}
-                          sx={{
-                            display: 'flex',
-                            alignItems: 'center',
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
                             gap: 1,
                             p: 1,
                             bgcolor: message.role === 'user' ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)',
@@ -403,7 +409,7 @@ function ChatArea() {
                   >
                     <Typography sx={{ fontSize: '12px' }}>
                       {formatMessageTime(message.created_at)}
-                    </Typography>
+                  </Typography>
                     {message.role === 'user' && (
                       <DoneAllIcon sx={{ fontSize: 16, color: message.role === 'user' ? '#1a1a1a' : '#C0FF92' }} />
                     )}
@@ -428,38 +434,39 @@ function ChatArea() {
                   <MoreVertIcon sx={{ fontSize: 20 }} />
                 </IconButton>
               </Box>
-
+                
               {message.role === 'assistant' && (
-                <Button
-                  className="message-actions"
-                  startIcon={canvasStates[message.id] ? <RemoveIcon /> : <AddIcon />}
-                  size="small"
-                  onClick={() => {
-                    setSelectedMessageId(message.id);
-                    if (canvasStates[message.id]) {
-                      handleRemoveFromCanvas(message.id, canvasStates[message.id]);
-                    } else {
-                      handleAddToCanvas(message.content);
+                <Box sx={{ mt: 1, display: 'flex', justifyContent: 'flex-end' }}>
+                  <Button
+                    startIcon={
+                      isAddingToCanvas ? (
+                        <CircularProgress size={20} sx={{ color: '#C0FF92' }} />
+                      ) : canvasStates[message.id] ? (
+                        <RemoveIcon />
+                      ) : (
+                        <AddIcon />
+                      )
                     }
-                  }}
-                  disabled={isCanvasLoading}
-                  sx={{
-                    alignSelf: 'flex-start',
-                    color: canvasStates[message.id] ? '#ff4444' : '#C0FF92',
-                    borderColor: canvasStates[message.id] ? '#ff4444' : '#C0FF92',
-                    fontSize: '12px',
-                    py: 0.5,
-                    opacity: 0,
-                    transition: 'opacity 0.2s ease-in-out',
-                    '&:hover': {
-                      borderColor: canvasStates[message.id] ? '#ff6666' : '#d4ffb3',
-                      bgcolor: 'rgba(255, 68, 68, 0.1)',
-                    },
-                  }}
-                  variant="outlined"
-                >
-                  {canvasStates[message.id] ? 'Remove from Canvas' : 'Add to Canvas'}
-                </Button>
+                    size="small"
+                    onClick={() => {
+                      setSelectedMessageId(message.id);
+                      if (canvasStates[message.id]) {
+                        handleRemoveFromCanvas(message.id, canvasStates[message.id]);
+                      } else {
+                        handleAddToCanvas(message.content);
+                      }
+                    }}
+                    disabled={isAddingToCanvas}
+                    sx={{
+                      color: '#C0FF92',
+                      '&:hover': {
+                        bgcolor: 'rgba(192, 255, 146, 0.08)',
+                      },
+                    }}
+                  >
+                    {canvasStates[message.id] ? 'Remove from Canvas' : 'Add to Canvas'}
+                  </Button>
+                </Box>
               )}
             </Box>
 
@@ -581,7 +588,7 @@ function ChatArea() {
             sx={{
               display: 'flex',
               gap: 1.5,
-              alignItems: 'flex-end',
+            alignItems: 'flex-end',
             }}
             onDrop={handleDrop}
             onDragOver={handleDragOver}
@@ -604,64 +611,64 @@ function ChatArea() {
                 '&:hover': {
                   bgcolor: '#444',
                 },
-              }}
-            >
+          }}
+        >
               <ImageIcon />
             </IconButton>
-            <TextField
+          <TextField
               fullWidth
-              multiline
+            multiline
               maxRows={4}
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              onKeyPress={handleKeyPress}
+            onKeyPress={handleKeyPress}
               placeholder="Type your research question..."
-              sx={{
-                '& .MuiOutlinedInput-root': {
+            sx={{
+              '& .MuiOutlinedInput-root': {
                   bgcolor: '#262626',
                   borderRadius: 2,
-                  '& fieldset': {
+                '& fieldset': {
                     borderColor: '#444',
                     borderWidth: '1px',
-                  },
-                  '&:hover fieldset': {
-                    borderColor: '#555',
-                  },
-                  '&.Mui-focused fieldset': {
-                    borderColor: '#C0FF92',
+                },
+                '&:hover fieldset': {
+                  borderColor: '#555',
+                },
+                '&.Mui-focused fieldset': {
+                  borderColor: '#C0FF92',
                     borderWidth: '1px',
-                  },
+              },
                   '& textarea': {
                     fontSize: { xs: '14px', sm: '15px' },
                     lineHeight: 1.5,
                     p: { xs: 1.5, sm: 2 },
-                  },
-                },
-              }}
-            />
-            <IconButton
+              },
+              },
+            }}
+          />
+          <IconButton
               onClick={handleSend}
               disabled={isChatLoading || (!input.trim() && selectedImages.length === 0)}
-              sx={{
+            sx={{
                 bgcolor: '#C0FF92',
                 width: { xs: 40, sm: 44 },
                 height: { xs: 40, sm: 44 },
                 color: '#1a1a1a',
-                '&:hover': {
+              '&:hover': {
                   bgcolor: '#a8e679',
-                },
-                '&.Mui-disabled': {
-                  bgcolor: '#333',
-                  color: '#666',
-                },
-              }}
-            >
+              },
+              '&.Mui-disabled': {
+                bgcolor: '#333',
+                color: '#666',
+              },
+            }}
+          >
               {isChatLoading ? (
                 <CircularProgress size={24} sx={{ color: '#1a1a1a' }} />
               ) : (
                 <SendIcon sx={{ fontSize: { xs: 20, sm: 22 } }} />
               )}
-            </IconButton>
+          </IconButton>
           </Box>
         </Box>
         {chatError && (
