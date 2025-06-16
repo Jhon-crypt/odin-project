@@ -38,12 +38,16 @@ interface ChatStore {
   fetchMessages: (projectId: string) => Promise<void>;
   sendMessage: (projectId: string, content: string, images?: File[]) => Promise<void>;
   deleteMessage: (messageId: string) => Promise<void>;
+  streamingMessageId: string | null;
+  streamingContent: string;
 }
 
 const useChatStore = create<ChatStore>((set, get) => ({
   messages: [],
   isLoading: false,
   error: null,
+  streamingMessageId: null,
+  streamingContent: '',
 
   fetchMessages: async (projectId: string) => {
     try {
@@ -88,6 +92,10 @@ const useChatStore = create<ChatStore>((set, get) => ({
         }
       }
 
+      // Get current user ID
+      const userId = (await supabase.auth.getUser()).data.user?.id;
+      if (!userId) throw new Error('User not authenticated');
+
       // Insert user message
       const { error: userMsgError } = await supabase
         .from('chat_messages')
@@ -95,7 +103,7 @@ const useChatStore = create<ChatStore>((set, get) => ({
           project_id: projectId,
           content,
           role: 'user',
-          user_id: (await supabase.auth.getUser()).data.user?.id,
+          user_id: userId,
           images: imageUrls.length > 0 ? imageUrls : null
         });
 
@@ -125,24 +133,58 @@ const useChatStore = create<ChatStore>((set, get) => ({
         ],
       });
 
-      // Send message and get response
-      const result = await chat.sendMessage(content);
-      const aiResponse = await result.response;
-      const responseText = aiResponse.text();
+      // Create a placeholder message for streaming
+      const placeholderId = crypto.randomUUID();
+      const streamingMessage: ChatMessage = {
+        id: placeholderId,
+        project_id: projectId,
+        content: '',
+        role: 'assistant',
+        user_id: userId,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+
+      set(state => ({
+        messages: [...state.messages, streamingMessage],
+        streamingMessageId: placeholderId,
+        streamingContent: ''
+      }));
+
+      // Send message and get streaming response
+      const result = await chat.sendMessageStream(content);
+      let fullResponse = '';
       
-      // Insert AI response
+      for await (const chunk of result.stream) {
+        const chunkText = chunk.text();
+        fullResponse += chunkText;
+        
+        // Update the streaming content
+        set(state => ({
+          ...state,
+          streamingContent: fullResponse,
+          messages: state.messages.map(msg =>
+            msg.id === state.streamingMessageId
+              ? { ...msg, content: fullResponse }
+              : msg
+          )
+        }));
+      }
+
+      // Insert the final AI response to the database
       const { error: aiMsgError } = await supabase
         .from('chat_messages')
         .insert({
           project_id: projectId,
-          content: responseText,
+          content: fullResponse,
           role: 'assistant',
-          user_id: (await supabase.auth.getUser()).data.user?.id
+          user_id: userId
         });
 
       if (aiMsgError) throw aiMsgError;
 
-      // Fetch updated messages
+      // Reset streaming state and fetch final messages
+      set({ streamingMessageId: null, streamingContent: '' });
       await get().fetchMessages(projectId);
     } catch (error) {
       console.error('Chat error:', error);
@@ -165,6 +207,13 @@ const useChatStore = create<ChatStore>((set, get) => ({
         }
       }
       
+      // Get current user ID for error message
+      const userId = (await supabase.auth.getUser()).data.user?.id;
+      if (!userId) {
+        set({ error: 'User not authenticated', streamingMessageId: null, streamingContent: '' });
+        return;
+      }
+
       // Insert error message as assistant message
       try {
         await supabase
@@ -173,7 +222,7 @@ const useChatStore = create<ChatStore>((set, get) => ({
             project_id: projectId,
             content: errorMessage,
             role: 'assistant',
-            user_id: (await supabase.auth.getUser()).data.user?.id
+            user_id: userId
           });
         
         // Fetch updated messages to show the error
@@ -182,7 +231,7 @@ const useChatStore = create<ChatStore>((set, get) => ({
         console.error('Error inserting error message:', insertError);
       }
       
-      set({ error: errorMessage });
+      set({ error: errorMessage, streamingMessageId: null, streamingContent: '' });
     } finally {
       set({ isLoading: false });
     }

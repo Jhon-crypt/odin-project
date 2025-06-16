@@ -17,6 +17,7 @@ interface ProjectStore {
   error: string | null
   fetchProjects: () => Promise<void>
   createProject: () => Promise<string | null>
+  updateProject: (id: string, name: string) => Promise<void>
 }
 
 const useProjectStore = create<ProjectStore>((set, get) => ({
@@ -92,6 +93,29 @@ const useProjectStore = create<ProjectStore>((set, get) => ({
       console.error('Error creating project:', error)
       set({ error: 'Failed to create project', loading: false })
       return null
+    }
+  },
+  updateProject: async (id: string, name: string) => {
+    set({ loading: true, error: null })
+    try {
+      const { error } = await supabase
+        .from('projects')
+        .update({ name })
+        .eq('id', id)
+
+      if (error) throw error
+
+      // Update the project in the local state
+      const projects = get().projects
+      set({
+        projects: projects.map(p => 
+          p.id === id ? { ...p, name } : p
+        ),
+        loading: false
+      })
+    } catch (error) {
+      console.error('Error updating project:', error)
+      set({ error: 'Failed to update project', loading: false })
     }
   }
 }))

@@ -58,8 +58,8 @@ CREATE TABLE user_llm_settings (
 CREATE TABLE research_documents (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     project_id UUID NOT NULL REFERENCES projects(id),
-    title VARCHAR(255) NOT NULL,
-    content TEXT NOT NULL,
+    title VARCHAR(255),
+    content TEXT NOT NULL DEFAULT '',
     metadata JSONB,
     created_by UUID NOT NULL REFERENCES users(id),
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),

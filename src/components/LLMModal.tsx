@@ -12,10 +12,13 @@ import {
   CircularProgress,
   Alert,
   Snackbar,
+  InputAdornment,
 } from '@mui/material'
 import {
   Close as CloseIcon,
   Key as KeyIcon,
+  Visibility as VisibilityIcon,
+  VisibilityOff as VisibilityOffIcon,
 } from '@mui/icons-material'
 import { useState, useEffect } from 'react'
 import useLLMStore from '../store/llmStore'
@@ -33,22 +36,49 @@ interface LLMModalProps {
 }
 
 function LLMModal({ open, onClose, llmOptions, loading = false }: LLMModalProps) {
-  const { selectedLLM: storedLLM, apiKey: storedApiKey, setLLM, loadStoredSettings } = useLLMStore()
+  const { selectedLLM: storedLLM, apiKey: storedApiKey, setLLM, loadStoredSettings, isLoading: storeLoading, error: storeError } = useLLMStore()
   const [selectedLLM, setSelectedLLM] = useState<string | null>(storedLLM)
   const [apiKey, setApiKey] = useState(storedApiKey || '')
+  const [showApiKey, setShowApiKey] = useState(false)
   const [saving, setSaving] = useState(false)
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error', message: string } | null>(null)
+
+  // Update local state when store values change
+  useEffect(() => {
+    if (storedLLM !== null) {
+      setSelectedLLM(storedLLM)
+    }
+    if (storedApiKey !== null) {
+      setApiKey(storedApiKey)
+    }
+  }, [storedLLM, storedApiKey])
 
   // Load stored settings when modal opens
   useEffect(() => {
     if (open) {
-      loadStoredSettings().then(() => {
-        // Update local state with loaded settings
-        setSelectedLLM(storedLLM)
-        if (storedApiKey) setApiKey(storedApiKey)
+      const loadSettings = async () => {
+        try {
+          await loadStoredSettings()
+        } catch (error) {
+          setFeedback({
+            type: 'error',
+            message: error instanceof Error ? error.message : 'Failed to load settings'
+          })
+        }
+      }
+      loadSettings()
+    }
+  }, [open, loadStoredSettings])
+
+  // Update feedback when store error changes
+  useEffect(() => {
+    if (storeError) {
+      setFeedback({
+        type: storeError.includes('will be updated') ? 'success' : 'error',
+        message: storeError
       })
     }
-  }, [open, loadStoredSettings, storedLLM, storedApiKey])
+  }, [storeError])
 
   const handleSave = async () => {
     if (selectedLLM && apiKey) {
@@ -60,20 +90,8 @@ function LLMModal({ open, onClose, llmOptions, loading = false }: LLMModalProps)
           onClose()
           setFeedback(null)
         }, 1500)
-      } catch (err) {
-        console.error('Error saving LLM settings:', err)
-        const errorMessage = err instanceof Error ? err.message : 'Failed to save LLM configuration. Please try again.'
-        setFeedback({ 
-          type: errorMessage.includes('will be updated') ? 'success' : 'error',
-          message: errorMessage
-        })
-        // Only close the modal for success messages
-        if (errorMessage.includes('will be updated')) {
-          setTimeout(() => {
-            onClose()
-            setFeedback(null)
-          }, 1500)
-        }
+      } catch {
+        // Error is already handled by the store and will update feedback via the effect
       } finally {
         setSaving(false)
       }
@@ -168,12 +186,23 @@ function LLMModal({ open, onClose, llmOptions, loading = false }: LLMModalProps)
           <FormControl fullWidth sx={{ mb: 3 }}>
             <TextField
               label="API Key"
-              type="password"
+              type={showApiKey ? 'text' : 'password'}
               value={apiKey}
               onChange={(e) => setApiKey(e.target.value)}
               disabled={loading || saving}
               InputProps={{
                 startAdornment: <KeyIcon sx={{ color: '#888', mr: 1 }} />,
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={() => setShowApiKey(!showApiKey)}
+                      edge="end"
+                      sx={{ color: '#888', '&:hover': { color: '#C0FF92' } }}
+                    >
+                      {showApiKey ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
               }}
               sx={{
                 '& .MuiOutlinedInput-root': {
@@ -201,7 +230,7 @@ function LLMModal({ open, onClose, llmOptions, loading = false }: LLMModalProps)
           <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
             <Button
               onClick={onClose}
-              disabled={saving}
+              disabled={saving || storeLoading}
               sx={{
                 color: '#ccc',
                 '&:hover': {
@@ -213,7 +242,7 @@ function LLMModal({ open, onClose, llmOptions, loading = false }: LLMModalProps)
             </Button>
             <Button
               onClick={handleSave}
-              disabled={!selectedLLM || !apiKey || loading || saving}
+              disabled={!selectedLLM || !apiKey || loading || saving || storeLoading}
               variant="contained"
               sx={{
                 bgcolor: '#C0FF92',
@@ -227,7 +256,7 @@ function LLMModal({ open, onClose, llmOptions, loading = false }: LLMModalProps)
                 },
               }}
             >
-              {saving ? (
+              {saving || storeLoading ? (
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                   <CircularProgress size={20} sx={{ color: '#000' }} />
                   <span>Saving...</span>

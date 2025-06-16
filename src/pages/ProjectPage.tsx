@@ -125,6 +125,7 @@ function ProjectPage() {
             }}
           >
             <ProjectHeader
+              projectId={currentProject?.id}
               projectTitle={currentProject?.name || 'Untitled'}
               projectSubtitle="Start your research project"
               onLeftMenuClick={() => setLeftDrawerOpen(true)}
