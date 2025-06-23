@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { supabase } from '../lib/supabaseClient'
-import debounce from 'lodash/debounce'
+import { debounce } from 'lodash'
+import type { StoreApi, SetState } from 'zustand'
 
 interface CanvasItem {
   id: string
@@ -18,7 +19,7 @@ interface CanvasItem {
   updated_at: string
 }
 
-interface ResearchStore {
+interface ResearchState {
   content: string
   isLoading: boolean
   error: string | null
@@ -30,7 +31,7 @@ interface ResearchStore {
   setIsEditing: (isEditing: boolean) => void
 }
 
-const useResearchStore = create<ResearchStore>((set) => {
+const useResearchStore = create<ResearchState>((set) => {
   // Create a debounced version of updateDocument
   const debouncedUpdate = debounce(async (projectId: string, content: string) => {
     try {
@@ -62,7 +63,7 @@ const useResearchStore = create<ResearchStore>((set) => {
         if (createError) throw createError
       }
 
-      // Update local state to match database
+      // Update local state immediately
       set({ content: content.trim() })
     } catch (error) {
       console.error('Error in debouncedUpdate:', error)
@@ -70,7 +71,7 @@ const useResearchStore = create<ResearchStore>((set) => {
         error: error instanceof Error ? error.message : 'An error occurred while updating the document'
       })
     }
-  }, 1000)
+  }, 300) // Reduced debounce time for more responsive updates
 
   return {
     content: '',
@@ -88,7 +89,8 @@ const useResearchStore = create<ResearchStore>((set) => {
           .select('*')
           .eq('project_id', projectId)
           .eq('type', 'text')
-          .order('created_at', { ascending: true })
+          .order('created_at', { ascending: false })
+          .limit(1)
 
         if (fetchError) throw fetchError
 
@@ -98,16 +100,8 @@ const useResearchStore = create<ResearchStore>((set) => {
           return
         }
 
-        // Only use the most recent text item
-        const latestItem = items.reduce((latest, current) => {
-          if (!latest || new Date(current.created_at) > new Date(latest.created_at)) {
-            return current
-          }
-          return latest
-        }, null as CanvasItem | null)
-
         set({ 
-          content: latestItem ? latestItem.content.text.trim() : '',
+          content: items[0].content.text.trim(),
           isLoading: false 
         })
       } catch (error) {
@@ -125,6 +119,8 @@ const useResearchStore = create<ResearchStore>((set) => {
       try {
         set({ isLoading: true, error: null })
         await debouncedUpdate.cancel() // Cancel any pending updates
+        // Update local state immediately before the debounced update
+        set({ content: content.trim() })
         await debouncedUpdate(projectId, content)
       } catch (error) {
         console.error('Error in updateDocument:', error)
@@ -137,15 +133,15 @@ const useResearchStore = create<ResearchStore>((set) => {
     },
 
     updateContentWithDebounce: (projectId: string, content: string) => {
-      set({ content }) // Update local state immediately
-      debouncedUpdate(projectId, content) // Debounce the server update
+      // Update local state immediately
+      set({ content: content.trim() })
+      debouncedUpdate(projectId, content)
     },
 
-    setContent: (content: string) => set({ content }),
+    setContent: (content: string) => set({ content: content.trim() }),
     setIsEditing: (isEditing: boolean) => {
       set({ isEditing })
       if (!isEditing) {
-        // When exiting edit mode, cancel any pending updates
         debouncedUpdate.cancel()
       }
     },
