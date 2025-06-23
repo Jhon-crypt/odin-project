@@ -95,8 +95,20 @@ function ResearchCanvas() {
 
   const handleSave = () => {
     if (!projectId) return
+    // Format content before saving
+    const formattedContent = formatText(editableContent).map(block => {
+      switch (block.type) {
+        case 'heading':
+          return block.content
+        case 'subheading':
+          return `* **${block.content}:**`
+        default:
+          return block.content
+      }
+    }).join('\n\n')
+    
     // Ensure content is properly saved/removed before exiting edit mode
-    updateDocument(projectId, editableContent).then(() => {
+    updateDocument(projectId, formattedContent).then(() => {
       setIsEditing(false)
       // Refetch to ensure we have the latest state
       fetchDocument(projectId)
@@ -112,6 +124,7 @@ function ResearchCanvas() {
     // Remove markdown syntax and apply proper styling
     return text
       .split('\n\n')
+      .filter(para => para.trim())
       .map(paragraph => {
         // Handle headings with **
         if (paragraph.match(/^\*\*([^*]+)\*\*$/)) {
@@ -208,6 +221,7 @@ function ResearchCanvas() {
       )
     }
 
+    const formattedBlocks = formatText(content || '')
     return (
       <>
         <Box sx={{ 
@@ -220,7 +234,7 @@ function ResearchCanvas() {
             mb: 2
           }
         }}>
-          {formatText(content || '').map((block, index) => {
+          {formattedBlocks.map((block, index) => {
             if (block.type === 'heading') {
               return (
                 <Typography 
