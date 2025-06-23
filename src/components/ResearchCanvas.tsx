@@ -3,12 +3,9 @@ import { useParams } from 'react-router-dom'
 import { Box, CircularProgress, IconButton, Typography, TextField } from '@mui/material'
 import EditIcon from '@mui/icons-material/Edit'
 import SaveIcon from '@mui/icons-material/Save'
-import ReactMarkdown from 'react-markdown'
-import remarkGfm from 'remark-gfm'
 import useResearchStore from '../store/researchStore'
 import useCanvasStore from '../store/canvasStore'
-import type { TextContent } from '../types/database'
-import { CanvasItem } from '../types/models'
+import type { TextContent } from '../types/models'
 
 function ResearchCanvas() {
   const { id: projectId } = useParams()
