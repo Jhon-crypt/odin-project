@@ -1,12 +1,14 @@
 import React, { useEffect, useState, useRef } from 'react'
 import { useParams } from 'react-router-dom'
 import { Box, CircularProgress, IconButton, Typography, TextField } from '@mui/material'
-import { Edit as EditIcon, Save as SaveIcon } from '@mui/icons-material'
+import EditIcon from '@mui/icons-material/Edit'
+import SaveIcon from '@mui/icons-material/Save'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import useResearchStore from '../store/researchStore'
 import useCanvasStore from '../store/canvasStore'
 import type { TextContent } from '../types/database'
+import { CanvasItem } from '../types/models'
 
 function ResearchCanvas() {
   const { id: projectId } = useParams()
@@ -164,53 +166,15 @@ function ResearchCanvas() {
 
     return (
       <>
-        <Box sx={{ mb: 4 }}>
-          <ReactMarkdown 
-            remarkPlugins={[remarkGfm]}
-            components={{
-              p: ({ children }) => (
-                <Typography 
-                  paragraph 
-                  sx={{ 
-                    color: 'text.primary',
-                    fontSize: '1rem',
-                    lineHeight: 1.5,
-                    mb: 2
-                  }}
-                >
-                  {children}
-                </Typography>
-              ),
-              h1: ({ children }) => (
-                <Typography 
-                  variant="h4" 
-                  gutterBottom
-                  sx={{ 
-                    color: 'text.primary',
-                    fontWeight: 500,
-                    mb: 3
-                  }}
-                >
-                  {children}
-                </Typography>
-              ),
-              h2: ({ children }) => (
-                <Typography 
-                  variant="h5" 
-                  gutterBottom
-                  sx={{ 
-                    color: 'text.primary',
-                    fontWeight: 500,
-                    mb: 2
-                  }}
-                >
-                  {children}
-                </Typography>
-              ),
-            }}
-          >
-            {content || ''}
-          </ReactMarkdown>
+        <Box sx={{ 
+          whiteSpace: 'pre-wrap',
+          fontFamily: 'monospace',
+          fontSize: '14px',
+          lineHeight: '1.5',
+          color: 'text.primary',
+          p: 2
+        }}>
+          {content || ''}
         </Box>
         {items.map((item) => {
           const content = item.content as TextContent
