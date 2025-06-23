@@ -11,7 +11,6 @@ import type { TextContent } from '../types/database'
 function ResearchCanvas() {
   const { id: projectId } = useParams()
   const [editableContent, setEditableContent] = useState('')
-  const [isSaving, setIsSaving] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
   const [removingItems, setRemovingItems] = useState<Record<string, boolean>>({})
   const itemRefs = useRef<Record<string, HTMLDivElement | null>>({})
@@ -21,7 +20,7 @@ function ResearchCanvas() {
     isLoading: researchLoading,
     error: researchError,
     fetchDocument,
-    updateDocument,
+    updateContentWithDebounce,
   } = useResearchStore()
 
   const {
@@ -44,7 +43,6 @@ function ResearchCanvas() {
     }
     // Reset local state
     setEditableContent('')
-    setIsSaving(false)
     setIsEditing(false)
     setRemovingItems({})
   }, [projectId])
@@ -80,17 +78,17 @@ function ResearchCanvas() {
     setEditableContent(content || '')
   }, [content])
 
-  const handleSave = async () => {
-    if (!projectId) return
-    setIsSaving(true)
-    try {
-      await updateDocument(projectId, editableContent)
-      setIsEditing(false)
-    } catch (error) {
-      console.error('Failed to save document:', error)
-    } finally {
-      setIsSaving(false)
+  const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const newContent = e.target.value
+    setEditableContent(newContent)
+    if (projectId) {
+      updateContentWithDebounce(projectId, newContent)
     }
+  }
+
+  const handleSave = () => {
+    if (!projectId) return
+    setIsEditing(false)
   }
 
   return (
@@ -105,7 +103,7 @@ function ResearchCanvas() {
         <Typography variant="h6" sx={{ color: '#C0FF92' }}>Research</Typography>
         <IconButton
           onClick={() => isEditing ? handleSave() : setIsEditing(true)}
-          disabled={researchLoading || isSaving}
+          disabled={researchLoading}
           size="small"
           sx={{
             color: '#C0FF92',
@@ -165,7 +163,7 @@ function ResearchCanvas() {
         ) : isEditing ? (
           <textarea
             value={editableContent}
-            onChange={(e) => setEditableContent(e.target.value)}
+            onChange={handleContentChange}
             style={{
               width: '100%',
               height: '100%',
