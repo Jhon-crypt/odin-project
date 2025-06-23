@@ -130,33 +130,32 @@ function ResearchCanvas() {
 
     if (isEditing) {
       return (
-        <Box sx={{ height: '100%' }}>
+        <Box sx={{ 
+          height: '100%',
+          p: 2,
+          '& .MuiInputBase-root': {
+            height: '100%',
+            backgroundColor: 'rgba(0, 0, 0, 0.2)',
+            borderRadius: 1,
+            p: 2
+          }
+        }}>
           <TextField
             multiline
             fullWidth
-            variant="standard"
+            variant="outlined"
             value={editableContent}
             onChange={handleContentChange}
             InputProps={{
-              disableUnderline: true,
               sx: {
                 height: '100%',
                 '& textarea': {
                   height: '100% !important',
-                  color: 'inherit',
-                  fontFamily: 'inherit',
-                  fontSize: 'inherit',
-                  lineHeight: 'inherit',
-                  padding: 0,
-                  backgroundColor: 'transparent',
-                  resize: 'none',
+                  color: 'text.primary',
+                  fontSize: '1rem',
+                  lineHeight: '1.75',
+                  letterSpacing: '0.00938em',
                 },
-              }
-            }}
-            sx={{
-              height: '100%',
-              '& .MuiInputBase-root': {
-                height: '100%',
               }
             }}
           />
@@ -167,14 +166,29 @@ function ResearchCanvas() {
     return (
       <>
         <Box sx={{ 
-          whiteSpace: 'pre-wrap',
-          fontFamily: 'monospace',
-          fontSize: '14px',
-          lineHeight: '1.5',
+          p: 3,
           color: 'text.primary',
-          p: 2
+          fontSize: '1rem',
+          lineHeight: '1.75',
+          letterSpacing: '0.00938em',
+          '& p': {
+            marginBottom: '1em'
+          }
         }}>
-          {content || ''}
+          {(content || '').split('\n\n').map((paragraph, index) => (
+            <Typography 
+              key={index} 
+              paragraph 
+              sx={{ 
+                color: 'inherit',
+                fontSize: 'inherit',
+                lineHeight: 'inherit',
+                letterSpacing: 'inherit'
+              }}
+            >
+              {paragraph}
+            </Typography>
+          ))}
         </Box>
         {items.map((item) => {
           const content = item.content as TextContent
