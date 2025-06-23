@@ -198,7 +198,7 @@ function ResearchCanvas() {
               ),
             }}
           >
-            {content || ''}
+            {editableContent || content || ''}
           </ReactMarkdown>
         </Box>
         {items.map((item) => {

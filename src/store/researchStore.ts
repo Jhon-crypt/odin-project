@@ -48,28 +48,19 @@ const useResearchStore = create<ResearchStore>((set) => {
 
       if (fetchError) throw fetchError
 
-      // If there are existing items, update the first one
-      // If no items exist, create a new one
+      // Delete all existing text items
       if (existingItems && existingItems.length > 0) {
-        const { error: updateError } = await supabase
+        const itemIds = existingItems.map(item => item.id)
+        const { error: deleteError } = await supabase
           .from('canvas_items')
-          .update({
-            content: { text: content.trim() },
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', existingItems[0].id)
+          .delete()
+          .in('id', itemIds)
 
-        if (updateError) throw updateError
+        if (deleteError) throw deleteError
+      }
 
-        // Delete any additional text items if they exist
-        if (existingItems.length > 1) {
-          const itemsToDelete = existingItems.slice(1).map(item => item.id)
-          await supabase
-            .from('canvas_items')
-            .delete()
-            .in('id', itemsToDelete)
-        }
-      } else {
+      // Create a new item with the updated content
+      if (content.trim()) {
         const { error: createError } = await supabase
           .from('canvas_items')
           .insert({
