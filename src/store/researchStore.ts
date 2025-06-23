@@ -61,17 +61,19 @@ const useResearchStore = create<ResearchState>((set) => {
           })
 
         if (createError) throw createError
+        // Update local state with the content
+        set({ content: content.trim() })
+      } else {
+        // If content is empty, just set local state to empty
+        set({ content: '' })
       }
-
-      // Update local state immediately
-      set({ content: content.trim() })
     } catch (error) {
       console.error('Error in debouncedUpdate:', error)
       set({ 
         error: error instanceof Error ? error.message : 'An error occurred while updating the document'
       })
     }
-  }, 300) // Reduced debounce time for more responsive updates
+  }, 300)
 
   return {
     content: '',
@@ -100,10 +102,9 @@ const useResearchStore = create<ResearchState>((set) => {
           return
         }
 
-        set({ 
-          content: items[0].content.text.trim(),
-          isLoading: false 
-        })
+        // Only set content if it exists and is not empty
+        const content = items[0]?.content?.text?.trim() || ''
+        set({ content, isLoading: false })
       } catch (error) {
         console.error('Error in fetchDocument:', error)
         set({ 
@@ -119,7 +120,7 @@ const useResearchStore = create<ResearchState>((set) => {
       try {
         set({ isLoading: true, error: null })
         await debouncedUpdate.cancel() // Cancel any pending updates
-        // Update local state immediately before the debounced update
+        // Update local state immediately
         set({ content: content.trim() })
         await debouncedUpdate(projectId, content)
       } catch (error) {
@@ -134,8 +135,9 @@ const useResearchStore = create<ResearchState>((set) => {
 
     updateContentWithDebounce: (projectId: string, content: string) => {
       // Update local state immediately
-      set({ content: content.trim() })
-      debouncedUpdate(projectId, content)
+      const trimmedContent = content.trim()
+      set({ content: trimmedContent })
+      debouncedUpdate(projectId, trimmedContent)
     },
 
     setContent: (content: string) => set({ content: content.trim() }),
