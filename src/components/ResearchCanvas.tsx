@@ -1,17 +1,20 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import { useParams } from 'react-router-dom'
-import { Box, CircularProgress, IconButton, Typography } from '@mui/material'
+import { Box, CircularProgress, IconButton, Typography, Collapse } from '@mui/material'
 import { Edit as EditIcon, Save as SaveIcon } from '@mui/icons-material'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import useResearchStore from '../store/researchStore'
 import useCanvasStore from '../store/canvasStore'
+import type { TextContent } from '../types/database'
 
 function ResearchCanvas() {
   const { id: projectId } = useParams()
   const [editableContent, setEditableContent] = useState('')
   const [isSaving, setIsSaving] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
+  const [removingItems, setRemovingItems] = useState<Record<string, boolean>>({})
+  const itemRefs = useRef<Record<string, HTMLDivElement | null>>({})
 
   const {
     content,
@@ -22,8 +25,13 @@ function ResearchCanvas() {
   } = useResearchStore()
 
   const {
+    items,
+    isLoading: canvasLoading,
+    error: canvasError,
     fetchItems,
     clearCanvas,
+    lastAddedItemId,
+    lastRemovedItemId,
   } = useCanvasStore()
 
   // Clear canvas and fetch items when project changes
@@ -38,7 +46,34 @@ function ResearchCanvas() {
     setEditableContent('')
     setIsSaving(false)
     setIsEditing(false)
-  }, [projectId]) // Remove fetchItems, clearCanvas, and fetchDocument from dependencies
+    setRemovingItems({})
+  }, [projectId])
+
+  // Handle item removal animation
+  useEffect(() => {
+    if (lastRemovedItemId) {
+      // Mark item as removing
+      setRemovingItems(prev => ({ ...prev, [lastRemovedItemId]: true }))
+      // Clean up after animation
+      setTimeout(() => {
+        setRemovingItems(prev => {
+          const newState = { ...prev }
+          delete newState[lastRemovedItemId]
+          return newState
+        })
+      }, 300) // Match this with the CSS transition duration
+    }
+  }, [lastRemovedItemId])
+
+  // Scroll to newly added item
+  useEffect(() => {
+    if (lastAddedItemId && itemRefs.current[lastAddedItemId]) {
+      itemRefs.current[lastAddedItemId].scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      })
+    }
+  }, [lastAddedItemId, items])
 
   // Update editable content when content changes
   useEffect(() => {
@@ -89,7 +124,7 @@ function ResearchCanvas() {
         overflow: 'auto',
         '-webkit-overflow-scrolling': 'touch',
       }}>
-        {researchLoading ? (
+        {researchLoading || canvasLoading ? (
           <Box sx={{ 
             display: 'flex', 
             justifyContent: 'center', 
@@ -98,7 +133,7 @@ function ResearchCanvas() {
           }}>
             <CircularProgress sx={{ color: '#C0FF92' }} />
           </Box>
-        ) : researchError ? (
+        ) : researchError || canvasError ? (
           <Box sx={{
             display: 'flex',
             flexDirection: 'column',
@@ -107,10 +142,15 @@ function ResearchCanvas() {
             p: 4,
           }}>
             <Typography color="error" align="center" sx={{ color: '#ff6b6b' }}>
-              {researchError}
+              {researchError || canvasError}
             </Typography>
             <IconButton
-              onClick={() => projectId && fetchDocument(projectId)}
+              onClick={() => {
+                if (projectId) {
+                  fetchDocument(projectId)
+                  fetchItems(projectId)
+                }
+              }}
               size="small"
               sx={{
                 color: '#C0FF92',
@@ -140,25 +180,77 @@ function ResearchCanvas() {
             }}
           />
         ) : (
-          <ReactMarkdown 
-            remarkPlugins={[remarkGfm]}
-            components={{
-              p: ({ children }) => (
-                <Typography paragraph>{children}</Typography>
-              ),
-              h1: ({ children }) => (
-                <Typography variant="h4" gutterBottom>{children}</Typography>
-              ),
-              h2: ({ children }) => (
-                <Typography variant="h5" gutterBottom>{children}</Typography>
-              ),
-              h3: ({ children }) => (
-                <Typography variant="h6" gutterBottom>{children}</Typography>
-              ),
-            }}
-          >
-            {content || ''}
-          </ReactMarkdown>
+          <>
+            {!content && items.length === 0 && (
+              <Box sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                height: '100%',
+                textAlign: 'center',
+                gap: 2,
+                color: 'text.secondary'
+              }}>
+                <Typography variant="h6">
+                  No Research Content Yet
+                </Typography>
+                <Typography>
+                  Start a conversation in the chat and add interesting findings to your research canvas.
+                  You can add content by clicking the "+" button next to AI responses in the chat.
+                </Typography>
+              </Box>
+            )}
+            {(content || items.length > 0) && (
+              <ReactMarkdown 
+                remarkPlugins={[remarkGfm]}
+                components={{
+                  p: ({ children }) => (
+                    <Typography paragraph>{children}</Typography>
+                  ),
+                  h1: ({ children }) => (
+                    <Typography variant="h4" gutterBottom>{children}</Typography>
+                  ),
+                  h2: ({ children }) => (
+                    <Typography variant="h5" gutterBottom>{children}</Typography>
+                  ),
+                  h3: ({ children }) => (
+                    <Typography variant="h6" gutterBottom>{children}</Typography>
+                  ),
+                }}
+              >
+                {content || ''}
+              </ReactMarkdown>
+            )}
+            {items.map((item) => {
+              const content = item.content as TextContent
+              return (
+                <Collapse
+                  key={item.id}
+                  in={!removingItems[item.id]}
+                  timeout={300}
+                  unmountOnExit
+                >
+                  <Box
+                    ref={el => {
+                      itemRefs.current[item.id] = el as HTMLDivElement
+                    }}
+                    sx={{
+                      mt: 2,
+                      p: 2,
+                      transition: 'all 0.3s ease-in-out',
+                      opacity: removingItems[item.id] ? 0 : 1,
+                      transform: removingItems[item.id] ? 'translateX(-20px)' : 'translateX(0)',
+                    }}
+                  >
+                    <Typography>
+                      {content.text}
+                    </Typography>
+                  </Box>
+                </Collapse>
+              )
+            })}
+          </>
         )}
       </Box>
     </Box>

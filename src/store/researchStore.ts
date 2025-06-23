@@ -27,7 +27,7 @@ interface ResearchStore {
   setIsEditing: (isEditing: boolean) => void
 }
 
-const useResearchStore = create<ResearchStore>((set, get) => ({
+const useResearchStore = create<ResearchStore>((set) => ({
   content: '',
   isLoading: false,
   error: null,
@@ -36,7 +36,8 @@ const useResearchStore = create<ResearchStore>((set, get) => ({
   fetchDocument: async (projectId: string) => {
     console.log('Fetching canvas items for project:', projectId)
     try {
-      set({ isLoading: true, error: null })
+      // Reset state when fetching new project
+      set({ isLoading: true, error: null, content: '', isEditing: false })
       
       // Get all canvas items for this project
       const { data: items, error: fetchError } = await supabase
@@ -79,7 +80,7 @@ const useResearchStore = create<ResearchStore>((set, get) => ({
   },
 
   updateDocument: async (projectId: string, content: string) => {
-    console.log('Creating new canvas item for project:', projectId)
+    console.log('Updating research document for project:', projectId)
     try {
       set({ isLoading: true, error: null })
       
@@ -93,26 +94,69 @@ const useResearchStore = create<ResearchStore>((set, get) => ({
         throw new Error('User not authenticated')
       }
 
-      // Create a new canvas item with the content
-      const { error: createError } = await supabase
+      // First, get existing text items for this project
+      const { data: existingItems, error: fetchError } = await supabase
         .from('canvas_items')
-        .insert({
-          project_id: projectId,
-          type: 'text',
-          content: { text: content.trim() },
-          position: { x: 0, y: 0 },
-          created_by: user.user.id,
-        })
+        .select('*')
+        .eq('project_id', projectId)
+        .eq('type', 'text')
+        .order('created_at', { ascending: true })
 
-      if (createError) {
-        console.error('Error creating canvas item:', createError)
-        throw new Error('Failed to create canvas item')
+      if (fetchError) {
+        console.error('Error fetching existing items:', fetchError)
+        throw fetchError
       }
 
-      console.log('Canvas item created successfully')
+      // If there are existing items, update the first one
+      // If no items exist, create a new one
+      if (existingItems && existingItems.length > 0) {
+        const { error: updateError } = await supabase
+          .from('canvas_items')
+          .update({
+            content: { text: content.trim() },
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', existingItems[0].id)
+
+        if (updateError) {
+          console.error('Error updating canvas item:', updateError)
+          throw new Error('Failed to update canvas item')
+        }
+
+        // Delete any additional text items if they exist
+        if (existingItems.length > 1) {
+          const itemsToDelete = existingItems.slice(1).map(item => item.id)
+          const { error: deleteError } = await supabase
+            .from('canvas_items')
+            .delete()
+            .in('id', itemsToDelete)
+
+          if (deleteError) {
+            console.error('Error cleaning up additional items:', deleteError)
+          }
+        }
+      } else {
+        // Create new item if none exists
+        const { error: createError } = await supabase
+          .from('canvas_items')
+          .insert({
+            project_id: projectId,
+            type: 'text',
+            content: { text: content.trim() },
+            position: { x: 0, y: 0 },
+            created_by: user.user.id,
+          })
+
+        if (createError) {
+          console.error('Error creating canvas item:', createError)
+          throw new Error('Failed to create canvas item')
+        }
+      }
+
+      console.log('Document updated successfully')
       
-      // Fetch the latest data to update the view
-      await get().fetchDocument(projectId)
+      // Update the local state
+      set({ content: content.trim() })
     } catch (error) {
       console.error('Error in updateDocument:', error)
       set({ 

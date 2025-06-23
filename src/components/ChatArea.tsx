@@ -208,289 +208,320 @@ function ChatArea() {
         height: '100%',
         display: 'flex',
         flexDirection: 'column',
-        bgcolor: '#1a1a1a',
+        bgcolor: 'background.paper',
       }}
+      onDrop={handleDrop}
+      onDragOver={handleDragOver}
     >
-      {/* Messages Area */}
       <Box
         sx={{
           flex: 1,
           overflow: 'auto',
-          p: { xs: 2, sm: 3 },
+          p: 2,
           display: 'flex',
           flexDirection: 'column',
-          gap: 3,
         }}
       >
-        {messages.map((message) => (
-          <Box
-            key={message.id}
-            sx={{
-            display: 'flex', 
-              gap: 2,
-              alignItems: 'flex-start',
-              alignSelf: message.role === 'user' ? 'flex-end' : 'flex-start',
-              maxWidth: '80%',
-              width: 'auto',
-              position: 'relative',
-              '&:hover .message-actions, &:hover .message-menu': {
-                opacity: 1,
-              },
-            }}
-          >
-            {message.role === 'assistant' && (
-            <Avatar
-              sx={{
-                bgcolor: '#C0FF92',
-                  width: { xs: 32, sm: 36 },
-                  height: { xs: 32, sm: 36 },
-                }}
-              >
-                <SmartToyIcon sx={{ color: '#1a1a1a', fontSize: { xs: 18, sm: 20 } }} />
-              </Avatar>
-            )}
-            
-          <Box sx={{ 
-            display: 'flex', 
-              flexDirection: 'column', 
-              gap: 0.5,
-              width: 'auto',
-              position: 'relative',
-            }}>
-              {/* Sender Name */}
-              <Typography
-                sx={{
-                  fontSize: '14px',
-                  color: message.role === 'user' ? '#C0FF92' : '#888',
-                  ml: message.role === 'user' ? 'auto' : 0,
-                  mr: message.role === 'user' ? 1 : 0,
-                }}
-              >
-                {message.role === 'user' ? user?.email?.split('@')[0] || 'You' : 'AI Assistant'}
-              </Typography>
-              
-              <Box sx={{ display: 'flex', alignItems: 'flex-end', gap: 1 }}>
-                <Paper
-                  sx={{
-                    p: { xs: 1.5, sm: 2 },
-                    bgcolor: message.role === 'user' ? '#C0FF92' : '#333',
-                    color: message.role === 'user' ? '#1a1a1a' : '#fff',
-                    borderRadius: 2,
-                    width: 'auto',
-                    position: 'relative',
-                    '& .markdown-content': {
-                      fontSize: { xs: '14px', sm: '15px' },
-                      lineHeight: 1.5,
-                      '& h1, & h2, & h3, & h4, & h5, & h6': {
-                        color: message.role === 'user' ? '#1a1a1a' : '#fff',
-                        fontWeight: 'bold',
-                        mt: 2,
-                        mb: 1,
-                      },
-                      '& h1': { fontSize: '1.5em' },
-                      '& h2': { fontSize: '1.3em' },
-                      '& h3': { fontSize: '1.2em' },
-                      '& h4': { fontSize: '1.1em' },
-                      '& h5, & h6': { fontSize: '1em' },
-                      '& p': {
-                        my: 1,
-                      },
-                      '& ul, & ol': {
-                        pl: 3,
-                        my: 1,
-                      },
-                      '& li': {
-                        mb: 0.5,
-                      },
-                      '& code': {
-                        bgcolor: message.role === 'user' ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)',
-                        p: 0.5,
-                        borderRadius: 0.5,
-                        fontFamily: 'monospace',
-                      },
-                      '& pre': {
-                        bgcolor: message.role === 'user' ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)',
-                        p: 1,
-                        borderRadius: 1,
-                        overflow: 'auto',
-                        '& code': {
-                          bgcolor: 'transparent',
-                          p: 0,
-                        },
-                      },
-                      '& blockquote': {
-                        borderLeft: `3px solid ${message.role === 'user' ? '#1a1a1a' : '#C0FF92'}`,
-                        pl: 2,
-                        my: 1,
-                        color: message.role === 'user' ? 'rgba(0,0,0,0.7)' : 'rgba(255,255,255,0.7)',
-                      },
-                      '& a': {
-                        color: message.role === 'user' ? '#006600' : '#C0FF92',
-                        textDecoration: 'none',
-                        '&:hover': {
-                          textDecoration: 'underline',
-                        },
-                      },
-                      '& img': {
-                        maxWidth: '100%',
-                        borderRadius: 1,
-                      },
-                      '& table': {
-                        borderCollapse: 'collapse',
-                        width: '100%',
-                        my: 2,
-                      },
-                      '& th, & td': {
-                        border: `1px solid ${message.role === 'user' ? 'rgba(0,0,0,0.2)' : 'rgba(255,255,255,0.2)'}`,
-                        p: 1,
-                      },
-                      '& th': {
-                        bgcolor: message.role === 'user' ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.05)',
-                      },
-                      '& hr': {
-                        border: 'none',
-                        borderTop: `1px solid ${message.role === 'user' ? 'rgba(0,0,0,0.2)' : 'rgba(255,255,255,0.2)'}`,
-                        my: 2,
-                      },
-                      '& strong': {
-                        color: message.role === 'user' ? '#004400' : '#d4ffb3',
-                      },
-                      '& em': {
-                        fontStyle: 'italic',
-                      },
-                    },
-                    }}
-                  >
-                  {/* Message Content */}
-                  <Box className="markdown-content">
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                      {message.content}
-                    </ReactMarkdown>
-                  </Box>
-
-                  {/* File Attachments */}
-                  {message.images && message.images.length > 0 && (
-                    <Box sx={{ mt: 2, display: 'flex', flexDirection: 'column', gap: 1 }}>
-                      {message.images.map((image, index) => (
-                        <Box
-                          key={index}
-                  sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                            gap: 1,
-                            p: 1,
-                            bgcolor: message.role === 'user' ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)',
-                            borderRadius: 1,
-                          }}
-                        >
-                          <InsertDriveFileIcon sx={{ fontSize: 20 }} />
-                          <Box sx={{ flex: 1, minWidth: 0 }}>
-                            <Typography noWrap sx={{ fontSize: '14px' }}>
-                              {image.split('/').pop()}
-                            </Typography>
-                            <Typography sx={{ fontSize: '12px', color: message.role === 'user' ? 'rgba(0,0,0,0.6)' : '#888' }}>
-                              {formatFileSize(1.2 * 1024 * 1024)} {/* Example size */}
-                            </Typography>
-                          </Box>
-                        </Box>
-                      ))}
-                    </Box>
-                  )}
-
-                  {/* Message Time and Status */}
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 0.5,
-                      justifyContent: 'flex-end',
-                      mt: 1,
-                      opacity: 0.7,
-                    }}
-                  >
-                    <Typography sx={{ fontSize: '12px' }}>
-                      {formatMessageTime(message.created_at)}
-                  </Typography>
-                    {message.role === 'user' && (
-                      <DoneAllIcon sx={{ fontSize: 16, color: message.role === 'user' ? '#1a1a1a' : '#C0FF92' }} />
-                    )}
-                  </Box>
-                </Paper>
-                
-                <IconButton
-                  className="message-menu"
-                  size="small"
-                  onClick={(e) => handleMenuOpen(e, message.id)}
-                  sx={{
-                    opacity: 0,
-                    transition: 'opacity 0.2s',
-                    color: '#888',
-                    alignSelf: 'center',
-                    '&:hover': {
-                      color: '#fff',
-                      bgcolor: 'rgba(255,255,255,0.1)',
-                    },
-                  }}
-                >
-                  <MoreVertIcon sx={{ fontSize: 20 }} />
-                </IconButton>
-              </Box>
-                
-              {message.role === 'assistant' && (
-                <Button
-                  className="message-actions"
-                  startIcon={
-                    loadingStates[message.id] ? (
-                      <CircularProgress size={16} sx={{ color: '#C0FF92' }} />
-                    ) : canvasStates[message.id] ? (
-                      <RemoveIcon />
-                    ) : (
-                      <AddIcon />
-                    )
-                  }
-                  size="small"
-                  onClick={() => {
-                    if (canvasStates[message.id]) {
-                      handleRemoveFromCanvas(message.id, canvasStates[message.id]);
-                    } else {
-                      handleAddToCanvas(message.id, message.content);
-                    }
-                  }}
-                  disabled={loadingStates[message.id]}
-                  sx={{
-                    alignSelf: 'flex-start',
-                    color: canvasStates[message.id] ? '#ff4444' : '#C0FF92',
-                    borderColor: canvasStates[message.id] ? '#ff4444' : '#C0FF92',
-                    fontSize: '12px',
-                    py: 0.5,
-                    opacity: 0,
-                    transition: 'opacity 0.2s ease-in-out',
-                    '&:hover': {
-                      borderColor: canvasStates[message.id] ? '#ff6666' : '#d4ffb3',
-                      bgcolor: 'rgba(255, 68, 68, 0.1)',
-                    },
-                  }}
-                  variant="outlined"
-                >
-                  {canvasStates[message.id] ? 'Remove from Canvas' : 'Add to Canvas'}
-                </Button>
-              )}
-            </Box>
-
-            {message.role === 'user' && user && (
-              <Avatar 
-                sx={{ 
-                  bgcolor: '#C0FF92',
-                  width: { xs: 32, sm: 36 },
-                  height: { xs: 32, sm: 36 },
-                }}
-              >
-                {user.email?.[0].toUpperCase() || 'U'}
-              </Avatar>
-            )}
+        {isChatLoading ? (
+          <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
+            <CircularProgress sx={{ color: '#C0FF92' }} />
           </Box>
-        ))}
-        <div ref={messagesEndRef} />
+        ) : chatError ? (
+          <Box sx={{ textAlign: 'center', color: 'error.main', p: 4 }}>
+            {chatError}
+          </Box>
+        ) : messages.length === 0 ? (
+          <Box sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            height: '100%',
+            textAlign: 'center',
+            gap: 2,
+            color: 'text.secondary',
+            p: 4
+          }}>
+            <Typography variant="h6">
+              Start Your Research Chat
+            </Typography>
+            <Typography>
+              Ask questions, share ideas, or upload images to begin your research.
+              Interesting findings can be added to your research canvas for easy reference.
+            </Typography>
+          </Box>
+        ) : (
+          <>
+            {messages.map((message) => (
+              <Box
+                key={message.id}
+                sx={{
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  alignSelf: message.role === 'user' ? 'flex-end' : 'flex-start',
+                  maxWidth: '80%',
+                  width: 'auto',
+                  position: 'relative',
+                  '&:hover .message-actions, &:hover .message-menu': {
+                    opacity: 1,
+                  },
+                }}
+              >
+                {message.role === 'assistant' && (
+                  <Avatar
+                    sx={{
+                      bgcolor: '#C0FF92',
+                      width: { xs: 32, sm: 36 },
+                      height: { xs: 32, sm: 36 },
+                    }}
+                  >
+                    <SmartToyIcon sx={{ color: '#1a1a1a', fontSize: { xs: 18, sm: 20 } }} />
+                  </Avatar>
+                )}
+                
+                <Box sx={{ 
+                  display: 'flex', 
+                  flexDirection: 'column', 
+                  gap: 0.5,
+                  width: 'auto',
+                  position: 'relative',
+                }}>
+                  {/* Sender Name */}
+                  <Typography
+                    sx={{
+                      fontSize: '14px',
+                      color: message.role === 'user' ? '#C0FF92' : '#888',
+                      ml: message.role === 'user' ? 'auto' : 0,
+                      mr: message.role === 'user' ? 1 : 0,
+                    }}
+                  >
+                    {message.role === 'user' ? user?.email?.split('@')[0] || 'You' : 'AI Assistant'}
+                  </Typography>
+                  
+                  <Box sx={{ display: 'flex', alignItems: 'flex-end', gap: 1 }}>
+                    <Paper
+                      sx={{
+                        p: { xs: 1.5, sm: 2 },
+                        bgcolor: message.role === 'user' ? '#C0FF92' : '#333',
+                        color: message.role === 'user' ? '#1a1a1a' : '#fff',
+                        borderRadius: 2,
+                        width: 'auto',
+                        position: 'relative',
+                        '& .markdown-content': {
+                          fontSize: { xs: '14px', sm: '15px' },
+                          lineHeight: 1.5,
+                          '& h1, & h2, & h3, & h4, & h5, & h6': {
+                            color: message.role === 'user' ? '#1a1a1a' : '#fff',
+                            fontWeight: 'bold',
+                            mt: 2,
+                            mb: 1,
+                          },
+                          '& h1': { fontSize: '1.5em' },
+                          '& h2': { fontSize: '1.3em' },
+                          '& h3': { fontSize: '1.2em' },
+                          '& h4': { fontSize: '1.1em' },
+                          '& h5, & h6': { fontSize: '1em' },
+                          '& p': {
+                            my: 1,
+                          },
+                          '& ul, & ol': {
+                            pl: 3,
+                            my: 1,
+                          },
+                          '& li': {
+                            mb: 0.5,
+                          },
+                          '& code': {
+                            bgcolor: message.role === 'user' ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)',
+                            p: 0.5,
+                            borderRadius: 0.5,
+                            fontFamily: 'monospace',
+                          },
+                          '& pre': {
+                            bgcolor: message.role === 'user' ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)',
+                            p: 1,
+                            borderRadius: 1,
+                            overflow: 'auto',
+                            '& code': {
+                              bgcolor: 'transparent',
+                              p: 0,
+                            },
+                          },
+                          '& blockquote': {
+                            borderLeft: `3px solid ${message.role === 'user' ? '#1a1a1a' : '#C0FF92'}`,
+                            pl: 2,
+                            my: 1,
+                            color: message.role === 'user' ? 'rgba(0,0,0,0.7)' : 'rgba(255,255,255,0.7)',
+                          },
+                          '& a': {
+                            color: message.role === 'user' ? '#006600' : '#C0FF92',
+                            textDecoration: 'none',
+                            '&:hover': {
+                              textDecoration: 'underline',
+                            },
+                          },
+                          '& img': {
+                            maxWidth: '100%',
+                            borderRadius: 1,
+                          },
+                          '& table': {
+                            borderCollapse: 'collapse',
+                            width: '100%',
+                            my: 2,
+                          },
+                          '& th, & td': {
+                            border: `1px solid ${message.role === 'user' ? 'rgba(0,0,0,0.2)' : 'rgba(255,255,255,0.2)'}`,
+                            p: 1,
+                          },
+                          '& th': {
+                            bgcolor: message.role === 'user' ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.05)',
+                          },
+                          '& hr': {
+                            border: 'none',
+                            borderTop: `1px solid ${message.role === 'user' ? 'rgba(0,0,0,0.2)' : 'rgba(255,255,255,0.2)'}`,
+                            my: 2,
+                          },
+                          '& strong': {
+                            color: message.role === 'user' ? '#004400' : '#d4ffb3',
+                          },
+                          '& em': {
+                            fontStyle: 'italic',
+                          },
+                        },
+                      }}
+                    >
+                      {/* Message Content */}
+                      <Box className="markdown-content">
+                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                          {message.content}
+                        </ReactMarkdown>
+                      </Box>
+
+                      {/* File Attachments */}
+                      {message.images && message.images.length > 0 && (
+                        <Box sx={{ mt: 2, display: 'flex', flexDirection: 'column', gap: 1 }}>
+                          {message.images.map((image, index) => (
+                            <Box
+                              key={index}
+                              sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 1,
+                                p: 1,
+                                bgcolor: message.role === 'user' ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)',
+                                borderRadius: 1,
+                              }}
+                            >
+                              <InsertDriveFileIcon sx={{ fontSize: 20 }} />
+                              <Box sx={{ flex: 1, minWidth: 0 }}>
+                                <Typography noWrap sx={{ fontSize: '14px' }}>
+                                  {image.split('/').pop()}
+                                </Typography>
+                                <Typography sx={{ fontSize: '12px', color: message.role === 'user' ? 'rgba(0,0,0,0.6)' : '#888' }}>
+                                  {formatFileSize(1.2 * 1024 * 1024)} {/* Example size */}
+                                </Typography>
+                              </Box>
+                            </Box>
+                          ))}
+                        </Box>
+                      )}
+
+                      {/* Message Time and Status */}
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 0.5,
+                          justifyContent: 'flex-end',
+                          mt: 1,
+                          opacity: 0.7,
+                        }}
+                      >
+                        <Typography sx={{ fontSize: '12px' }}>
+                          {formatMessageTime(message.created_at)}
+                        </Typography>
+                        {message.role === 'user' && (
+                          <DoneAllIcon sx={{ fontSize: 16, color: message.role === 'user' ? '#1a1a1a' : '#C0FF92' }} />
+                        )}
+                      </Box>
+                    </Paper>
+                    
+                    <IconButton
+                      className="message-menu"
+                      size="small"
+                      onClick={(e) => handleMenuOpen(e, message.id)}
+                      sx={{
+                        opacity: 0,
+                        transition: 'opacity 0.2s',
+                        color: '#888',
+                        alignSelf: 'center',
+                        '&:hover': {
+                          color: '#fff',
+                          bgcolor: 'rgba(255,255,255,0.1)',
+                        },
+                      }}
+                    >
+                      <MoreVertIcon sx={{ fontSize: 20 }} />
+                    </IconButton>
+                  </Box>
+                  
+                  {message.role === 'assistant' && (
+                    <Button
+                      className="message-actions"
+                      startIcon={
+                        loadingStates[message.id] ? (
+                          <CircularProgress size={16} sx={{ color: '#C0FF92' }} />
+                        ) : canvasStates[message.id] ? (
+                          <RemoveIcon />
+                        ) : (
+                          <AddIcon />
+                        )
+                      }
+                      size="small"
+                      onClick={() => {
+                        if (canvasStates[message.id]) {
+                          handleRemoveFromCanvas(message.id, canvasStates[message.id]);
+                        } else {
+                          handleAddToCanvas(message.id, message.content);
+                        }
+                      }}
+                      disabled={loadingStates[message.id]}
+                      sx={{
+                        alignSelf: 'flex-start',
+                        color: canvasStates[message.id] ? '#ff4444' : '#C0FF92',
+                        borderColor: canvasStates[message.id] ? '#ff4444' : '#C0FF92',
+                        fontSize: '12px',
+                        py: 0.5,
+                        opacity: 0,
+                        transition: 'opacity 0.2s ease-in-out',
+                        '&:hover': {
+                          borderColor: canvasStates[message.id] ? '#ff6666' : '#d4ffb3',
+                          bgcolor: 'rgba(255, 68, 68, 0.1)',
+                        },
+                      }}
+                      variant="outlined"
+                    >
+                      {canvasStates[message.id] ? 'Remove from Canvas' : 'Add to Canvas'}
+                    </Button>
+                  )}
+                </Box>
+
+                {message.role === 'user' && user && (
+                  <Avatar 
+                    sx={{ 
+                      bgcolor: '#C0FF92',
+                      width: { xs: 32, sm: 36 },
+                      height: { xs: 32, sm: 36 },
+                    }}
+                  >
+                    {user.email?.[0].toUpperCase() || 'U'}
+                  </Avatar>
+                )}
+              </Box>
+            ))}
+            <div ref={messagesEndRef} />
+          </>
+        )}
       </Box>
 
       {/* Message Actions Menu */}
@@ -595,10 +626,8 @@ function ChatArea() {
             sx={{
               display: 'flex',
               gap: 1.5,
-            alignItems: 'flex-end',
+              alignItems: 'flex-end',
             }}
-            onDrop={handleDrop}
-            onDragOver={handleDragOver}
           >
             <Input
               type="file"
@@ -618,80 +647,66 @@ function ChatArea() {
                 '&:hover': {
                   bgcolor: '#444',
                 },
-          }}
-        >
+              }}
+            >
               <ImageIcon />
             </IconButton>
-          <TextField
+            <TextField
               fullWidth
-            multiline
+              multiline
               maxRows={4}
               value={input}
               onChange={(e) => setInput(e.target.value)}
-            onKeyPress={handleKeyPress}
+              onKeyPress={handleKeyPress}
               placeholder="Type your research question..."
-            sx={{
-              '& .MuiOutlinedInput-root': {
+              sx={{
+                '& .MuiOutlinedInput-root': {
                   bgcolor: '#262626',
                   borderRadius: 2,
-                '& fieldset': {
+                  '& fieldset': {
                     borderColor: '#444',
                     borderWidth: '1px',
-                },
-                '&:hover fieldset': {
-                  borderColor: '#555',
-                },
-                '&.Mui-focused fieldset': {
-                  borderColor: '#C0FF92',
+                  },
+                  '&:hover fieldset': {
+                    borderColor: '#555',
+                  },
+                  '&.Mui-focused fieldset': {
+                    borderColor: '#C0FF92',
                     borderWidth: '1px',
-              },
+                  },
                   '& textarea': {
                     fontSize: { xs: '14px', sm: '15px' },
                     lineHeight: 1.5,
                     p: { xs: 1.5, sm: 2 },
-              },
-              },
-            }}
-          />
-          <IconButton
+                  },
+                },
+              }}
+            />
+            <IconButton
               onClick={handleSend}
               disabled={isChatLoading || (!input.trim() && selectedImages.length === 0)}
-            sx={{
+              sx={{
                 bgcolor: '#C0FF92',
                 width: { xs: 40, sm: 44 },
                 height: { xs: 40, sm: 44 },
                 color: '#1a1a1a',
-              '&:hover': {
+                '&:hover': {
                   bgcolor: '#a8e679',
-              },
-              '&.Mui-disabled': {
-                bgcolor: '#333',
-                color: '#666',
-              },
-            }}
-          >
+                },
+                '&.Mui-disabled': {
+                  bgcolor: '#333',
+                  color: '#666',
+                },
+              }}
+            >
               {isChatLoading ? (
                 <CircularProgress size={24} sx={{ color: '#1a1a1a' }} />
               ) : (
                 <SendIcon sx={{ fontSize: { xs: 20, sm: 22 } }} />
               )}
-          </IconButton>
+            </IconButton>
           </Box>
         </Box>
-        {chatError && (
-          <Typography
-            color="error"
-            variant="caption"
-            sx={{ 
-              mt: 1.5, 
-              display: 'block',
-              textAlign: 'center',
-              fontSize: '12px',
-            }}
-          >
-            {chatError}
-          </Typography>
-        )}
       </Box>
     </Box>
   )
