@@ -156,13 +156,10 @@ function ResearchCanvas() {
       return (
         <Box sx={{ 
           height: '100%',
-          p: 2,
-          '& .MuiInputBase-root': {
-            height: '100%',
-            backgroundColor: 'rgba(0, 0, 0, 0.2)',
-            borderRadius: 1,
-            p: 2
-          }
+          p: 3,
+          maxWidth: '800px',
+          margin: '0 auto',
+          width: '100%'
         }}>
           <TextField
             multiline
@@ -173,15 +170,32 @@ function ResearchCanvas() {
             InputProps={{
               sx: {
                 height: '100%',
+                backgroundColor: 'rgba(0, 0, 0, 0.2)',
+                borderRadius: 1,
                 '& textarea': {
                   height: '100% !important',
                   color: 'text.primary',
                   fontSize: '1rem',
                   lineHeight: '1.75',
                   letterSpacing: '0.00938em',
+                  padding: '24px',
+                  '&::placeholder': {
+                    color: 'text.secondary',
+                    opacity: 0.7
+                  }
                 },
+                '& fieldset': {
+                  borderColor: 'rgba(255, 255, 255, 0.12)',
+                  '&:hover': {
+                    borderColor: 'rgba(255, 255, 255, 0.2)'
+                  }
+                },
+                '&.Mui-focused fieldset': {
+                  borderColor: '#C0FF92 !important'
+                }
               }
             }}
+            placeholder="Start typing your research content here..."
           />
         </Box>
       )
@@ -192,6 +206,9 @@ function ResearchCanvas() {
         <Box sx={{ 
           p: 3,
           color: 'text.primary',
+          maxWidth: '800px',
+          margin: '0 auto',
+          width: '100%',
           '& > *:not(:last-child)': {
             mb: 2
           }
