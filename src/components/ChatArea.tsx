@@ -265,8 +265,8 @@ function ChatArea() {
                   '&:hover .message-actions, &:hover .message-menu': {
                     opacity: 1,
                   },
-                }}
-              >
+                  }}
+                >
                 {message.role === 'assistant' && (
                   <Avatar
                     sx={{
@@ -410,8 +410,8 @@ function ChatArea() {
                                 p: 1,
                                 bgcolor: message.role === 'user' ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)',
                                 borderRadius: 1,
-                              }}
-                            >
+                }}
+              >
                               <InsertDriveFileIcon sx={{ fontSize: 20 }} />
                               <Box sx={{ flex: 1, minWidth: 0 }}>
                                 <Typography noWrap sx={{ fontSize: '14px' }}>
@@ -435,8 +435,8 @@ function ChatArea() {
                           justifyContent: 'flex-end',
                           mt: 1,
                           opacity: 0.7,
-                        }}
-                      >
+                }}
+              >
                         <Typography sx={{ fontSize: '12px' }}>
                           {formatMessageTime(message.created_at)}
                         </Typography>
@@ -512,8 +512,8 @@ function ChatArea() {
                       bgcolor: '#C0FF92',
                       width: { xs: 32, sm: 36 },
                       height: { xs: 32, sm: 36 },
-                    }}
-                  >
+                  }}
+                >
                     {user.email?.[0].toUpperCase() || 'U'}
                   </Avatar>
                 )}
@@ -626,7 +626,7 @@ function ChatArea() {
             sx={{
               display: 'flex',
               gap: 1.5,
-              alignItems: 'flex-end',
+            alignItems: 'flex-end',
             }}
           >
             <Input
@@ -647,23 +647,23 @@ function ChatArea() {
                 '&:hover': {
                   bgcolor: '#444',
                 },
-              }}
-            >
+          }}
+        >
               <ImageIcon />
             </IconButton>
-            <TextField
+          <TextField
               fullWidth
-              multiline
+            multiline
               maxRows={4}
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              onKeyPress={handleKeyPress}
+            onKeyPress={handleKeyPress}
               placeholder="Type your research question..."
-              sx={{
-                '& .MuiOutlinedInput-root': {
+            sx={{
+              '& .MuiOutlinedInput-root': {
                   bgcolor: '#262626',
                   borderRadius: 2,
-                  '& fieldset': {
+                '& fieldset': {
                     borderColor: '#444',
                     borderWidth: '1px',
                 },
@@ -673,12 +673,12 @@ function ChatArea() {
                 '&.Mui-focused fieldset': {
                   borderColor: '#C0FF92',
                     borderWidth: '1px',
-                  },
+              },
                   '& textarea': {
                     fontSize: { xs: '14px', sm: '15px' },
                     lineHeight: 1.5,
                     p: { xs: 1.5, sm: 2 },
-                  },
+              },
               },
             }}
           />

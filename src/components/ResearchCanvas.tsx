@@ -84,20 +84,27 @@ function ResearchCanvas() {
     const newContent = e.target.value
     setEditableContent(newContent)
     if (projectId) {
-      updateContentWithDebounce(projectId, newContent)
+      // If content is empty, explicitly call updateDocument instead of debounced version
+      if (!newContent.trim()) {
+        updateDocument(projectId, '')
+      } else {
+        updateContentWithDebounce(projectId, newContent)
+      }
     }
   }
 
   const handleSave = () => {
     if (!projectId) return
-    // Ensure the content is saved before exiting edit mode
+    // Ensure content is properly saved/removed before exiting edit mode
     updateDocument(projectId, editableContent).then(() => {
       setIsEditing(false)
+      // Refetch to ensure we have the latest state
+      fetchDocument(projectId)
     })
   }
 
   const handleEdit = () => {
-    setEditableContent(content || '') // Reset to current content when entering edit mode
+    setEditableContent(content || '')
     setIsEditing(true)
   }
 

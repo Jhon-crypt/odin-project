@@ -39,7 +39,7 @@ const useResearchStore = create<ResearchState>((set) => {
       if (userError) throw userError
       if (!user?.user) throw new Error('User not authenticated')
 
-      // First, delete ALL existing text items for this project
+      // Always delete existing content first
       const { error: deleteError } = await supabase
         .from('canvas_items')
         .delete()
@@ -48,24 +48,25 @@ const useResearchStore = create<ResearchState>((set) => {
 
       if (deleteError) throw deleteError
 
-      // Only create a new item if there's actual content
-      if (content.trim()) {
+      // Set local state to empty immediately after deletion
+      set({ content: '' })
+
+      // Only create new content if there's actual text
+      const trimmedContent = content.trim()
+      if (trimmedContent) {
         const { error: createError } = await supabase
           .from('canvas_items')
           .insert({
             project_id: projectId,
             type: 'text',
-            content: { text: content.trim() },
+            content: { text: trimmedContent },
             position: { x: 0, y: 0 },
             created_by: user.user.id,
           })
 
         if (createError) throw createError
-        // Update local state with the content
-        set({ content: content.trim() })
-      } else {
-        // If content is empty, just set local state to empty
-        set({ content: '' })
+        // Update local state with the new content
+        set({ content: trimmedContent })
       }
     } catch (error) {
       console.error('Error in debouncedUpdate:', error)
@@ -73,7 +74,7 @@ const useResearchStore = create<ResearchState>((set) => {
         error: error instanceof Error ? error.message : 'An error occurred while updating the document'
       })
     }
-  }, 300)
+  }, 100) // Reduced debounce time for more immediate response
 
   return {
     content: '',
@@ -84,7 +85,7 @@ const useResearchStore = create<ResearchState>((set) => {
     fetchDocument: async (projectId: string) => {
       console.log('Fetching canvas items for project:', projectId)
       try {
-        set({ isLoading: true, error: null })
+        set({ isLoading: true, error: null, content: '' }) // Reset content immediately
         
         const { data: items, error: fetchError } = await supabase
           .from('canvas_items')
@@ -96,15 +97,13 @@ const useResearchStore = create<ResearchState>((set) => {
 
         if (fetchError) throw fetchError
 
-        // Reset content if no items found
-        if (!items || items.length === 0) {
+        // Only set content if we have valid data
+        if (items?.[0]?.content?.text) {
+          const trimmedContent = items[0].content.text.trim()
+          set({ content: trimmedContent || '', isLoading: false })
+        } else {
           set({ content: '', isLoading: false })
-          return
         }
-
-        // Only set content if it exists and is not empty
-        const content = items[0]?.content?.text?.trim() || ''
-        set({ content, isLoading: false })
       } catch (error) {
         console.error('Error in fetchDocument:', error)
         set({ 
@@ -120,9 +119,20 @@ const useResearchStore = create<ResearchState>((set) => {
       try {
         set({ isLoading: true, error: null })
         await debouncedUpdate.cancel() // Cancel any pending updates
-        // Update local state immediately
-        set({ content: content.trim() })
-        await debouncedUpdate(projectId, content)
+        
+        // If content is empty, just delete everything
+        if (!content.trim()) {
+          const { error: deleteError } = await supabase
+            .from('canvas_items')
+            .delete()
+            .eq('project_id', projectId)
+            .eq('type', 'text')
+
+          if (deleteError) throw deleteError
+          set({ content: '' })
+        } else {
+          await debouncedUpdate(projectId, content)
+        }
       } catch (error) {
         console.error('Error in updateDocument:', error)
         set({ 
@@ -134,13 +144,31 @@ const useResearchStore = create<ResearchState>((set) => {
     },
 
     updateContentWithDebounce: (projectId: string, content: string) => {
-      // Update local state immediately
       const trimmedContent = content.trim()
       set({ content: trimmedContent })
-      debouncedUpdate(projectId, trimmedContent)
+      if (!trimmedContent) {
+        // If content is empty, delete immediately without debounce
+        set({ isLoading: true })
+        supabase
+          .from('canvas_items')
+          .delete()
+          .eq('project_id', projectId)
+          .eq('type', 'text')
+          .then(() => set({ isLoading: false }))
+          .catch(error => {
+            console.error('Error deleting content:', error)
+            set({ isLoading: false })
+          })
+      } else {
+        debouncedUpdate(projectId, trimmedContent)
+      }
     },
 
-    setContent: (content: string) => set({ content: content.trim() }),
+    setContent: (content: string) => {
+      const trimmedContent = content.trim()
+      set({ content: trimmedContent })
+    },
+    
     setIsEditing: (isEditing: boolean) => {
       set({ isEditing })
       if (!isEditing) {
