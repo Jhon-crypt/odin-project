@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react'
 import { useParams } from 'react-router-dom'
-import { Box, CircularProgress, IconButton, Typography, Collapse } from '@mui/material'
+import { Box, CircularProgress, IconButton, Typography, TextField } from '@mui/material'
 import { Edit as EditIcon, Save as SaveIcon } from '@mui/icons-material'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
@@ -91,6 +91,139 @@ function ResearchCanvas() {
     setIsEditing(false)
   }
 
+  const renderContent = () => {
+    if (!content && items.length === 0) {
+      return (
+        <Box sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          height: '100%',
+          textAlign: 'center',
+          gap: 2,
+          color: 'text.secondary'
+        }}>
+          <Typography variant="h6">
+            No Research Content Yet
+          </Typography>
+          <Typography>
+            Start a conversation in the chat and add interesting findings to your research canvas.
+            You can add content by clicking the "+" button next to AI responses in the chat.
+          </Typography>
+        </Box>
+      )
+    }
+
+    if (isEditing) {
+      return (
+        <Box sx={{ height: '100%' }}>
+          <TextField
+            multiline
+            fullWidth
+            variant="standard"
+            value={editableContent}
+            onChange={handleContentChange}
+            InputProps={{
+              disableUnderline: true,
+              sx: {
+                height: '100%',
+                '& textarea': {
+                  height: '100% !important',
+                  color: 'inherit',
+                  fontFamily: 'inherit',
+                  fontSize: 'inherit',
+                  lineHeight: 'inherit',
+                  padding: 0,
+                  backgroundColor: 'transparent',
+                  resize: 'none',
+                },
+              }
+            }}
+            sx={{
+              height: '100%',
+              '& .MuiInputBase-root': {
+                height: '100%',
+              }
+            }}
+          />
+        </Box>
+      )
+    }
+
+    return (
+      <>
+        <Box sx={{ mb: 4 }}>
+          <ReactMarkdown 
+            remarkPlugins={[remarkGfm]}
+            components={{
+              p: ({ children }) => (
+                <Typography 
+                  paragraph 
+                  sx={{ 
+                    color: 'text.primary',
+                    fontSize: '1rem',
+                    lineHeight: 1.5,
+                    mb: 2
+                  }}
+                >
+                  {children}
+                </Typography>
+              ),
+              h1: ({ children }) => (
+                <Typography 
+                  variant="h4" 
+                  gutterBottom
+                  sx={{ 
+                    color: 'text.primary',
+                    fontWeight: 500,
+                    mb: 3
+                  }}
+                >
+                  {children}
+                </Typography>
+              ),
+              h2: ({ children }) => (
+                <Typography 
+                  variant="h5" 
+                  gutterBottom
+                  sx={{ 
+                    color: 'text.primary',
+                    fontWeight: 500,
+                    mb: 2
+                  }}
+                >
+                  {children}
+                </Typography>
+              ),
+            }}
+          >
+            {content || ''}
+          </ReactMarkdown>
+        </Box>
+        {items.map((item) => {
+          const content = item.content as TextContent
+          return (
+            <Box
+              key={item.id}
+              ref={(el: HTMLDivElement | null) => {
+                itemRefs.current[item.id] = el
+              }}
+              sx={{
+                opacity: removingItems[item.id] ? 0 : 1,
+                transform: removingItems[item.id] ? 'translateX(100%)' : 'translateX(0)',
+                transition: 'all 0.3s ease-in-out',
+                mb: 2,
+              }}
+            >
+              <Typography>{content.text}</Typography>
+            </Box>
+          )
+        })}
+      </>
+    )
+  }
+
   return (
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       <Box sx={{ 
@@ -160,96 +293,7 @@ function ResearchCanvas() {
               Retry
             </IconButton>
           </Box>
-        ) : isEditing ? (
-          <textarea
-            value={editableContent}
-            onChange={handleContentChange}
-            style={{
-              width: '100%',
-              height: '100%',
-              backgroundColor: 'transparent',
-              color: 'inherit',
-              border: 'none',
-              resize: 'none',
-              fontFamily: 'inherit',
-              fontSize: 'inherit',
-              padding: 0,
-              outline: 'none',
-            }}
-          />
-        ) : (
-          <>
-            {!content && items.length === 0 && (
-              <Box sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                height: '100%',
-                textAlign: 'center',
-                gap: 2,
-                color: 'text.secondary'
-              }}>
-                <Typography variant="h6">
-                  No Research Content Yet
-                </Typography>
-                <Typography>
-                  Start a conversation in the chat and add interesting findings to your research canvas.
-                  You can add content by clicking the "+" button next to AI responses in the chat.
-                </Typography>
-              </Box>
-            )}
-            {(content || items.length > 0) && (
-              <ReactMarkdown 
-                remarkPlugins={[remarkGfm]}
-                components={{
-                  p: ({ children }) => (
-                    <Typography paragraph>{children}</Typography>
-                  ),
-                  h1: ({ children }) => (
-                    <Typography variant="h4" gutterBottom>{children}</Typography>
-                  ),
-                  h2: ({ children }) => (
-                    <Typography variant="h5" gutterBottom>{children}</Typography>
-                  ),
-                  h3: ({ children }) => (
-                    <Typography variant="h6" gutterBottom>{children}</Typography>
-                  ),
-                }}
-              >
-                {content || ''}
-              </ReactMarkdown>
-            )}
-            {items.map((item) => {
-              const content = item.content as TextContent
-              return (
-                <Collapse
-                  key={item.id}
-                  in={!removingItems[item.id]}
-                  timeout={300}
-                  unmountOnExit
-                >
-                  <Box
-                    ref={el => {
-                      itemRefs.current[item.id] = el as HTMLDivElement
-                    }}
-                    sx={{
-                      mt: 2,
-                      p: 2,
-                      transition: 'all 0.3s ease-in-out',
-                      opacity: removingItems[item.id] ? 0 : 1,
-                      transform: removingItems[item.id] ? 'translateX(-20px)' : 'translateX(0)',
-                    }}
-                  >
-                    <Typography>
-                      {content.text}
-                    </Typography>
-                  </Box>
-                </Collapse>
-              )
-            })}
-          </>
-        )}
+        ) : renderContent()}
       </Box>
     </Box>
   )
