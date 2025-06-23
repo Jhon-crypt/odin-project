@@ -11,9 +11,9 @@ import ProjectPage from './pages/ProjectPage'
 function App() {
   return (
     <AuthProvider>
-      <Router>
-        <Routes>
-          <Route path="/" element={<Landing />} />
+    <Router>
+      <Routes>
+        <Route path="/" element={<Landing />} />
           <Route
             path="/dashboard"
             element={
@@ -30,11 +30,11 @@ function App() {
               </ProtectedRoute>
             }
           />
-          <Route path="/research/:id" element={<PublicResearch />} />
+        <Route path="/research/:id" element={<PublicResearch />} />
           <Route path="/auth/callback" element={<AuthCallback />} />
           <Route path="/projects/:id" element={<ProjectPage />} />
-        </Routes>
-      </Router>
+      </Routes>
+    </Router>
     </AuthProvider>
   )
 }

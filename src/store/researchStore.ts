@@ -38,28 +38,16 @@ const useResearchStore = create<ResearchStore>((set) => {
       if (userError) throw userError
       if (!user?.user) throw new Error('User not authenticated')
 
-      // First, get existing text items for this project
-      const { data: existingItems, error: fetchError } = await supabase
+      // First, delete ALL existing text items for this project
+      const { error: deleteError } = await supabase
         .from('canvas_items')
-        .select('*')
+        .delete()
         .eq('project_id', projectId)
         .eq('type', 'text')
-        .order('created_at', { ascending: true })
 
-      if (fetchError) throw fetchError
+      if (deleteError) throw deleteError
 
-      // Delete all existing text items
-      if (existingItems && existingItems.length > 0) {
-        const itemIds = existingItems.map(item => item.id)
-        const { error: deleteError } = await supabase
-          .from('canvas_items')
-          .delete()
-          .in('id', itemIds)
-
-        if (deleteError) throw deleteError
-      }
-
-      // Create a new item with the updated content
+      // Only create a new item if there's actual content
       if (content.trim()) {
         const { error: createError } = await supabase
           .from('canvas_items')
@@ -73,13 +61,16 @@ const useResearchStore = create<ResearchStore>((set) => {
 
         if (createError) throw createError
       }
+
+      // Update local state to match database
+      set({ content: content.trim() })
     } catch (error) {
       console.error('Error in debouncedUpdate:', error)
       set({ 
         error: error instanceof Error ? error.message : 'An error occurred while updating the document'
       })
     }
-  }, 1000) // Debounce for 1 second
+  }, 1000)
 
   return {
     content: '',
@@ -101,25 +92,31 @@ const useResearchStore = create<ResearchStore>((set) => {
 
         if (fetchError) throw fetchError
 
+        // Reset content if no items found
         if (!items || items.length === 0) {
-          set({ content: '' })
+          set({ content: '', isLoading: false })
           return
         }
 
-        const combinedContent = (items as CanvasItem[])
-          .filter(item => item.content?.text?.trim())
-          .map(item => item.content.text.trim())
-          .join('\n\n')
+        // Only use the most recent text item
+        const latestItem = items.reduce((latest, current) => {
+          if (!latest || new Date(current.created_at) > new Date(latest.created_at)) {
+            return current
+          }
+          return latest
+        }, null as CanvasItem | null)
 
-        set({ content: combinedContent })
+        set({ 
+          content: latestItem ? latestItem.content.text.trim() : '',
+          isLoading: false 
+        })
       } catch (error) {
         console.error('Error in fetchDocument:', error)
         set({ 
           error: error instanceof Error ? error.message : 'An error occurred while fetching the document',
-          content: ''
+          content: '',
+          isLoading: false
         })
-      } finally {
-        set({ isLoading: false })
       }
     },
 
@@ -127,8 +124,8 @@ const useResearchStore = create<ResearchStore>((set) => {
       console.log('Updating research document for project:', projectId)
       try {
         set({ isLoading: true, error: null })
+        await debouncedUpdate.cancel() // Cancel any pending updates
         await debouncedUpdate(projectId, content)
-        set({ content: content.trim() })
       } catch (error) {
         console.error('Error in updateDocument:', error)
         set({ 
@@ -140,12 +137,18 @@ const useResearchStore = create<ResearchStore>((set) => {
     },
 
     updateContentWithDebounce: (projectId: string, content: string) => {
-      set({ content: content }) // Update local state immediately
+      set({ content }) // Update local state immediately
       debouncedUpdate(projectId, content) // Debounce the server update
     },
 
     setContent: (content: string) => set({ content }),
-    setIsEditing: (isEditing: boolean) => set({ isEditing }),
+    setIsEditing: (isEditing: boolean) => {
+      set({ isEditing })
+      if (!isEditing) {
+        // When exiting edit mode, cancel any pending updates
+        debouncedUpdate.cancel()
+      }
+    },
   }
 })
 

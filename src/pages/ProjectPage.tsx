@@ -47,11 +47,19 @@ function ProjectPage() {
   const isLargeDesktop = useMediaQuery('(min-width:1200px)')
   const { projects, fetchProjects } = useProjectStore()
   
+  // Fetch projects when component mounts or when URL changes
   useEffect(() => {
-    fetchProjects()
-  }, [fetchProjects])
+    const loadData = async () => {
+      try {
+        await fetchProjects();
+      } catch (error) {
+        console.error('Error loading project data:', error);
+      }
+    };
+    loadData();
+  }, [id]); // Only depend on id, not fetchProjects
 
-  const currentProject = projects.find(p => p.id === id)
+  const currentProject = projects.find(p => p.id === id);
 
   const theme = createTheme({
     palette: {
@@ -67,7 +75,7 @@ function ProjectPage() {
     typography: {
       fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
     },
-  })
+  });
 
   return (
     <ThemeProvider theme={theme}>
@@ -141,7 +149,7 @@ function ProjectPage() {
               width: '100%',
             }}
           >
-            {id ? <ChatArea /> : <EmptyState />}
+            {id ? <ChatArea key={id} /> : <EmptyState />}
           </Box>
         </Box>
 
@@ -155,7 +163,7 @@ function ProjectPage() {
               overflow: 'hidden',
             }}
           >
-            {id ? <ResearchCanvas /> : <EmptyState />}
+            {id ? <ResearchCanvas key={id} /> : <EmptyState />}
           </Box>
         ) : (
           <Drawer
@@ -174,12 +182,12 @@ function ProjectPage() {
               },
             }}
           >
-            {id ? <ResearchCanvas /> : <EmptyState />}
+            {id ? <ResearchCanvas key={id} /> : <EmptyState />}
           </Drawer>
         )}
       </Box>
     </ThemeProvider>
-  )
+  );
 }
 
 export default ProjectPage 

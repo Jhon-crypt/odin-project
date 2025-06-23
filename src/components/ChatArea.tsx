@@ -225,14 +225,14 @@ function ChatArea() {
         {isChatLoading ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
             <CircularProgress sx={{ color: '#C0FF92' }} />
-          </Box>
+            </Box>
         ) : chatError ? (
           <Box sx={{ textAlign: 'center', color: 'error.main', p: 4 }}>
             {chatError}
           </Box>
         ) : messages.length === 0 ? (
-          <Box sx={{
-            display: 'flex',
+          <Box sx={{ 
+            display: 'flex', 
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
@@ -244,11 +244,11 @@ function ChatArea() {
           }}>
             <Typography variant="h6">
               Start Your Research Chat
-            </Typography>
+              </Typography>
             <Typography>
               Ask questions, share ideas, or upload images to begin your research.
               Interesting findings can be added to your research canvas for easy reference.
-            </Typography>
+              </Typography>
           </Box>
         ) : (
           <>
@@ -280,7 +280,7 @@ function ChatArea() {
                 )}
                 
                 <Box sx={{ 
-                  display: 'flex', 
+                    display: 'flex',
                   flexDirection: 'column', 
                   gap: 0.5,
                   width: 'auto',
@@ -395,7 +395,7 @@ function ChatArea() {
                         <ReactMarkdown remarkPlugins={[remarkGfm]}>
                           {message.content}
                         </ReactMarkdown>
-                      </Box>
+              </Box>
 
                       {/* File Attachments */}
                       {message.images && message.images.length > 0 && (
@@ -403,7 +403,7 @@ function ChatArea() {
                           {message.images.map((image, index) => (
                             <Box
                               key={index}
-                              sx={{
+                sx={{
                                 display: 'flex',
                                 alignItems: 'center',
                                 gap: 1,
@@ -419,7 +419,7 @@ function ChatArea() {
                                 </Typography>
                                 <Typography sx={{ fontSize: '12px', color: message.role === 'user' ? 'rgba(0,0,0,0.6)' : '#888' }}>
                                   {formatFileSize(1.2 * 1024 * 1024)} {/* Example size */}
-                                </Typography>
+              </Typography>
                               </Box>
                             </Box>
                           ))}
@@ -427,10 +427,10 @@ function ChatArea() {
                       )}
 
                       {/* Message Time and Status */}
-                      <Box
-                        sx={{
-                          display: 'flex',
-                          alignItems: 'center',
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
                           gap: 0.5,
                           justifyContent: 'flex-end',
                           mt: 1,
@@ -450,23 +450,23 @@ function ChatArea() {
                       className="message-menu"
                       size="small"
                       onClick={(e) => handleMenuOpen(e, message.id)}
-                      sx={{
+                  sx={{
                         opacity: 0,
                         transition: 'opacity 0.2s',
-                        color: '#888',
+                    color: '#888',
                         alignSelf: 'center',
-                        '&:hover': {
+                    '&:hover': {
                           color: '#fff',
                           bgcolor: 'rgba(255,255,255,0.1)',
-                        },
-                      }}
-                    >
+                    },
+                  }}
+                >
                       <MoreVertIcon sx={{ fontSize: 20 }} />
                     </IconButton>
                   </Box>
-                  
+                
                   {message.role === 'assistant' && (
-                    <Button
+                <Button
                       className="message-actions"
                       startIcon={
                         loadingStates[message.id] ? (
@@ -486,7 +486,7 @@ function ChatArea() {
                         }
                       }}
                       disabled={loadingStates[message.id]}
-                      sx={{
+                  sx={{
                         alignSelf: 'flex-start',
                         color: canvasStates[message.id] ? '#ff4444' : '#C0FF92',
                         borderColor: canvasStates[message.id] ? '#ff4444' : '#C0FF92',
@@ -494,21 +494,21 @@ function ChatArea() {
                         py: 0.5,
                         opacity: 0,
                         transition: 'opacity 0.2s ease-in-out',
-                        '&:hover': {
+                    '&:hover': {
                           borderColor: canvasStates[message.id] ? '#ff6666' : '#d4ffb3',
                           bgcolor: 'rgba(255, 68, 68, 0.1)',
-                        },
-                      }}
+                    },
+                  }}
                       variant="outlined"
-                    >
+                >
                       {canvasStates[message.id] ? 'Remove from Canvas' : 'Add to Canvas'}
-                    </Button>
+                </Button>
                   )}
                 </Box>
 
                 {message.role === 'user' && user && (
                   <Avatar 
-                    sx={{ 
+                  sx={{
                       bgcolor: '#C0FF92',
                       width: { xs: 32, sm: 36 },
                       height: { xs: 32, sm: 36 },
@@ -666,12 +666,12 @@ function ChatArea() {
                   '& fieldset': {
                     borderColor: '#444',
                     borderWidth: '1px',
-                  },
-                  '&:hover fieldset': {
-                    borderColor: '#555',
-                  },
-                  '&.Mui-focused fieldset': {
-                    borderColor: '#C0FF92',
+                },
+                '&:hover fieldset': {
+                  borderColor: '#555',
+                },
+                '&.Mui-focused fieldset': {
+                  borderColor: '#C0FF92',
                     borderWidth: '1px',
                   },
                   '& textarea': {
@@ -679,32 +679,32 @@ function ChatArea() {
                     lineHeight: 1.5,
                     p: { xs: 1.5, sm: 2 },
                   },
-                },
-              }}
-            />
-            <IconButton
+              },
+            }}
+          />
+          <IconButton
               onClick={handleSend}
               disabled={isChatLoading || (!input.trim() && selectedImages.length === 0)}
-              sx={{
+            sx={{
                 bgcolor: '#C0FF92',
                 width: { xs: 40, sm: 44 },
                 height: { xs: 40, sm: 44 },
                 color: '#1a1a1a',
-                '&:hover': {
+              '&:hover': {
                   bgcolor: '#a8e679',
-                },
-                '&.Mui-disabled': {
-                  bgcolor: '#333',
-                  color: '#666',
-                },
-              }}
-            >
+              },
+              '&.Mui-disabled': {
+                bgcolor: '#333',
+                color: '#666',
+              },
+            }}
+          >
               {isChatLoading ? (
                 <CircularProgress size={24} sx={{ color: '#1a1a1a' }} />
               ) : (
                 <SendIcon sx={{ fontSize: { xs: 20, sm: 22 } }} />
               )}
-            </IconButton>
+          </IconButton>
           </Box>
         </Box>
       </Box>

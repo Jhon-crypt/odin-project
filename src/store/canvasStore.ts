@@ -6,6 +6,8 @@ export interface CanvasStore {
   items: CanvasItem[]
   isLoading: boolean
   error: string | null
+  lastAddedItemId: string | null
+  lastRemovedItemId: string | null
   fetchItems: (projectId: string) => Promise<void>
   addItem: (content: string, projectId: string) => Promise<string>
   removeItem: (itemId: string, projectId: string) => Promise<void>
@@ -18,6 +20,8 @@ const useCanvasStore = create<CanvasStore>((set, get) => ({
   items: [],
   isLoading: false,
   error: null,
+  lastAddedItemId: null,
+  lastRemovedItemId: null,
 
   fetchItems: async (projectId: string) => {
     set({ isLoading: true, error: null })
@@ -29,7 +33,12 @@ const useCanvasStore = create<CanvasStore>((set, get) => ({
         .order('created_at', { ascending: true })
 
       if (error) throw error
-      set({ items: data || [], isLoading: false })
+      set({ 
+        items: data || [], 
+        isLoading: false, 
+        lastAddedItemId: null,
+        lastRemovedItemId: null 
+      })
     } catch (error) {
       set({ error: (error as Error).message, isLoading: false })
     }
@@ -66,7 +75,9 @@ const useCanvasStore = create<CanvasStore>((set, get) => ({
       set(state => ({
         items: [...state.items, data],
         isLoading: false,
-        error: null
+        error: null,
+        lastAddedItemId: data.id,
+        lastRemovedItemId: null
       }))
 
       return data.id
@@ -77,12 +88,13 @@ const useCanvasStore = create<CanvasStore>((set, get) => ({
   },
 
   removeItem: async (itemId: string, projectId: string) => {
-    // Update state immediately for responsive UI
-    const currentItems = get().items
+    // Set the item as being removed before the API call
     set(state => ({
+      lastRemovedItemId: itemId,
       items: state.items.filter(item => item.id !== itemId),
       isLoading: true,
-      error: null
+      error: null,
+      lastAddedItemId: null
     }))
 
     try {
@@ -92,19 +104,21 @@ const useCanvasStore = create<CanvasStore>((set, get) => ({
         .eq('id', itemId)
         .eq('project_id', projectId)
 
-      if (error) {
-        // Revert state if deletion fails
-        set(state => ({
-          items: currentItems,
-          isLoading: false,
-          error: 'Failed to remove item from canvas'
-        }))
-        throw error
-      }
+      if (error) throw error
 
+      // Clear loading state after successful removal
       set({ isLoading: false })
     } catch (error) {
-      set({ error: (error as Error).message, isLoading: false })
+      // If there's an error, revert the removal
+      const removedItem = get().items.find(item => item.id === itemId)
+      if (removedItem) {
+        set(state => ({
+          items: [...state.items, removedItem],
+          isLoading: false,
+          error: 'Failed to remove item from canvas',
+          lastRemovedItemId: null
+        }))
+      }
       throw error
     }
   },
@@ -127,7 +141,9 @@ const useCanvasStore = create<CanvasStore>((set, get) => ({
             ? { ...item, content: { text: content } as TextContent }
             : item
         ),
-        isLoading: false
+        isLoading: false,
+        lastAddedItemId: null,
+        lastRemovedItemId: null
       }))
     } catch (error) {
       set({ error: (error as Error).message, isLoading: false })
@@ -152,7 +168,12 @@ const useCanvasStore = create<CanvasStore>((set, get) => ({
   },
 
   clearCanvas: () => {
-    set({ items: [], error: null })
+    set({ 
+      items: [], 
+      error: null, 
+      lastAddedItemId: null,
+      lastRemovedItemId: null 
+    })
   },
 }))
 

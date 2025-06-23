@@ -4,8 +4,6 @@ import { supabase } from '../lib/supabaseClient'
 interface Project {
   id: string
   name: string
-  description: string | null
-  status: 'active' | 'archived' | 'deleted'
   created_by: string
   created_at: string
   updated_at: string
@@ -13,91 +11,74 @@ interface Project {
 
 interface ProjectStore {
   projects: Project[]
-  loading: boolean
+  isLoading: boolean
   error: string | null
   fetchProjects: () => Promise<void>
   createProject: () => Promise<string | null>
   updateProject: (id: string, name: string) => Promise<void>
 }
 
-const useProjectStore = create<ProjectStore>((set, get) => ({
+const useProjectStore = create<ProjectStore>((set) => ({
   projects: [],
-  loading: false,
+  isLoading: false,
   error: null,
+
   fetchProjects: async () => {
-    set({ loading: true, error: null })
     try {
-      const { data, error } = await supabase
+      set({ isLoading: true, error: null });
+      
+      const { data: projects, error } = await supabase
         .from('projects')
         .select('*')
-        .order('created_at', { ascending: false })
+        .order('created_at', { ascending: false });
 
-      if (error) throw error
+      if (error) throw error;
 
-      set({ projects: data || [], loading: false })
+      // Always update the projects to ensure we have the latest data
+      set({ projects: projects || [] });
     } catch (error) {
-      console.error('Error fetching projects:', error)
-      set({ error: 'Failed to fetch projects', loading: false })
+      console.error('Error fetching projects:', error);
+      set({ error: (error as Error).message });
+    } finally {
+      set({ isLoading: false });
     }
   },
+
   createProject: async () => {
-    set({ loading: true, error: null })
     try {
-      // Get the current user
-      const { data: { user }, error: userError } = await supabase.auth.getUser()
-      if (userError) throw userError
-      if (!user) throw new Error('No user found')
+      set({ isLoading: true, error: null })
+      const user = (await supabase.auth.getUser()).data.user
+      if (!user) throw new Error('User not authenticated')
 
-      // Check if user exists in users table
-      const { data: existingUser } = await supabase
-        .from('users')
-        .select('id')
-        .eq('id', user.id)
-        .single()
-
-      // If user doesn't exist, create them
-      if (!existingUser) {
-        const { error: createUserError } = await supabase
-          .from('users')
-          .insert([{
-            id: user.id,
-            display_name: user.email?.split('@')[0] || 'Anonymous',
-            email: user.email || '',
-            avatar_url: user.user_metadata?.avatar_url || null
-          }])
-        if (createUserError) throw createUserError
-      }
-
-      // Now create the project
       const { data, error } = await supabase
         .from('projects')
-        .insert([
-          {
-            name: 'Untitled',
-            description: '',
-            status: 'active',
-            created_by: user.id
-          }
-        ])
+        .insert({
+          name: 'Untitled',
+          created_by: user.id,
+        })
         .select()
         .single()
 
       if (error) throw error
 
-      // Add the new project to the state
-      const projects = get().projects
-      set({ projects: [data, ...projects], loading: false })
-      
+      // Update local state immediately
+      set(state => ({
+        projects: [data, ...state.projects]
+      }))
+
       return data.id
     } catch (error) {
       console.error('Error creating project:', error)
-      set({ error: 'Failed to create project', loading: false })
+      set({ error: (error as Error).message })
       return null
+    } finally {
+      set({ isLoading: false })
     }
   },
+
   updateProject: async (id: string, name: string) => {
-    set({ loading: true, error: null })
     try {
+      set({ isLoading: true, error: null })
       const { error } = await supabase
         .from('projects')
         .update({ name })
@@ -105,19 +86,19 @@ const useProjectStore = create<ProjectStore>((set, get) => ({
 
       if (error) throw error
 
-      // Update the project in the local state
-      const projects = get().projects
-      set({
-        projects: projects.map(p => 
-          p.id === id ? { ...p, name } : p
-        ),
-        loading: false
-      })
+      // Update local state immediately
+      set(state => ({
+        projects: state.projects.map(project =>
+          project.id === id ? { ...project, name } : project
+        )
+      }))
     } catch (error) {
       console.error('Error updating project:', error)
-      set({ error: 'Failed to update project', loading: false })
+      set({ error: (error as Error).message })
+    } finally {
+      set({ isLoading: false })
     }
-  }
+  },
 }))
 
 export default useProjectStore 

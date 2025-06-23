@@ -21,6 +21,7 @@ function ResearchCanvas() {
     error: researchError,
     fetchDocument,
     updateContentWithDebounce,
+    updateDocument,
   } = useResearchStore()
 
   const {
@@ -75,8 +76,10 @@ function ResearchCanvas() {
 
   // Update editable content when content changes
   useEffect(() => {
-    setEditableContent(content || '')
-  }, [content])
+    if (!isEditing) {
+      setEditableContent(content || '')
+    }
+  }, [content, isEditing])
 
   const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newContent = e.target.value
@@ -88,11 +91,19 @@ function ResearchCanvas() {
 
   const handleSave = () => {
     if (!projectId) return
-    setIsEditing(false)
+    // Ensure the content is saved before exiting edit mode
+    updateDocument(projectId, editableContent).then(() => {
+      setIsEditing(false)
+    })
+  }
+
+  const handleEdit = () => {
+    setEditableContent(content || '') // Reset to current content when entering edit mode
+    setIsEditing(true)
   }
 
   const renderContent = () => {
-    if (!content && items.length === 0) {
+    if (!content && !editableContent && items.length === 0) {
       return (
         <Box sx={{
           display: 'flex',
@@ -198,7 +209,7 @@ function ResearchCanvas() {
               ),
             }}
           >
-            {editableContent || content || ''}
+            {content || ''}
           </ReactMarkdown>
         </Box>
         {items.map((item) => {
@@ -235,7 +246,7 @@ function ResearchCanvas() {
       }}>
         <Typography variant="h6" sx={{ color: '#C0FF92' }}>Research</Typography>
         <IconButton
-          onClick={() => isEditing ? handleSave() : setIsEditing(true)}
+          onClick={() => isEditing ? handleSave() : handleEdit()}
           disabled={researchLoading}
           size="small"
           sx={{

@@ -7,11 +7,11 @@ import {
   ListItemText,
   Button,
   Divider,
-  Skeleton,
+  CircularProgress,
 } from '@mui/material'
 import {
   Search as SearchIcon,
-  Folder as ProjectIcon,
+  FolderOutlined as ProjectIcon,
   Add as AddIcon,
   SmartToy as LLMIcon,
 } from '@mui/icons-material'
@@ -24,27 +24,20 @@ import useProjectStore from '../store/projectStore'
 import googleAIService from '../services/googleAIService'
 import { supabase } from '../lib/supabaseClient'
 
-interface LLMOption {
-  id: string;
-  name: string;
-  provider: string;
-}
-
-// Static LLM options for OpenAI and Anthropic
-const staticLLMOptions: LLMOption[] = [
-  // Removed OpenAI and Anthropic models - only using Google models
+const staticLLMOptions = [
+  { id: 'gemini-pro', name: 'Gemini Pro', provider: 'Google' },
+  { id: 'gpt-4', name: 'GPT-4', provider: 'OpenAI' },
+  { id: 'gpt-3.5-turbo', name: 'GPT-3.5 Turbo', provider: 'OpenAI' },
 ]
 
 function Sidebar() {
   const navigate = useNavigate()
   const { id: currentProjectId } = useParams()
-  const [isLLMModalOpen, setIsLLMModalOpen] = useState(false)
-  const { selectedLLM, loadStoredSettings, initialized } = useLLMStore()
-  const { projects, loading, error, fetchProjects, createProject } = useProjectStore()
-  const [llmOptions, setLLMOptions] = useState(staticLLMOptions)
+  const [isModalOpen, setIsModalOpen] = useState(false)
   const [loadingModels, setLoadingModels] = useState(false)
-  
-  const selectedLLMDetails = llmOptions.find(llm => llm.id === selectedLLM)
+  const [LLMOptions, setLLMOptions] = useState<Array<{ id: string; name: string; provider: string }>>(staticLLMOptions)
+  const { projects, isLoading, error, fetchProjects, createProject } = useProjectStore()
+  const { selectedLLM, loadStoredSettings, initialized } = useLLMStore()
 
   // Load stored LLM settings when component mounts or auth state changes
   useEffect(() => {
@@ -121,6 +114,16 @@ function Sidebar() {
       navigate(`/projects/${newProjectId}`)
     }
   }
+
+  const handleProjectClick = (projectId: string) => {
+    // Simple navigation without any async operations
+    navigate(`/projects/${projectId}`)
+  }
+
+  // Add debug logging
+  useEffect(() => {
+    console.log('Current project ID:', currentProjectId);
+  }, [currentProjectId]);
 
   return (
     <Box
@@ -207,24 +210,17 @@ function Sidebar() {
         </Typography>
         
         <List sx={{ p: 0 }}>
-          {loading ? (
-            // Loading skeletons
-            [...Array(3)].map((_, index) => (
-              <ListItem
-                key={index}
-                sx={{
-                  borderRadius: '8px',
-                  mx: 1,
-                  py: { xs: 1, sm: 1.5 },
-                  mb: 1,
-                }}
-              >
-                <ListItemIcon sx={{ minWidth: { xs: 32, sm: 36 } }}>
-                  <Skeleton variant="circular" width={20} height={20} />
-                </ListItemIcon>
-                <Skeleton variant="text" width="80%" height={24} />
-              </ListItem>
-            ))
+          {isLoading ? (
+            <ListItem
+              sx={{
+                borderRadius: '8px',
+                mx: 1,
+                py: { xs: 1, sm: 1.5 },
+                mb: 1,
+              }}
+            >
+              <CircularProgress size={20} sx={{ color: '#C0FF92' }} />
+            </ListItem>
           ) : error ? (
             <ListItem
               sx={{
@@ -260,29 +256,32 @@ function Sidebar() {
                   mb: 1,
                   bgcolor: project.id === currentProjectId ? '#C0FF92' : 'transparent',
                   color: project.id === currentProjectId ? '#000' : '#ccc',
-                  '&:hover': {
+                '&:hover': {
                     bgcolor: project.id === currentProjectId ? '#C0FF92' : '#333',
-                  },
+                },
                   cursor: 'pointer',
+                  transition: 'all 0.2s ease-in-out',
                 }}
-                onClick={() => navigate(`/projects/${project.id}`)}
-              >
-                <ListItemIcon sx={{ minWidth: { xs: 32, sm: 36 } }}>
-                  <ProjectIcon
-                    sx={{
+                onClick={() => handleProjectClick(project.id)}
+            >
+              <ListItemIcon sx={{ minWidth: { xs: 32, sm: 36 } }}>
+                <ProjectIcon
+                  sx={{
                       color: project.id === currentProjectId ? '#000' : '#888',
-                      fontSize: { xs: 18, sm: 20 },
-                    }}
-                  />
-                </ListItemIcon>
-                <ListItemText
-                  primary={project.name}
-                  primaryTypographyProps={{
-                    fontSize: { xs: '13px', sm: '14px' },
-                    fontWeight: project.id === currentProjectId ? 'bold' : 'normal',
+                    fontSize: { xs: 18, sm: 20 },
                   }}
                 />
-              </ListItem>
+              </ListItemIcon>
+              <ListItemText
+                  primary={project.name}
+                  sx={{
+                    '& .MuiListItemText-primary': {
+                      fontSize: { xs: '14px', sm: '15px' },
+                      fontWeight: project.id === currentProjectId ? 'bold' : 'normal',
+                    },
+                }}
+              />
+            </ListItem>
             ))
           )}
         </List>
@@ -318,29 +317,29 @@ function Sidebar() {
 
       {/* LLM Section */}
       <Box sx={{ px: { xs: 1, sm: 2 }, pb: 2 }}>
-        <Typography
+            <Typography
           variant="caption"
-          sx={{
+              sx={{
             color: '#888',
-            fontWeight: 'bold',
+                fontWeight: 'bold',
             textTransform: 'uppercase',
             letterSpacing: 1,
             px: 2,
             mb: 1,
             display: 'block',
             fontSize: { xs: '10px', sm: '11px' },
-          }}
-        >
+              }}
+            >
           Language Models
-        </Typography>
+            </Typography>
 
         <Button
           startIcon={<LLMIcon sx={{ fontSize: { xs: 16, sm: 18 } }} />}
           fullWidth
           variant="outlined"
           size="small"
-          onClick={() => setIsLLMModalOpen(true)}
-          sx={{
+          onClick={() => setIsModalOpen(true)}
+              sx={{
             borderColor: '#333',
             color: '#ccc',
             textTransform: 'none',
@@ -352,9 +351,9 @@ function Sidebar() {
               color: '#C0FF92',
               bgcolor: 'rgba(192, 255, 146, 0.1)',
             },
-          }}
-        >
-          {selectedLLM ? selectedLLMDetails?.name : 'Configure LLM'}
+              }}
+            >
+          {selectedLLM ? LLMOptions.find(llm => llm.id === selectedLLM)?.name : 'Configure LLM'}
         </Button>
       </Box>
 
@@ -363,10 +362,10 @@ function Sidebar() {
 
       {/* LLM Modal */}
       <LLMModal
-        open={isLLMModalOpen}
-        onClose={() => setIsLLMModalOpen(false)}
-        llmOptions={llmOptions}
+        open={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
         loading={loadingModels}
+        llmOptions={LLMOptions}
       />
     </Box>
   )

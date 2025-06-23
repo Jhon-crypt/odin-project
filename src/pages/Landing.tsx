@@ -196,7 +196,7 @@ function Landing() {
           }
         } else {
           // If no email confirmation required, redirect to dashboard
-          navigate('/dashboard')
+      navigate('/dashboard')
         }
       }
     } catch (err) {
@@ -489,40 +489,40 @@ function Landing() {
               <Box
                 component="form"
                 onSubmit={handleLogin}
-                sx={{
+                  sx={{
                   width: '100%',
                   maxWidth: { xs: '100%', sm: '380px', md: '400px' },
                   display: 'flex',
                   flexDirection: 'column',
                   gap: 2,
-                }}
-              >
+                  }}
+                >
                 <Typography variant="h4" sx={{ mb: 2, fontWeight: 'bold' }}>
                   Welcome Back
                 </Typography>
 
-                {error && (
-                  <Alert severity="error" sx={{ mb: 2 }}>
-                    {error}
-                  </Alert>
-                )}
+                  {error && (
+                    <Alert severity="error" sx={{ mb: 2 }}>
+                      {error}
+                    </Alert>
+                  )}
 
-                <TextField
-                  fullWidth
+                  <TextField
+                    fullWidth
                   label="Email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                   disabled={isLoading}
                   required
-                />
+                  />
 
-                <TextField
-                  fullWidth
+                  <TextField
+                    fullWidth
                   label="Password"
                   type={showPassword ? 'text' : 'password'}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                   disabled={isLoading}
                   required
                   InputProps={{
@@ -538,58 +538,58 @@ function Landing() {
                         </IconButton>
                       </InputAdornment>
                     ),
-                  }}
+                      }}
                 />
 
                 <LoadingButton
                   type="submit"
-                  variant="contained"
+                    variant="contained"
                   fullWidth
                   loading={isLoading}
-                  sx={{
+                    sx={{
                     mt: 2,
-                    bgcolor: '#C0FF92',
-                    color: '#000',
-                    '&:hover': {
-                      bgcolor: '#A8E67A',
-                    },
-                  }}
-                >
+                      bgcolor: '#C0FF92',
+                      color: '#000',
+                      '&:hover': {
+                        bgcolor: '#A8E67A',
+                      },
+                    }}
+                  >
                   Sign In
                 </LoadingButton>
 
-                <Button
+                    <Button
                   variant="text"
                   onClick={handleBack}
                   disabled={isLoading}
                   sx={{ mt: 1, color: '#888' }}
-                >
+                  >
                   Back
-                </Button>
-              </Box>
+                  </Button>
+                </Box>
             )}
 
             {currentView === 'signup' && (
               <Box
                 component="form"
                 onSubmit={handleSignup}
-                sx={{
+                  sx={{
                   width: '100%',
                   maxWidth: { xs: '100%', sm: '380px', md: '400px' },
                   display: 'flex',
                   flexDirection: 'column',
                   gap: 2,
-                }}
-              >
+                  }}
+                >
                 <Typography variant="h4" sx={{ mb: 2, fontWeight: 'bold' }}>
                   Create Account
                 </Typography>
 
-                {error && (
-                  <Alert severity="error" sx={{ mb: 2 }}>
-                    {error}
-                  </Alert>
-                )}
+                  {error && (
+                    <Alert severity="error" sx={{ mb: 2 }}>
+                      {error}
+                    </Alert>
+                  )}
 
                 {submitted ? (
                   <Alert severity="success" sx={{ mb: 2 }}>
@@ -602,8 +602,8 @@ function Landing() {
                   </Alert>
                 ) : (
                   <>
-                    <TextField
-                      fullWidth
+                  <TextField
+                    fullWidth
                       label="Display Name"
                       type="text"
                       value={displayName}
@@ -617,20 +617,20 @@ function Landing() {
                     <TextField
                       fullWidth
                       label="Email"
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                       disabled={isLoading}
                       required
                       autoComplete="email"
-                    />
+                  />
 
-                    <TextField
-                      fullWidth
+                  <TextField
+                    fullWidth
                       label="Password"
                       type={showPassword ? 'text' : 'password'}
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                       disabled={isLoading}
                       required
                       autoComplete="new-password"
@@ -647,15 +647,15 @@ function Landing() {
                             </IconButton>
                           </InputAdornment>
                         ),
-                      }}
-                    />
+                    }}
+                  />
 
-                    <TextField
-                      fullWidth
+                  <TextField
+                    fullWidth
                       label="Confirm Password"
                       type={showConfirmPassword ? 'text' : 'password'}
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
                       disabled={isLoading}
                       required
                       autoComplete="new-password"
@@ -672,37 +672,37 @@ function Landing() {
                             </IconButton>
                           </InputAdornment>
                         ),
-                      }}
-                    />
+                    }}
+                  />
 
                     <LoadingButton
                       type="submit"
-                      variant="contained"
+                    variant="contained"
                       fullWidth
                       loading={isLoading}
-                      sx={{
+                    sx={{
                         mt: 2,
-                        bgcolor: '#C0FF92',
-                        color: '#000',
-                        '&:hover': {
-                          bgcolor: '#A8E67A',
-                        },
-                      }}
-                    >
+                      bgcolor: '#C0FF92',
+                      color: '#000',
+                      '&:hover': {
+                        bgcolor: '#A8E67A',
+                      },
+                    }}
+                  >
                       Sign Up
                     </LoadingButton>
                   </>
                 )}
 
-                <Button
+                  <Button
                   variant="text"
                   onClick={handleBack}
                   disabled={isLoading}
                   sx={{ mt: 1, color: '#888' }}
-                >
+                  >
                   Back
-                </Button>
-              </Box>
+                  </Button>
+                </Box>
             )}
 
             {/* Invitation Request Form */}
