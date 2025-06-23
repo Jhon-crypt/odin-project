@@ -169,11 +169,11 @@ function ResearchCanvas() {
             onChange={handleContentChange}
             InputProps={{
               sx: {
-                height: '100%',
+                minHeight: '80vh',
                 backgroundColor: 'rgba(0, 0, 0, 0.2)',
                 borderRadius: 1,
                 '& textarea': {
-                  height: '100% !important',
+                  minHeight: '80vh !important',
                   color: 'text.primary',
                   fontSize: '1rem',
                   lineHeight: '1.75',
