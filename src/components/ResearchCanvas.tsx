@@ -101,6 +101,33 @@ function ResearchCanvas() {
     setIsEditing(true)
   }
 
+  const formatText = (text: string) => {
+    // Remove markdown syntax and apply proper styling
+    return text
+      .split('\n\n')
+      .map(paragraph => {
+        // Handle headings with **
+        if (paragraph.match(/^\*\*([^*]+)\*\*$/)) {
+          return {
+            type: 'heading',
+            content: paragraph.replace(/^\*\*([^*]+)\*\*$/, '$1')
+          }
+        }
+        // Handle subheadings with * **
+        if (paragraph.match(/^\* \*\*([^*]+)\*\*:/)) {
+          return {
+            type: 'subheading',
+            content: paragraph.replace(/^\* \*\*([^*]+)\*\*:/, '$1')
+          }
+        }
+        // Handle emphasized text within paragraphs
+        return {
+          type: 'paragraph',
+          content: paragraph.replace(/\*\*([^*]+)\*\*/g, '$1')
+        }
+      })
+  }
+
   const renderContent = () => {
     if (!content && !editableContent && items.length === 0) {
       return (
@@ -165,27 +192,61 @@ function ResearchCanvas() {
         <Box sx={{ 
           p: 3,
           color: 'text.primary',
-          fontSize: '1rem',
-          lineHeight: '1.75',
-          letterSpacing: '0.00938em',
-          '& p': {
-            marginBottom: '1em'
+          '& > *:not(:last-child)': {
+            mb: 2
           }
         }}>
-          {(content || '').split('\n\n').map((paragraph, index) => (
-            <Typography 
-              key={index} 
-              paragraph 
-              sx={{ 
-                color: 'inherit',
-                fontSize: 'inherit',
-                lineHeight: 'inherit',
-                letterSpacing: 'inherit'
-              }}
-            >
-              {paragraph}
-            </Typography>
-          ))}
+          {formatText(content || '').map((block, index) => {
+            if (block.type === 'heading') {
+              return (
+                <Typography 
+                  key={index}
+                  variant="h4"
+                  sx={{ 
+                    color: 'text.primary',
+                    fontWeight: 600,
+                    fontSize: '2rem',
+                    mb: 3
+                  }}
+                >
+                  {block.content}
+                </Typography>
+              )
+            }
+            if (block.type === 'subheading') {
+              return (
+                <Typography 
+                  key={index}
+                  variant="h5"
+                  sx={{ 
+                    color: 'text.primary',
+                    fontWeight: 500,
+                    fontSize: '1.5rem',
+                    mb: 2
+                  }}
+                >
+                  {block.content}
+                </Typography>
+              )
+            }
+            return (
+              <Typography 
+                key={index}
+                paragraph
+                sx={{ 
+                  color: 'text.primary',
+                  fontSize: '1rem',
+                  lineHeight: '1.75',
+                  letterSpacing: '0.00938em',
+                  '& strong': {
+                    fontWeight: 600
+                  }
+                }}
+              >
+                {block.content}
+              </Typography>
+            )
+          })}
         </Box>
         {items.map((item) => {
           const content = item.content as TextContent
