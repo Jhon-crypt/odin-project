@@ -2,27 +2,53 @@ import React, { useEffect, useState, useRef } from 'react'
 import { useParams } from 'react-router-dom'
 import { Box, CircularProgress, Typography } from '@mui/material'
 import useCanvasStore from '../store/canvasStore'
-import type { TextContent } from '../types/models'
+import type { TextContent, CanvasItem } from '../types/models'
+import { supabase } from '../lib/supabaseClient'
 
 export const ResearchCanvas: React.FC = () => {
   const { projectId } = useParams<{ projectId: string }>()
   const [removingItems, setRemovingItems] = useState<Record<string, boolean>>({})
+  const [canvasItems, setCanvasItems] = useState<CanvasItem[]>([])
+  const [isLoading, setIsLoading] = useState(false)
   const itemRefs = useRef<Record<string, HTMLDivElement | null>>({})
 
   const {
-    items,
-    isLoading: canvasLoading,
-    fetchItems,
     lastAddedItemId,
     lastRemovedItemId,
   } = useCanvasStore()
 
+  const fetchCanvasItems = async () => {
+    if (!projectId) return
+    setIsLoading(true)
+    try {
+      const { data, error } = await supabase
+        .from('canvas_items')
+        .select('*')
+        .eq('project_id', projectId)
+        .order('created_at', { ascending: true })
+
+      if (error) throw error
+      setCanvasItems(data || [])
+    } catch (error) {
+      console.error('Error fetching canvas items:', error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   useEffect(() => {
     console.log('ResearchCanvas mounted/updated with projectId:', projectId)
     if (projectId) {
-      fetchItems(projectId)
+      fetchCanvasItems()
     }
-  }, [projectId, fetchItems])
+  }, [projectId])
+
+  useEffect(() => {
+    // Refetch items when something is added or removed
+    if (projectId && (lastAddedItemId || lastRemovedItemId)) {
+      fetchCanvasItems()
+    }
+  }, [projectId, lastAddedItemId, lastRemovedItemId])
 
   useEffect(() => {
     if (lastRemovedItemId) {
@@ -44,10 +70,10 @@ export const ResearchCanvas: React.FC = () => {
         block: 'center',
       })
     }
-  }, [lastAddedItemId, items])
+  }, [lastAddedItemId, canvasItems])
 
   const renderContent = () => {
-    if (canvasLoading) {
+    if (isLoading) {
       return (
         <Box sx={{
           display: 'flex',
@@ -60,7 +86,7 @@ export const ResearchCanvas: React.FC = () => {
       )
     }
 
-    if (!items || items.length === 0) {
+    if (canvasItems.length === 0) {
       return (
         <Box sx={{
           display: 'flex',
@@ -94,10 +120,9 @@ export const ResearchCanvas: React.FC = () => {
           mb: 2
         }
       }}>
-        {items.map((item) => {
-          if (item.type !== 'text') return null
-          const content = item.content as TextContent
-          console.log('Rendering item:', item) // Add logging to debug
+        {canvasItems.map((item) => {
+          if (item.type !== 'text') return null;
+          const content = item.content as TextContent;
           return (
             <Box
               key={item.id}
@@ -115,9 +140,7 @@ export const ResearchCanvas: React.FC = () => {
                 border: '1px solid rgba(192, 255, 146, 0.2)',
               }}
             >
-              <Typography sx={{ whiteSpace: 'pre-wrap' }}>
-                {content.text}
-              </Typography>
+              <Typography sx={{ whiteSpace: 'pre-wrap' }}>{content.text}</Typography>
             </Box>
           )
         })}

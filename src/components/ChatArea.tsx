@@ -28,6 +28,7 @@ import useAuth from '../hooks/useAuth'
 import { format } from 'date-fns'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+import { supabase } from '../lib/supabaseClient'
 
 function ChatArea() {
   const { id: projectId } = useParams()
@@ -50,12 +51,7 @@ function ChatArea() {
     deleteMessage,
   } = useChatStore()
 
-  const {
-    addItem,
-    removeItem,
-    isItemInCanvas,
-    items,
-  } = useCanvasStore()
+  const { items } = useCanvasStore()
 
   // Reset states when project changes
   useEffect(() => {
@@ -88,9 +84,20 @@ function ChatArea() {
       const states: Record<string, string> = {};
       for (const message of messages) {
         if (message.role === 'assistant' && message.content) {
-          const itemId = await isItemInCanvas(message.content, projectId);
-          if (itemId) {
-            states[message.id] = itemId;
+          try {
+            const { data, error } = await supabase
+              .from('canvas_items')
+              .select('id')
+              .eq('project_id', projectId)
+              .eq('type', 'text')
+              .eq('content ->> text', message.content)
+              .single()
+
+            if (!error && data) {
+              states[message.id] = data.id;
+            }
+          } catch (error) {
+            console.error('Error checking canvas state:', error);
           }
         }
       }
@@ -98,7 +105,7 @@ function ChatArea() {
     };
     
     checkCanvasStates();
-  }, [messages, projectId, isItemInCanvas, items]); // Add items dependency
+  }, [messages, projectId, items]); // Keep items dependency to refresh when canvas changes
 
   const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || [])
@@ -142,11 +149,39 @@ function ChatArea() {
     if (!projectId) return;
     try {
       setLoadingStates(prev => ({ ...prev, [messageId]: true }));
-      const itemId = await addItem(messageContent, projectId);
-      if (itemId) {
+      
+      const user = (await supabase.auth.getUser()).data.user;
+      if (!user) throw new Error('User not authenticated');
+
+      // Calculate position
+      const { data: existingItems } = await supabase
+        .from('canvas_items')
+        .select('position')
+        .eq('project_id', projectId);
+
+      const position = {
+        x: ((existingItems?.length || 0) * 50) % 800,
+        y: Math.floor((existingItems?.length || 0) / 16) * 50,
+      };
+
+      const { data, error } = await supabase
+        .from('canvas_items')
+        .insert({
+          project_id: projectId,
+          type: 'text',
+          content: { text: messageContent },
+          position,
+          created_by: user.id,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      if (data) {
         setCanvasStates(prev => ({
           ...prev,
-          [messageId]: itemId
+          [messageId]: data.id
         }));
       }
     } catch (error) {
@@ -160,7 +195,15 @@ function ChatArea() {
     if (!projectId) return;
     try {
       setLoadingStates(prev => ({ ...prev, [messageId]: true }));
-      await removeItem(itemId, projectId);
+      
+      const { error } = await supabase
+        .from('canvas_items')
+        .delete()
+        .eq('id', itemId)
+        .eq('project_id', projectId);
+
+      if (error) throw error;
+
       setCanvasStates(prev => {
         const newState = { ...prev };
         delete newState[messageId];
