@@ -4,6 +4,13 @@ import { Box, CircularProgress, Typography } from '@mui/material'
 import useCanvasStore from '../store/canvasStore'
 import type { TextContent, CanvasItem } from '../types/models'
 import { supabase } from '../lib/supabaseClient'
+import { marked } from 'marked'
+
+// Configure marked options
+marked.setOptions({
+  breaks: true, // Enable line breaks
+  gfm: true,    // Enable GitHub Flavored Markdown
+})
 
 export const ResearchCanvas: React.FC = () => {
   const { id } = useParams<{ id: string }>()
@@ -16,6 +23,16 @@ export const ResearchCanvas: React.FC = () => {
     lastAddedItemId,
     lastRemovedItemId,
   } = useCanvasStore()
+
+  const renderMarkdown = (text: string) => {
+    try {
+      const html = marked(text)
+      return <div dangerouslySetInnerHTML={{ __html: html }} />
+    } catch (error) {
+      console.error('Error parsing markdown:', error)
+      return <Typography sx={{ whiteSpace: 'pre-wrap' }}>{text}</Typography>
+    }
+  }
 
   const fetchCanvasItems = async () => {
     if (!id) return
@@ -115,8 +132,8 @@ export const ResearchCanvas: React.FC = () => {
             No Research Content Yet
           </Typography>
           <Typography>
-            Add interesting findings to your research canvas.
-            Add content by clicking the "+" button next to AI responses in the chat.
+            Start a conversation in the chat and add interesting findings to your research canvas.
+            You can add content by clicking the "+" button next to AI responses in the chat.
           </Typography>
         </Box>
       )
@@ -131,6 +148,51 @@ export const ResearchCanvas: React.FC = () => {
         width: '100%',
         '& > *:not(:last-child)': {
           mb: 2
+        },
+        // Add styles for markdown content
+        '& h1, & h2, & h3, & h4, & h5, & h6': {
+          mt: 2,
+          mb: 1,
+          fontWeight: 'bold',
+          color: 'text.primary'
+        },
+        '& p': {
+          mb: 1,
+          lineHeight: 1.6
+        },
+        '& ul, & ol': {
+          pl: 3,
+          mb: 1
+        },
+        '& li': {
+          mb: 0.5
+        },
+        '& code': {
+          p: 0.5,
+          borderRadius: 1,
+          bgcolor: 'rgba(255, 255, 255, 0.1)',
+          fontFamily: 'monospace'
+        },
+        '& pre': {
+          p: 2,
+          borderRadius: 1,
+          bgcolor: 'rgba(255, 255, 255, 0.1)',
+          overflow: 'auto'
+        },
+        '& blockquote': {
+          borderLeft: '4px solid',
+          borderColor: 'primary.main',
+          pl: 2,
+          py: 0.5,
+          my: 1,
+          bgcolor: 'rgba(255, 255, 255, 0.05)'
+        },
+        '& a': {
+          color: 'primary.main',
+          textDecoration: 'none',
+          '&:hover': {
+            textDecoration: 'underline'
+          }
         }
       }}>
         {canvasItems.map((item) => {
@@ -151,7 +213,7 @@ export const ResearchCanvas: React.FC = () => {
                 borderRadius: 1,
               }}
             >
-              <Typography sx={{ whiteSpace: 'pre-wrap' }}>{content.text}</Typography>
+              {renderMarkdown(content.text)}
             </Box>
           )
         })}
