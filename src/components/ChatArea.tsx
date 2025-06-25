@@ -41,11 +41,11 @@ function ChatArea() {
   const [loadingStates, setLoadingStates] = useState<Record<string, boolean>>({})
   const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null)
   const [selectedMessageId, setSelectedMessageId] = useState<string | null>(null)
-  const messagesEndRef = useRef<HTMLDivElement>(null)
+  const lastMessageRef = useRef<HTMLDivElement>(null)
+  const chatContainerRef = useRef<HTMLDivElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { user } = useAuth()
   const [showScrollButtons, setShowScrollButtons] = useState(false)
-  const chatContainerRef = useRef<HTMLDivElement>(null)
   
   const {
     messages,
@@ -78,9 +78,11 @@ function ChatArea() {
     }
   }, [projectId]) // Remove fetchMessages from dependencies
 
-  // Scroll to bottom when messages change
+  // Scroll to the start of new message when messages change
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'instant' })
+    if (messages.length > 0) {
+      lastMessageRef.current?.scrollIntoView({ behavior: 'instant', block: 'start' })
+    }
   }, [messages])
 
   // Check canvas state for each AI message
@@ -356,9 +358,10 @@ function ChatArea() {
             </Box>
           ) : (
             <>
-              {messages.map((message) => (
+              {messages.map((message, index) => (
                 <Box
                   key={message.id}
+                  ref={index === messages.length - 1 ? lastMessageRef : null}
                   sx={{
                     display: 'flex',
                     alignItems: 'flex-start',
@@ -623,7 +626,6 @@ function ChatArea() {
                   )}
                 </Box>
               ))}
-              <div ref={messagesEndRef} />
             </>
           )}
         </Box>
