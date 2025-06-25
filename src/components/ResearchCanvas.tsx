@@ -22,7 +22,7 @@ export const ResearchCanvas: React.FC = () => {
     if (projectId) {
       fetchItems(projectId)
     }
-  }, [projectId])
+  }, [projectId, fetchItems])
 
   useEffect(() => {
     if (lastRemovedItemId) {
@@ -47,7 +47,20 @@ export const ResearchCanvas: React.FC = () => {
   }, [lastAddedItemId, items])
 
   const renderContent = () => {
-    if (items.length === 0) {
+    if (canvasLoading) {
+      return (
+        <Box sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100%'
+        }}>
+          <CircularProgress />
+        </Box>
+      )
+    }
+
+    if (!items || items.length === 0) {
       return (
         <Box sx={{
           display: 'flex',
@@ -82,8 +95,9 @@ export const ResearchCanvas: React.FC = () => {
         }
       }}>
         {items.map((item) => {
-          if (item.type !== 'text') return null;
-          const content = item.content as TextContent;
+          if (item.type !== 'text') return null
+          const content = item.content as TextContent
+          console.log('Rendering item:', item) // Add logging to debug
           return (
             <Box
               key={item.id}
@@ -101,7 +115,9 @@ export const ResearchCanvas: React.FC = () => {
                 border: '1px solid rgba(192, 255, 146, 0.2)',
               }}
             >
-              <Typography sx={{ whiteSpace: 'pre-wrap' }}>{content.text}</Typography>
+              <Typography sx={{ whiteSpace: 'pre-wrap' }}>
+                {content.text}
+              </Typography>
             </Box>
           )
         })}
@@ -110,34 +126,8 @@ export const ResearchCanvas: React.FC = () => {
   }
 
   return (
-    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-      <Box sx={{ 
-        p: 2, 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center',
-        borderBottom: '1px solid rgba(255, 255, 255, 0.12)',
-      }}>
-        <Typography variant="h6" sx={{ color: '#C0FF92' }}>Research</Typography>
-      </Box>
-
-      <Box sx={{
-        flex: 1,
-        p: 2,
-        overflow: 'auto',
-        '-webkit-overflow-scrolling': 'touch',
-      }}>
-        {canvasLoading ? (
-          <Box sx={{ 
-            display: 'flex', 
-            justifyContent: 'center', 
-            alignItems: 'center', 
-            height: '100%' 
-          }}>
-            <CircularProgress sx={{ color: '#C0FF92' }} />
-          </Box>
-        ) : renderContent()}
-      </Box>
+    <Box sx={{ height: '100%', overflow: 'auto' }}>
+      {renderContent()}
     </Box>
   )
 }

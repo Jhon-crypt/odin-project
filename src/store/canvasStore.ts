@@ -33,6 +33,7 @@ const useCanvasStore = create<CanvasStore>((set, get) => ({
         .order('created_at', { ascending: true })
 
       if (error) throw error
+      console.log('Fetched canvas items:', data)
       set({ 
         items: data || [], 
         isLoading: false, 
@@ -40,6 +41,7 @@ const useCanvasStore = create<CanvasStore>((set, get) => ({
         lastRemovedItemId: null 
       })
     } catch (error) {
+      console.error('Error fetching canvas items:', error)
       set({ error: (error as Error).message, isLoading: false })
     }
   },
