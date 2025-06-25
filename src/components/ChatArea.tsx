@@ -402,7 +402,7 @@ function ChatArea() {
                         mr: message.role === 'user' ? 1 : 0,
                       }}
                     >
-                      {message.role === 'user' ? user?.email?.split('@')[0] || 'You' : 'AI Assistant'}
+                      {message.role === 'user' ? user?.email?.split('@')[0] || 'You' : 'Odin'}
                     </Typography>
                     
                     <Box sx={{ display: 'flex', alignItems: 'flex-end', gap: 1 }}>
