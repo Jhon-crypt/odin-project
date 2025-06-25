@@ -26,26 +26,20 @@ const useCanvasStore = create<CanvasStore>((set, get) => ({
   fetchItems: async (projectId: string) => {
     set({ isLoading: true, error: null })
     try {
-      console.log('Fetching items for project:', projectId)
       const { data, error } = await supabase
         .from('canvas_items')
         .select('*')
         .eq('project_id', projectId)
+        .order('created_at', { ascending: true })
 
-      if (error) {
-        console.error('Supabase error:', error)
-        throw error
-      }
-
-      console.log('Fetched items:', data)
+      if (error) throw error
       set({ 
         items: data || [], 
-        isLoading: false,
+        isLoading: false, 
         lastAddedItemId: null,
         lastRemovedItemId: null 
       })
     } catch (error) {
-      console.error('Error fetching canvas items:', error)
       set({ error: (error as Error).message, isLoading: false })
     }
   },

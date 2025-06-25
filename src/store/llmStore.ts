@@ -19,6 +19,7 @@ interface LLMState {
   setLLM: (llm: string, apiKey: string) => Promise<void>
   loadStoredSettings: () => Promise<void>
   clearLLM: () => void
+  resetInitialized: () => void
 }
 
 const useLLMStore = create<LLMState>()(
@@ -80,7 +81,8 @@ const useLLMStore = create<LLMState>()(
               isLoading: false, 
               selectedLLM: null, 
               apiKey: null,
-              initialized: true 
+              initialized: true,
+              error: null
             })
             return
           }
@@ -99,7 +101,8 @@ const useLLMStore = create<LLMState>()(
               isLoading: false, 
               selectedLLM: null, 
               apiKey: null,
-              initialized: true 
+              initialized: true,
+              error: null
             })
           }
         } catch (error) {
@@ -122,6 +125,7 @@ const useLLMStore = create<LLMState>()(
         error: null,
         initialized: true 
       }),
+      resetInitialized: () => set({ initialized: false }),
     }),
     {
       name: 'llm-storage',

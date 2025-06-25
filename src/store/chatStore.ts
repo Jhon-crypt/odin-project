@@ -1,27 +1,45 @@
 import { create } from 'zustand'
 import { supabase } from '../lib/supabaseClient'
-import { v4 as uuidv4 } from 'uuid'
+import type { ChatMessage } from '../types/database'
+import useLLMStore from './llmStore'
+import { GoogleGenerativeAI } from '@google/generative-ai'
 
-interface Message {
-  id: string
-  role: 'user' | 'assistant'
-  content: string
-  created_at: string
-  images?: string[]
-  type?: 'text' | 'image'
-}
+const SYSTEM_PROMPT = `You are now an advanced, autonomous AI tasked with conducting deep and thorough research on any information provided to you. Your objective is to analyze, investigate, and synthesize data from a vast array of sources to produce a comprehensive, detailed, and insightful response.
+
+Key Instructions:
+
+    Research Execution:
+        Thoroughness: Ensure you explore every facet of the given information, both directly and indirectly related. Use authoritative and up-to-date sources, ensuring the analysis covers both primary and secondary angles.
+        Accuracy: Gather and cross-check data from trusted, credible sources. Pay special attention to any discrepancies in data or conflicting information, and address them clearly.
+        Contextual Understanding: Ensure that your research is grounded in the relevant context of the topic, including historical, cultural, technical, and scientific perspectives, as needed.
+
+    Analysis:
+        Deep Dive: Go beyond surface-level research. Provide deep insights into the origins, implications, and potential applications of the information. Explore nuances, assumptions, and connections with broader fields.
+        Interdisciplinary Approach: Draw from various disciplines as needed. For example, when researching technical topics, integrate insights from business, philosophy, history, or any other relevant domains to provide a holistic view.
+        Future Implications: Consider future trends, projections, and potential consequences of the research topic. Highlight areas that require further investigation or evolving approaches.
+
+    Comprehensiveness:
+        Multiform Information: If the given input involves different types of information (text, data, diagrams, etc.), interpret all forms carefully. For instance, convert any textual data into structured insights, process visual data or code, and blend them together into a comprehensive understanding.
+        Patterns and Correlations: Identify patterns, trends, and correlations within the information. Look for hidden connections, emerging patterns, or anomalies that could offer new insights.
+        Concise, Yet Detailed: While being detailed, ensure the response is concise and easy to follow. Avoid overwhelming the reader, but make sure no important aspect is left out.
+
+    Sourcing and Citations:
+        References: When presenting conclusions, insights, or facts, back up your findings with citations from reliable sources or references. If a source is unavailable, note that you've explored all known available resources.
+        Peer-Reviewed Journals and Databases: Always prioritize peer-reviewed sources, scientific journals, and authoritative publications when possible.
+
+    Delivery of Output:
+        Structured and Organized: Organize the research into logical sections or subsections. Ensure the output is easy to follow, with clear headings, bullet points, or numbered lists when necessary.
+        Professional Tone: Maintain a scholarly, neutral tone, but ensure the presentation is engaging and thought-provoking. Avoid overly technical jargon unless it is necessary to maintain the depth of the research.`
 
 interface ChatStore {
-  messages: Message[]
-  isLoading: boolean
-  error: string | null
-  streamingMessageId: string | null
-  streamingContent: string
-  fetchMessages: (projectId: string) => Promise<void>
-  sendMessage: (projectId: string, content: string, images?: File[]) => Promise<void>
-  deleteMessage: (messageId: string) => Promise<void>
-  updateStreamingMessage: (content: string) => void
-  setStreamingMessageId: (id: string | null) => void
+  messages: ChatMessage[];
+  isLoading: boolean;
+  error: string | null;
+  fetchMessages: (projectId: string) => Promise<void>;
+  sendMessage: (projectId: string, content: string, images?: File[]) => Promise<void>;
+  deleteMessage: (messageId: string) => Promise<void>;
+  streamingMessageId: string | null;
+  streamingContent: string;
 }
 
 const useChatStore = create<ChatStore>((set, get) => ({
@@ -33,158 +51,240 @@ const useChatStore = create<ChatStore>((set, get) => ({
 
   fetchMessages: async (projectId: string) => {
     try {
-      set({ isLoading: true, error: null })
+      set({ isLoading: true, error: null });
       const { data, error } = await supabase
-        .from('messages')
+        .from('chat_messages')
         .select('*')
         .eq('project_id', projectId)
-        .order('created_at', { ascending: true })
+        .order('created_at', { ascending: true });
 
-      if (error) throw error
-      set({ messages: data || [] })
+      if (error) throw error;
+      
+      // Clear existing messages and set new ones
+      set({ messages: data || [] });
     } catch (error) {
-      set({ error: (error as Error).message })
+      console.error('Error fetching messages:', error);
+      set({ error: (error as Error).message });
     } finally {
-      set({ isLoading: false })
+      set({ isLoading: false });
     }
   },
 
-  sendMessage: async (projectId: string, content: string, images: File[] = []) => {
+  sendMessage: async (projectId: string, content: string, images?: File[]) => {
     try {
-      // First add the user's message
-      const userMessageId = uuidv4()
-      const userMessage: Message = {
-        id: userMessageId,
-        role: 'user',
-        content,
-        created_at: new Date().toISOString(),
-      }
-
-      // If there are images, upload them first
-      if (images.length > 0) {
-        const uploadedUrls = []
-        for (const image of images) {
-          const fileExt = image.name.split('.').pop()
-          const fileName = `${uuidv4()}.${fileExt}`
-          const { error } = await supabase.storage
-            .from('chat-images')
-            .upload(fileName, image)
-
-          if (error) throw error
-          const { data: { publicUrl } } = supabase.storage
-            .from('chat-images')
-            .getPublicUrl(fileName)
-          uploadedUrls.push(publicUrl)
-        }
-        userMessage.images = uploadedUrls
-      }
-
-      // Add user message to the database
-      const { error: userMsgError } = await supabase
-        .from('messages')
-        .insert([{ ...userMessage, project_id: projectId }])
-
-      if (userMsgError) throw userMsgError
-
-      // Create a placeholder for the AI response
-      const aiMessageId = uuidv4()
-      const aiMessage: Message = {
-        id: aiMessageId,
-        role: 'assistant',
-        content: '',
-        created_at: new Date().toISOString(),
-      }
-
-      // Update local state with both messages
-      set(state => ({
-        messages: [...state.messages, userMessage, aiMessage],
-        streamingMessageId: aiMessageId,
-        streamingContent: ''
-      }))
-
-      // Start streaming the AI response
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: content, projectId }),
-      })
-
-      if (!response.ok) throw new Error('Failed to get AI response')
+      set({ isLoading: true, error: null });
       
-      const reader = response.body?.getReader()
-      if (!reader) throw new Error('No response reader available')
+      // Upload images if any
+      const imageUrls: string[] = [];
+      if (images && images.length > 0) {
+        for (const image of images) {
+          const { data: uploadData, error: uploadError } = await supabase.storage
+            .from('chat-images')
+            .upload(`${projectId}/${Date.now()}-${image.name}`, image);
 
-      let accumulatedContent = ''
-      while (true) {
-        const { done, value } = await reader.read()
-        if (done) break
-
-        // Decode and accumulate the streamed content
-        const chunk = new TextDecoder().decode(value)
-        accumulatedContent += chunk
-        set({ streamingContent: accumulatedContent })
+          if (uploadError) throw uploadError;
+          if (uploadData) {
+            const { data: { publicUrl } } = supabase.storage
+              .from('chat-images')
+              .getPublicUrl(uploadData.path);
+            imageUrls.push(publicUrl);
+          }
+        }
       }
 
-      // Once streaming is complete, save the full message to the database
+      // Get current user ID
+      const userId = (await supabase.auth.getUser()).data.user?.id;
+      if (!userId) throw new Error('User not authenticated');
+
+      // Insert user message
+      const { error: userMsgError } = await supabase
+        .from('chat_messages')
+        .insert({
+          project_id: projectId,
+          content,
+          role: 'user',
+          user_id: userId,
+          images: imageUrls.length > 0 ? imageUrls : null
+        });
+
+      if (userMsgError) throw userMsgError;
+
+      // Get the selected model and API key
+      const { selectedLLM: modelName, apiKey } = useLLMStore.getState();
+      if (!modelName || !apiKey) {
+        throw new Error('Please configure your LLM settings first');
+      }
+
+      // Initialize Google AI
+      const genAI = new GoogleGenerativeAI(apiKey);
+      const model = genAI.getGenerativeModel({ model: modelName });
+
+      // Start a chat
+      const chat = model.startChat({
+        history: [
+          {
+            role: "user",
+            parts: [{ text: SYSTEM_PROMPT }],
+          },
+          {
+            role: "model",
+            parts: [{ text: "I understand and will act as an advanced research AI assistant." }],
+          }
+        ],
+      });
+
+      // Create a placeholder message for streaming
+      const placeholderId = crypto.randomUUID();
+      const streamingMessage: ChatMessage = {
+        id: placeholderId,
+        project_id: projectId,
+        content: '',
+        role: 'assistant',
+        user_id: userId,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+
+      set(state => ({
+        messages: [...state.messages, streamingMessage],
+        streamingMessageId: placeholderId,
+        streamingContent: ''
+      }));
+
+      // Send message and get streaming response
+      const result = await chat.sendMessageStream(content);
+      let fullResponse = '';
+      
+      for await (const chunk of result.stream) {
+        const chunkText = chunk.text();
+        fullResponse += chunkText;
+        
+        // Update the streaming content
+        set(state => ({
+          ...state,
+          streamingContent: fullResponse,
+          messages: state.messages.map(msg =>
+            msg.id === state.streamingMessageId
+              ? { ...msg, content: fullResponse }
+              : msg
+          )
+        }));
+      }
+
+      // Insert the final AI response to the database
       const { error: aiMsgError } = await supabase
-        .from('messages')
-        .insert([{
-          ...aiMessage,
-          content: accumulatedContent,
-          project_id: projectId
-        }])
+        .from('chat_messages')
+        .insert({
+          project_id: projectId,
+          content: fullResponse,
+          role: 'assistant',
+          user_id: userId
+        });
 
-      if (aiMsgError) throw aiMsgError
+      if (aiMsgError) throw aiMsgError;
 
-      // Update final message in local state
-      set(state => ({
-        messages: state.messages.map(msg =>
-          msg.id === aiMessageId
-            ? { ...msg, content: accumulatedContent }
-            : msg
-        ),
-        streamingMessageId: null,
-        streamingContent: ''
-      }))
-
+      // Reset streaming state and fetch final messages
+      set({ streamingMessageId: null, streamingContent: '' });
+      await get().fetchMessages(projectId);
     } catch (error) {
-      set({ error: (error as Error).message })
-      // Remove the failed message from local state
-      set(state => ({
-        messages: state.messages.filter(msg => msg.id !== get().streamingMessageId),
-        streamingMessageId: null,
-        streamingContent: ''
-      }))
+      console.error('Chat error:', error);
+      let errorMessage = 'An error occurred while processing your message.';
+      
+      if (error instanceof Error) {
+        const errorStr = error.toString().toLowerCase();
+        
+        // Handle rate limit errors
+        if (errorStr.includes('quota exceeded') || errorStr.includes('rate_limit_exceeded')) {
+          errorMessage = "You've reached the API rate limit. Please wait a moment before sending another message.";
+        }
+        // Handle authentication errors
+        else if (errorStr.includes('authentication') || errorStr.includes('api key')) {
+          errorMessage = "There's an issue with your API key. Please check your LLM configuration.";
+        }
+        // Handle network errors
+        else if (errorStr.includes('network') || errorStr.includes('fetch')) {
+          errorMessage = "Unable to connect to the AI service. Please check your internet connection.";
+        }
+      }
+      
+      // Get current user ID for error message
+      const userId = (await supabase.auth.getUser()).data.user?.id;
+      if (!userId) {
+        set({ error: 'User not authenticated', streamingMessageId: null, streamingContent: '' });
+        return;
+      }
+
+      // Insert error message as assistant message
+      try {
+        await supabase
+          .from('chat_messages')
+          .insert({
+            project_id: projectId,
+            content: errorMessage,
+            role: 'assistant',
+            user_id: userId
+          });
+        
+        // Fetch updated messages to show the error
+        await get().fetchMessages(projectId);
+      } catch (insertError) {
+        console.error('Error inserting error message:', insertError);
+      }
+      
+      set({ error: errorMessage, streamingMessageId: null, streamingContent: '' });
+    } finally {
+      set({ isLoading: false });
     }
   },
 
   deleteMessage: async (messageId: string) => {
     try {
-      set({ isLoading: true, error: null })
-      const { error } = await supabase
-        .from('messages')
-        .delete()
+      set({ isLoading: true, error: null });
+      
+      // Get message details first to check for images
+      const { data: message, error: fetchError } = await supabase
+        .from('chat_messages')
+        .select('*')
         .eq('id', messageId)
+        .single();
 
-      if (error) throw error
+      if (fetchError) throw fetchError;
 
+      // Delete images from storage if they exist
+      if (message?.images && message.images.length > 0) {
+        for (const imageUrl of message.images) {
+          const path = imageUrl.split('/').pop(); // Get filename from URL
+          if (path) {
+            const { error: storageError } = await supabase.storage
+              .from('chat-images')
+              .remove([path]);
+            
+            if (storageError) {
+              console.error('Error deleting image:', storageError);
+            }
+          }
+        }
+      }
+
+      // Delete message from database
+      const { error: deleteError } = await supabase
+        .from('chat_messages')
+        .delete()
+        .eq('id', messageId);
+
+      if (deleteError) throw deleteError;
+
+      // Update local state
       set(state => ({
         messages: state.messages.filter(msg => msg.id !== messageId)
-      }))
+      }));
     } catch (error) {
-      set({ error: (error as Error).message })
+      console.error('Error deleting message:', error);
+      set({ error: 'Failed to delete message. Please try again.' });
     } finally {
-      set({ isLoading: false })
+      set({ isLoading: false });
     }
   },
+}));
 
-  updateStreamingMessage: (content: string) => {
-    set({ streamingContent: content })
-  },
-
-  setStreamingMessageId: (id: string | null) => {
-    set({ streamingMessageId: id })
-  }
-}))
-
-export default useChatStore 
+export default useChatStore; 

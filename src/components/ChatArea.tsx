@@ -80,7 +80,7 @@ function ChatArea() {
 
   // Scroll to bottom when messages change
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    messagesEndRef.current?.scrollIntoView({ behavior: 'instant' })
   }, [messages])
 
   // Check canvas state for each AI message
@@ -307,7 +307,7 @@ function ChatArea() {
         sx={{
           height: '100%',
           overflow: 'auto',
-          scrollBehavior: 'smooth',
+          scrollBehavior: 'auto',
           display: 'flex',
           flexDirection: 'column',
           bgcolor: 'background.paper',

@@ -446,42 +446,7 @@ function Landing() {
                   Create, Analyze, summarize, and collaborate on research papers with AI
                 </Typography>
 
-                {/* Avatar Group */}
-                <Box sx={{ 
-                  display: 'flex', 
-                  flexDirection: 'column', 
-                  alignItems: 'center', 
-                  gap: { xs: 1.5, sm: 1.75, md: 2 },
-                  width: '100%',
-                }}>
-                  <AvatarGroup
-                    max={isMobile ? 4 : 6}
-                    sx={{
-                      '& .MuiAvatar-root': {
-                        width: { xs: 28, sm: 32, md: 36, lg: 40 },
-                        height: { xs: 28, sm: 32, md: 36, lg: 40 },
-                        border: { xs: '1.5px solid #333', md: '2px solid #333' },
-                        fontSize: { xs: '0.6rem', sm: '0.7rem', md: '0.75rem', lg: '0.8rem' },
-                      },
-                    }}
-                  >
-                    {userAvatars.map((avatar, index) => (
-                      <Avatar key={index} src={avatar} />
-                    ))}
-                  </AvatarGroup>
-
-                  <Typography
-                    sx={{
-                      color: '#888888',
-                      fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem', lg: '0.9rem' },
-                      textAlign: 'center',
-                      lineHeight: 1.4,
-                      px: { xs: 1, sm: 0 },
-                    }}
-                  >
-                    Join 1,200+ researchers and academics already using Odin
-                  </Typography>
-                </Box>
+                
               </>
             )}
 
