@@ -37,34 +37,7 @@ function Sidebar() {
   const [loadingModels, setLoadingModels] = useState(false)
   const [LLMOptions, setLLMOptions] = useState<Array<{ id: string; name: string; provider: string }>>(staticLLMOptions)
   const { projects, isLoading, error, fetchProjects, createProject } = useProjectStore()
-  const { selectedLLM, loadStoredSettings, initialized } = useLLMStore()
-
-  // Load stored LLM settings when component mounts or auth state changes
-  useEffect(() => {
-    const loadSettings = async () => {
-      try {
-        if (!initialized) {
-          await loadStoredSettings()
-        }
-      } catch (error) {
-        console.error('Error loading LLM settings:', error)
-      }
-    }
-
-    // Initial load
-    loadSettings()
-
-    // Subscribe to auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session) {
-        loadSettings()
-      }
-    })
-
-    return () => {
-      subscription.unsubscribe()
-    }
-  }, [loadStoredSettings, initialized])
+  const { selectedLLM } = useLLMStore()
 
   // Fetch Google AI models when component mounts
   useEffect(() => {
@@ -122,8 +95,8 @@ function Sidebar() {
 
   // Add debug logging
   useEffect(() => {
-    console.log('Current project ID:', currentProjectId);
-  }, [currentProjectId]);
+    console.log('Current project ID:', currentProjectId)
+  }, [currentProjectId])
 
   return (
     <Box
