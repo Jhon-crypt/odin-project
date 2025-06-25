@@ -54,6 +54,7 @@ function ChatArea() {
     addItem,
     removeItem,
     isItemInCanvas,
+    items,
   } = useCanvasStore()
 
   // Reset states when project changes
@@ -86,7 +87,7 @@ function ChatArea() {
       
       const states: Record<string, string> = {};
       for (const message of messages) {
-        if (message.role === 'assistant') {
+        if (message.role === 'assistant' && message.content) {
           const itemId = await isItemInCanvas(message.content, projectId);
           if (itemId) {
             states[message.id] = itemId;
@@ -97,7 +98,7 @@ function ChatArea() {
     };
     
     checkCanvasStates();
-  }, [messages, projectId, isItemInCanvas]);
+  }, [messages, projectId, isItemInCanvas, items]); // Add items dependency
 
   const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || [])
