@@ -6,7 +6,7 @@ import type { TextContent, CanvasItem } from '../types/models'
 import { supabase } from '../lib/supabaseClient'
 
 export const ResearchCanvas: React.FC = () => {
-  const { projectId } = useParams<{ projectId: string }>()
+  const { id } = useParams<{ id: string }>()
   const [removingItems, setRemovingItems] = useState<Record<string, boolean>>({})
   const [canvasItems, setCanvasItems] = useState<CanvasItem[]>([])
   const [isLoading, setIsLoading] = useState(false)
@@ -18,13 +18,13 @@ export const ResearchCanvas: React.FC = () => {
   } = useCanvasStore()
 
   const fetchCanvasItems = async () => {
-    if (!projectId) return
+    if (!id) return
     setIsLoading(true)
     try {
       const { data, error } = await supabase
         .from('canvas_items')
         .select('*')
-        .eq('project_id', projectId)
+        .eq('project_id', id)
         .order('created_at', { ascending: true })
 
       if (error) throw error
@@ -37,18 +37,18 @@ export const ResearchCanvas: React.FC = () => {
   }
 
   useEffect(() => {
-    console.log('ResearchCanvas mounted/updated with projectId:', projectId)
-    if (projectId) {
+    console.log('ResearchCanvas mounted/updated with projectId:', id)
+    if (id) {
       fetchCanvasItems()
     }
-  }, [projectId])
+  }, [id])
 
   useEffect(() => {
     // Refetch items when something is added or removed
-    if (projectId && (lastAddedItemId || lastRemovedItemId)) {
+    if (id && (lastAddedItemId || lastRemovedItemId)) {
       fetchCanvasItems()
     }
-  }, [projectId, lastAddedItemId, lastRemovedItemId])
+  }, [id, lastAddedItemId, lastRemovedItemId])
 
   useEffect(() => {
     if (lastRemovedItemId) {
