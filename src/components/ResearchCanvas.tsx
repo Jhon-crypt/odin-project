@@ -1,6 +1,8 @@
 import React, { useEffect, useState, useRef } from 'react'
 import { useParams } from 'react-router-dom'
-import { Box, CircularProgress, Typography } from '@mui/material'
+import { Box, CircularProgress, Typography, IconButton, Fade } from '@mui/material'
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp'
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 import useCanvasStore from '../store/canvasStore'
 import type { TextContent, CanvasItem } from '../types/models'
 import { supabase } from '../lib/supabaseClient'
@@ -17,6 +19,8 @@ export const ResearchCanvas: React.FC = () => {
   const [removingItems, setRemovingItems] = useState<Record<string, boolean>>({})
   const [canvasItems, setCanvasItems] = useState<CanvasItem[]>([])
   const [isLoading, setIsLoading] = useState(false)
+  const [showScrollButtons, setShowScrollButtons] = useState(false)
+  const containerRef = useRef<HTMLDivElement>(null)
   const itemRefs = useRef<Record<string, HTMLDivElement | null>>({})
 
   const {
@@ -101,6 +105,44 @@ export const ResearchCanvas: React.FC = () => {
       })
     }
   }, [lastAddedItemId, canvasItems])
+
+  // Handle scroll events
+  useEffect(() => {
+    const container = containerRef.current
+    if (!container) return
+
+    const handleScroll = () => {
+      const scrollHeight = container.scrollHeight
+      const clientHeight = container.clientHeight
+
+      // Show buttons if content is scrollable
+      setShowScrollButtons(scrollHeight > clientHeight)
+    }
+
+    container.addEventListener('scroll', handleScroll)
+    // Initial check
+    handleScroll()
+
+    return () => {
+      container.removeEventListener('scroll', handleScroll)
+    }
+  }, [])
+
+  const scrollToTop = () => {
+    containerRef.current?.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    })
+  }
+
+  const scrollToBottom = () => {
+    if (containerRef.current) {
+      containerRef.current.scrollTo({
+        top: containerRef.current.scrollHeight,
+        behavior: 'smooth'
+      })
+    }
+  }
 
   const renderContent = () => {
     if (isLoading) {
@@ -222,8 +264,58 @@ export const ResearchCanvas: React.FC = () => {
   }
 
   return (
-    <Box sx={{ height: '100%', overflow: 'auto' }}>
-      {renderContent()}
+    <Box sx={{ height: '100%', position: 'relative' }}>
+      <Box 
+        ref={containerRef}
+        sx={{ 
+          height: '100%', 
+          overflow: 'auto',
+          scrollBehavior: 'smooth'
+        }}
+      >
+        {renderContent()}
+      </Box>
+
+      <Fade in={showScrollButtons}>
+        <Box sx={{
+          position: 'absolute',
+          right: 2,
+          bottom: 2,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 1,
+          zIndex: 1,
+        }}>
+          <IconButton
+            onClick={scrollToTop}
+            sx={{
+              bgcolor: 'background.paper',
+              boxShadow: 2,
+              '&:hover': {
+                bgcolor: 'background.paper',
+                opacity: 0.9
+              }
+            }}
+            size="small"
+          >
+            <KeyboardArrowUpIcon />
+          </IconButton>
+          <IconButton
+            onClick={scrollToBottom}
+            sx={{
+              bgcolor: 'background.paper',
+              boxShadow: 2,
+              '&:hover': {
+                bgcolor: 'background.paper',
+                opacity: 0.9
+              }
+            }}
+            size="small"
+          >
+            <KeyboardArrowDownIcon />
+          </IconButton>
+        </Box>
+      </Fade>
     </Box>
   )
 }
