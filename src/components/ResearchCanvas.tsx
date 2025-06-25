@@ -43,6 +43,19 @@ export const ResearchCanvas: React.FC = () => {
     }
   }, [id])
 
+  // Listen for canvas item updates
+  useEffect(() => {
+    const handleCanvasUpdate = (event: CustomEvent<{ items: CanvasItem[] }>) => {
+      setCanvasItems(event.detail.items || [])
+    }
+
+    window.addEventListener('canvasItemAdded', handleCanvasUpdate as EventListener)
+    
+    return () => {
+      window.removeEventListener('canvasItemAdded', handleCanvasUpdate as EventListener)
+    }
+  }, [])
+
   useEffect(() => {
     // Refetch items when something is added or removed
     if (id && (lastAddedItemId || lastRemovedItemId)) {

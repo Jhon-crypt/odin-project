@@ -145,51 +145,48 @@ function ChatArea() {
     event.preventDefault()
   }
 
-  const handleAddToCanvas = async (messageId: string, messageContent: string) => {
-    if (!projectId) return;
+  const handleAddToCanvas = async (content: string, messageId: string) => {
+    if (!projectId) return
+    setLoadingStates(prev => ({ ...prev, [messageId]: true }))
     try {
-      setLoadingStates(prev => ({ ...prev, [messageId]: true }));
-      
-      const user = (await supabase.auth.getUser()).data.user;
-      if (!user) throw new Error('User not authenticated');
-
-      // Calculate position
-      const { data: existingItems } = await supabase
-        .from('canvas_items')
-        .select('position')
-        .eq('project_id', projectId);
-
-      const position = {
-        x: ((existingItems?.length || 0) * 50) % 800,
-        y: Math.floor((existingItems?.length || 0) / 16) * 50,
-      };
+      const { data: user } = await supabase.auth.getUser()
+      if (!user?.user) throw new Error('User not authenticated')
 
       const { data, error } = await supabase
         .from('canvas_items')
         .insert({
           project_id: projectId,
           type: 'text',
-          content: { text: messageContent },
-          position,
-          created_by: user.id,
+          content: { text: content },
+          position: { x: 0, y: 0 },
+          created_by: user.user.id,
         })
-        .select()
-        .single();
+        .select('id')
+        .single()
 
-      if (error) throw error;
+      if (error) throw error
 
-      if (data) {
-        setCanvasStates(prev => ({
-          ...prev,
-          [messageId]: data.id
-        }));
-      }
+      // Update canvas states immediately
+      setCanvasStates(prev => ({ ...prev, [messageId]: data.id }))
+
+      // Fetch canvas items to refresh the canvas
+      const { data: canvasItems, error: fetchError } = await supabase
+        .from('canvas_items')
+        .select('*')
+        .eq('project_id', projectId)
+        .order('created_at', { ascending: true })
+
+      if (fetchError) throw fetchError
+
+      // Emit an event to notify ResearchCanvas to update
+      window.dispatchEvent(new CustomEvent('canvasItemAdded', { detail: { items: canvasItems } }))
+
     } catch (error) {
-      console.error('Failed to add item to canvas:', error);
+      console.error('Error adding to canvas:', error)
     } finally {
-      setLoadingStates(prev => ({ ...prev, [messageId]: false }));
+      setLoadingStates(prev => ({ ...prev, [messageId]: false }))
     }
-  };
+  }
 
   const handleRemoveFromCanvas = async (messageId: string, itemId: string) => {
     if (!projectId) return;
@@ -526,7 +523,7 @@ function ChatArea() {
                         if (canvasStates[message.id]) {
                           handleRemoveFromCanvas(message.id, canvasStates[message.id]);
                         } else {
-                          handleAddToCanvas(message.id, message.content);
+                          handleAddToCanvas(message.content, message.id);
                         }
                       }}
                       disabled={loadingStates[message.id]}
