@@ -1,5 +1,8 @@
 import { create } from 'zustand'
 import { supabase } from '../lib/supabaseClient'
+import useCanvasStore from './canvasStore'
+import useChatStore from './chatStore'
+import useResearchStore from './researchStore'
 
 interface Project {
   id: string
@@ -105,6 +108,22 @@ const useProjectStore = create<ProjectStore>((set) => ({
     try {
       set({ isLoading: true, error: null })
       
+      // Delete chat messages first
+      const { error: chatError } = await supabase
+        .from('chat_messages')
+        .delete()
+        .eq('project_id', id)
+
+      if (chatError) throw chatError
+
+      // Delete canvas items
+      const { error: canvasError } = await supabase
+        .from('canvas_items')
+        .delete()
+        .eq('project_id', id)
+
+      if (canvasError) throw canvasError
+
       // Delete the project
       const { error } = await supabase
         .from('projects')
@@ -117,6 +136,11 @@ const useProjectStore = create<ProjectStore>((set) => ({
       set(state => ({
         projects: state.projects.filter(project => project.id !== id)
       }))
+
+      // Clear related stores
+      useChatStore.getState().clearMessages()
+      useCanvasStore.getState().clearCanvas()
+      useResearchStore.getState().setContent('')
     } catch (error) {
       console.error('Error deleting project:', error)
       set({ error: (error as Error).message })

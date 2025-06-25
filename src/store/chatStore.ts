@@ -40,6 +40,7 @@ interface ChatStore {
   deleteMessage: (messageId: string) => Promise<void>;
   streamingMessageId: string | null;
   streamingContent: string;
+  clearMessages: () => void;
 }
 
 const useChatStore = create<ChatStore>((set, get) => ({
@@ -48,6 +49,15 @@ const useChatStore = create<ChatStore>((set, get) => ({
   error: null,
   streamingMessageId: null,
   streamingContent: '',
+
+  clearMessages: () => {
+    set({ 
+      messages: [], 
+      streamingMessageId: null, 
+      streamingContent: '',
+      error: null 
+    });
+  },
 
   fetchMessages: async (projectId: string) => {
     try {

@@ -119,10 +119,8 @@ function Sidebar() {
     if (selectedProjectId) {
       await deleteProject(selectedProjectId)
       handleMenuClose()
-      // If we're deleting the current project, navigate to root
-      if (selectedProjectId === currentProjectId) {
-        navigate('/')
-      }
+      // Refresh the projects list
+      await fetchProjects()
     }
   }
 
