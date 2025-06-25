@@ -380,6 +380,7 @@ function ChatArea() {
                         bgcolor: '#C0FF92',
                         width: { xs: 32, sm: 36 },
                         height: { xs: 32, sm: 36 },
+                        mr: 1.5
                       }}
                     >
                       <SmartToyIcon sx={{ color: '#1a1a1a', fontSize: { xs: 18, sm: 20 } }} />
@@ -400,6 +401,7 @@ function ChatArea() {
                         color: message.role === 'user' ? '#C0FF92' : '#888',
                         ml: message.role === 'user' ? 'auto' : 0,
                         mr: message.role === 'user' ? 1 : 0,
+                        mb: 0.5
                       }}
                     >
                       {message.role === 'user' ? user?.email?.split('@')[0] || 'You' : 'Odin'}
