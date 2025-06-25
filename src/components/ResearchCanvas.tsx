@@ -115,8 +115,8 @@ export const ResearchCanvas: React.FC = () => {
             No Research Content Yet
           </Typography>
           <Typography>
-            Start a conversation in the chat and add interesting findings to your research canvas.
-            You can add content by clicking the "+" button next to AI responses in the chat.
+            Add interesting findings to your research canvas.
+            Add content by clicking the "+" button next to AI responses in the chat.
           </Typography>
         </Box>
       )
@@ -149,8 +149,6 @@ export const ResearchCanvas: React.FC = () => {
                 mb: 2,
                 p: 2,
                 borderRadius: 1,
-                bgcolor: 'rgba(192, 255, 146, 0.1)',
-                border: '1px solid rgba(192, 255, 146, 0.2)',
               }}
             >
               <Typography sx={{ whiteSpace: 'pre-wrap' }}>{content.text}</Typography>
