@@ -168,12 +168,17 @@ export const ResearchCanvas: React.FC = () => {
           height: '100%',
           textAlign: 'center',
           gap: 2,
-          color: 'text.secondary'
+          color: 'text.secondary',
+          px: 4
         }}>
           <Typography variant="h6">
             No Research Content Yet
           </Typography>
-          <Typography>
+          <Typography sx={{ 
+            maxWidth: '600px',
+            px: 2,
+            lineHeight: 1.6
+          }}>
             Start a conversation in the chat and add interesting findings to your research canvas.
             You can add content by clicking the "+" button next to AI responses in the chat.
           </Typography>
