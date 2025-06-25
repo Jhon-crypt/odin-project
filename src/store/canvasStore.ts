@@ -158,7 +158,7 @@ const useCanvasStore = create<CanvasStore>((set, get) => ({
         .select('id')
         .eq('project_id', projectId)
         .eq('type', 'text')
-        .eq('content', JSON.stringify({ text: content }))
+        .eq('content ->> text', content)
         .single()
 
       if (error) return null
