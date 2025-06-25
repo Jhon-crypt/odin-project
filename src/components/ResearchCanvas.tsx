@@ -201,7 +201,10 @@ export const ResearchCanvas: React.FC = () => {
 
   useEffect(() => {
     console.log('ResearchCanvas mounted/updated with projectId:', projectId)
-    fetchDocumentSupabase()
+    if (projectId) {
+      fetchDocumentSupabase()
+      fetchItems(projectId)
+    }
   }, [projectId])
 
   useEffect(() => {
