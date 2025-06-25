@@ -16,6 +16,7 @@ interface ProjectStore {
   fetchProjects: () => Promise<void>
   createProject: () => Promise<string | null>
   updateProject: (id: string, name: string) => Promise<void>
+  deleteProject: (id: string) => Promise<void>
 }
 
 const useProjectStore = create<ProjectStore>((set) => ({
@@ -94,6 +95,30 @@ const useProjectStore = create<ProjectStore>((set) => ({
       }))
     } catch (error) {
       console.error('Error updating project:', error)
+      set({ error: (error as Error).message })
+    } finally {
+      set({ isLoading: false })
+    }
+  },
+
+  deleteProject: async (id: string) => {
+    try {
+      set({ isLoading: true, error: null })
+      
+      // Delete the project
+      const { error } = await supabase
+        .from('projects')
+        .delete()
+        .eq('id', id)
+
+      if (error) throw error
+
+      // Update local state immediately
+      set(state => ({
+        projects: state.projects.filter(project => project.id !== id)
+      }))
+    } catch (error) {
+      console.error('Error deleting project:', error)
       set({ error: (error as Error).message })
     } finally {
       set({ isLoading: false })

@@ -8,12 +8,17 @@ import {
   Button,
   Divider,
   CircularProgress,
+  IconButton,
+  Menu,
+  MenuItem,
 } from '@mui/material'
 import {
   Search as SearchIcon,
   FolderOutlined as ProjectIcon,
   Add as AddIcon,
   SmartToy as LLMIcon,
+  MoreVert as MoreVertIcon,
+  Delete as DeleteIcon,
 } from '@mui/icons-material'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useState, useEffect } from 'react'
@@ -22,7 +27,6 @@ import UserProfile from './UserProfile'
 import useLLMStore from '../store/llmStore'
 import useProjectStore from '../store/projectStore'
 import googleAIService from '../services/googleAIService'
-import { supabase } from '../lib/supabaseClient'
 
 const staticLLMOptions = [
   { id: 'gemini-pro', name: 'Gemini Pro', provider: 'Google' },
@@ -36,8 +40,10 @@ function Sidebar() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [loadingModels, setLoadingModels] = useState(false)
   const [LLMOptions, setLLMOptions] = useState<Array<{ id: string; name: string; provider: string }>>(staticLLMOptions)
-  const { projects, isLoading, error, fetchProjects, createProject } = useProjectStore()
+  const { projects, isLoading, error, fetchProjects, createProject, deleteProject } = useProjectStore()
   const { selectedLLM } = useLLMStore()
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
+  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null)
 
   // Fetch Google AI models when component mounts
   useEffect(() => {
@@ -98,6 +104,28 @@ function Sidebar() {
     console.log('Current project ID:', currentProjectId)
   }, [currentProjectId])
 
+  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, projectId: string) => {
+    event.stopPropagation()
+    setSelectedProjectId(projectId)
+    setAnchorEl(event.currentTarget)
+  }
+
+  const handleMenuClose = () => {
+    setAnchorEl(null)
+    setSelectedProjectId(null)
+  }
+
+  const handleDeleteProject = async () => {
+    if (selectedProjectId) {
+      await deleteProject(selectedProjectId)
+      handleMenuClose()
+      // If we're deleting the current project, navigate to root
+      if (selectedProjectId === currentProjectId) {
+        navigate('/')
+      }
+    }
+  }
+
   return (
     <Box
       sx={{
@@ -128,7 +156,7 @@ function Sidebar() {
               fontSize: { xs: '16px', sm: '18px' },
             }}
           >
-            Odin Research
+            OdinX
           </Typography>
         </Box>
       </Box>
@@ -201,10 +229,10 @@ function Sidebar() {
                 mx: 1,
                 py: { xs: 1, sm: 1.5 },
                 mb: 1,
-                color: '#ff6b6b',
+                color: 'error.main',
               }}
             >
-              <Typography variant="body2">Failed to load projects</Typography>
+              <ListItemText primary={error} />
             </ListItem>
           ) : projects.length === 0 ? (
             <ListItem
@@ -222,69 +250,102 @@ function Sidebar() {
             projects.map((project) => (
               <ListItem
                 key={project.id}
+                onClick={() => handleProjectClick(project.id)}
                 sx={{
                   borderRadius: '8px',
                   mx: 1,
                   py: { xs: 1, sm: 1.5 },
                   mb: 1,
-                  bgcolor: project.id === currentProjectId ? '#C0FF92' : 'transparent',
-                  color: project.id === currentProjectId ? '#000' : '#ccc',
-                '&:hover': {
-                    bgcolor: project.id === currentProjectId ? '#C0FF92' : '#333',
-                },
                   cursor: 'pointer',
-                  transition: 'all 0.2s ease-in-out',
+                  bgcolor: project.id === currentProjectId ? '#333' : 'transparent',
+                  '&:hover': {
+                    bgcolor: project.id === currentProjectId ? '#333' : '#282828',
+                    '& .project-menu': {
+                      opacity: 1,
+                    },
+                  },
                 }}
-                onClick={() => handleProjectClick(project.id)}
-            >
-              <ListItemIcon sx={{ minWidth: { xs: 32, sm: 36 } }}>
-                <ProjectIcon
-                  sx={{
-                      color: project.id === currentProjectId ? '#000' : '#888',
-                    fontSize: { xs: 18, sm: 20 },
+              >
+                <ListItemIcon sx={{ minWidth: { xs: 32, sm: 36 } }}>
+                  <ProjectIcon
+                    sx={{
+                      color: project.id === currentProjectId ? '#C0FF92' : '#888',
+                      fontSize: { xs: 18, sm: 20 },
+                    }}
+                  />
+                </ListItemIcon>
+                <ListItemText
+                  primary={project.name}
+                  primaryTypographyProps={{
+                    fontSize: { xs: '13px', sm: '14px' },
+                    color: project.id === currentProjectId ? '#fff' : '#ccc',
                   }}
                 />
-              </ListItemIcon>
-              <ListItemText
-                  primary={project.name}
+                <IconButton
+                  className="project-menu"
+                  size="small"
+                  onClick={(e) => handleMenuOpen(e, project.id)}
                   sx={{
-                    '& .MuiListItemText-primary': {
-                      fontSize: { xs: '14px', sm: '15px' },
-                      fontWeight: project.id === currentProjectId ? 'bold' : 'normal',
+                    opacity: 0,
+                    color: '#888',
+                    '&:hover': {
+                      bgcolor: 'rgba(255,255,255,0.1)',
                     },
-                }}
-              />
-            </ListItem>
+                  }}
+                >
+                  <MoreVertIcon sx={{ fontSize: 20 }} />
+                </IconButton>
+              </ListItem>
             ))
           )}
         </List>
 
-        {/* Add Project Button */}
-        <Box sx={{ mt: 2, px: 1 }}>
-          <Button
-            startIcon={<AddIcon sx={{ fontSize: { xs: 16, sm: 18 } }} />}
-            fullWidth
-            variant="outlined"
-            size="small"
-            onClick={handleAddProject}
-            sx={{
-              borderColor: '#333',
-              color: '#ccc',
-              textTransform: 'none',
-              justifyContent: 'flex-start',
-              fontSize: { xs: '13px', sm: '14px' },
-              py: { xs: 1, sm: 1.5 },
-              '&:hover': {
-                borderColor: '#C0FF92',
-                color: '#C0FF92',
-                bgcolor: 'rgba(192, 255, 146, 0.1)',
-              },
-            }}
-          >
-            Add Project
-          </Button>
-        </Box>
+        <Button
+          startIcon={<AddIcon />}
+          onClick={handleAddProject}
+          variant="outlined"
+          fullWidth
+          sx={{
+            mt: 2,
+            color: '#C0FF92',
+            borderColor: '#C0FF92',
+            '&:hover': {
+              borderColor: '#d4ffb3',
+              bgcolor: 'rgba(192, 255, 146, 0.1)',
+            },
+          }}
+        >
+          Add Project
+        </Button>
       </Box>
+
+      {/* Project Menu */}
+      <Menu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={handleMenuClose}
+        onClick={(e) => e.stopPropagation()}
+        PaperProps={{
+          sx: {
+            bgcolor: '#1a1a1a',
+            border: '1px solid #333',
+            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+          },
+        }}
+      >
+        <MenuItem
+          onClick={handleDeleteProject}
+          sx={{
+            color: '#ff4444',
+            '&:hover': {
+              bgcolor: 'rgba(255, 68, 68, 0.1)',
+            },
+          }}
+        >
+          <DeleteIcon sx={{ fontSize: 20, mr: 1 }} />
+          Delete Project
+        </MenuItem>
+      </Menu>
 
       <Divider sx={{ borderColor: '#333', mx: 2, my: 2 }} />
 
