@@ -54,6 +54,8 @@ function ChatArea() {
     fetchMessages,
     sendMessage,
     deleteMessage,
+    streamingMessageId,
+    streamingContent,
   } = useChatStore()
 
   const { items } = useCanvasStore()
@@ -495,7 +497,7 @@ function ChatArea() {
                         {/* Message Content */}
                         <Box className="markdown-content">
                           <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                            {message.content}
+                            {message.id === streamingMessageId ? streamingContent : message.content}
                           </ReactMarkdown>
                         </Box>
 
