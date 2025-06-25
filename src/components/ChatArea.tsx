@@ -189,29 +189,41 @@ function ChatArea() {
   }
 
   const handleRemoveFromCanvas = async (messageId: string, itemId: string) => {
-    if (!projectId) return;
+    if (!projectId) return
+    setLoadingStates(prev => ({ ...prev, [messageId]: true }))
     try {
-      setLoadingStates(prev => ({ ...prev, [messageId]: true }));
-      
       const { error } = await supabase
         .from('canvas_items')
         .delete()
         .eq('id', itemId)
-        .eq('project_id', projectId);
 
-      if (error) throw error;
+      if (error) throw error
 
+      // Remove from local state
       setCanvasStates(prev => {
-        const newState = { ...prev };
-        delete newState[messageId];
-        return newState;
-      });
+        const newState = { ...prev }
+        delete newState[messageId]
+        return newState
+      })
+
+      // Fetch updated canvas items
+      const { data: canvasItems, error: fetchError } = await supabase
+        .from('canvas_items')
+        .select('*')
+        .eq('project_id', projectId)
+        .order('created_at', { ascending: true })
+
+      if (fetchError) throw fetchError
+
+      // Emit event to notify ResearchCanvas to update
+      window.dispatchEvent(new CustomEvent('canvasItemAdded', { detail: { items: canvasItems } }))
+
     } catch (error) {
-      console.error('Failed to remove item from canvas:', error);
+      console.error('Error removing from canvas:', error)
     } finally {
-      setLoadingStates(prev => ({ ...prev, [messageId]: false }));
+      setLoadingStates(prev => ({ ...prev, [messageId]: false }))
     }
-  };
+  }
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, messageId: string) => {
     event.stopPropagation();
