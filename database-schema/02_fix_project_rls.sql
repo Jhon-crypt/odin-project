@@ -28,6 +28,10 @@ CREATE POLICY "project_update_policy" ON projects
     USING (created_by = auth.uid())
     WITH CHECK (created_by = auth.uid());
 
+CREATE POLICY "project_delete_policy" ON projects
+    FOR DELETE
+    USING (created_by = auth.uid());
+
 -- Re-enable RLS
 ALTER TABLE projects ENABLE ROW LEVEL SECURITY;
 

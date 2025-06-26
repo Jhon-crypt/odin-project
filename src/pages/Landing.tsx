@@ -6,10 +6,9 @@ import {
   Typography,
   Button,
   Avatar,
-  AvatarGroup,
   Link,
   TextField,
-  useMediaQuery,
+  // useMediaQuery,
   Alert,
   CircularProgress,
   IconButton,
@@ -42,7 +41,7 @@ function Landing() {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const navigate = useNavigate()
-  const isMobile = useMediaQuery('(max-width:767px)')
+  // const isMobile = useMediaQuery('(max-width:767px)')
 
   const theme = createTheme({
     palette: {
@@ -68,16 +67,6 @@ function Landing() {
       },
     },
   })
-
-  // Mock user avatars
-  const userAvatars = [
-    'https://i.pravatar.cc/150?img=1',
-    'https://i.pravatar.cc/150?img=2',
-    'https://i.pravatar.cc/150?img=3',
-    'https://i.pravatar.cc/150?img=4',
-    'https://i.pravatar.cc/150?img=5',
-    'https://i.pravatar.cc/150?img=6',
-  ]
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
