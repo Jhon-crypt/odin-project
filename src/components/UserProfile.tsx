@@ -81,6 +81,7 @@ export default function UserProfile() {
 
       <Box sx={{ flex: 1, minWidth: 0 }}>
         <Typography
+          onClick={handleProfile}
           sx={{
             fontWeight: 'bold',
             color: '#fff',
@@ -88,6 +89,10 @@ export default function UserProfile() {
             whiteSpace: 'nowrap',
             overflow: 'hidden',
             textOverflow: 'ellipsis',
+            cursor: 'pointer',
+            '&:hover': {
+              color: '#C0FF92',
+            }
           }}
         >
           {displayName}
