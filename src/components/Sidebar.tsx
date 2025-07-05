@@ -263,16 +263,16 @@ function Sidebar() {
                     },
                   },
                 }}
-              >
-                <ListItemIcon sx={{ minWidth: { xs: 32, sm: 36 } }}>
-                  <ProjectIcon
-                    sx={{
+            >
+              <ListItemIcon sx={{ minWidth: { xs: 32, sm: 36 } }}>
+                <ProjectIcon
+                  sx={{
                       color: project.id === currentProjectId ? '#C0FF92' : '#888',
-                      fontSize: { xs: 18, sm: 20 },
-                    }}
-                  />
-                </ListItemIcon>
-                <ListItemText
+                    fontSize: { xs: 18, sm: 20 },
+                  }}
+                />
+              </ListItemIcon>
+              <ListItemText
                   primary={project.name}
                   primaryTypographyProps={{
                     fontSize: { xs: '13px', sm: '14px' },
@@ -293,29 +293,29 @@ function Sidebar() {
                 >
                   <MoreVertIcon sx={{ fontSize: 20 }} />
                 </IconButton>
-              </ListItem>
+            </ListItem>
             ))
           )}
         </List>
 
-        <Button
+          <Button
           startIcon={<AddIcon />}
           onClick={handleAddProject}
           variant="outlined"
-          fullWidth
-          sx={{
+            fullWidth
+            sx={{
             mt: 2,
             color: '#C0FF92',
             borderColor: '#C0FF92',
-            '&:hover': {
+              '&:hover': {
               borderColor: '#d4ffb3',
-              bgcolor: 'rgba(192, 255, 146, 0.1)',
-            },
-          }}
-        >
-          Add Project
-        </Button>
-      </Box>
+                bgcolor: 'rgba(192, 255, 146, 0.1)',
+              },
+            }}
+          >
+            Add Project
+          </Button>
+        </Box>
 
       {/* Project Menu */}
       <Menu

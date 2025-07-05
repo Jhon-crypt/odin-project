@@ -1,12 +1,13 @@
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState, useRef, useCallback } from 'react'
 import { useParams } from 'react-router-dom'
-import { Box, CircularProgress, Typography, IconButton, Fade } from '@mui/material'
+import { Box, CircularProgress, Typography, IconButton, Fade, TextField } from '@mui/material'
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp'
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 import useCanvasStore from '../store/canvasStore'
 import type { TextContent, CanvasItem } from '../types/models'
 import { supabase } from '../lib/supabaseClient'
 import { marked } from 'marked'
+import debounce from 'lodash/debounce'
 
 // Configure marked options
 marked.setOptions({
@@ -20,13 +21,46 @@ export const ResearchCanvas: React.FC = () => {
   const [canvasItems, setCanvasItems] = useState<CanvasItem[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [showScrollButtons, setShowScrollButtons] = useState(false)
+  const [editingItemId, setEditingItemId] = useState<string | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const itemRefs = useRef<Record<string, HTMLDivElement | null>>({})
 
   const {
     lastAddedItemId,
     lastRemovedItemId,
+    updateItem
   } = useCanvasStore()
+
+  // Debounced save function
+  const debouncedSave = useCallback(
+    debounce((itemId: string, content: string) => {
+      if (id) {
+        updateItem(itemId, content, id)
+      }
+    }, 500),
+    [id]
+  )
+
+  const handleItemClick = (itemId: string) => {
+    setEditingItemId(itemId)
+  }
+
+  const handleItemChange = (itemId: string, newContent: string) => {
+    // Update local state immediately
+    setCanvasItems(items =>
+      items.map(item =>
+        item.id === itemId
+          ? { ...item, content: { ...item.content, text: newContent } }
+          : item
+      )
+    )
+    // Save to database with debounce
+    debouncedSave(itemId, newContent)
+  }
+
+  const handleBlur = () => {
+    setEditingItemId(null)
+  }
 
   const renderMarkdown = (text: string) => {
     try {
@@ -40,7 +74,7 @@ export const ResearchCanvas: React.FC = () => {
 
   const fetchCanvasItems = async () => {
     if (!id) return
-    setIsLoading(true)
+      setIsLoading(true)
     try {
       const { data, error } = await supabase
         .from('canvas_items')
@@ -117,7 +151,7 @@ export const ResearchCanvas: React.FC = () => {
 
       // Show buttons if content is scrollable
       setShowScrollButtons(scrollHeight > clientHeight)
-    }
+  }
 
     container.addEventListener('scroll', handleScroll)
     // Initial check
@@ -125,7 +159,7 @@ export const ResearchCanvas: React.FC = () => {
 
     return () => {
       container.removeEventListener('scroll', handleScroll)
-    }
+        }
   }, [])
 
   const scrollToTop = () => {
@@ -187,84 +221,94 @@ export const ResearchCanvas: React.FC = () => {
     }
 
     return (
-      <Box sx={{ 
-        p: 3,
-        color: 'text.primary',
-        maxWidth: '800px',
-        margin: '0 auto',
-        width: '100%',
-        '& > *:not(:last-child)': {
-          mb: 2
-        },
-        // Add styles for markdown content
-        '& h1, & h2, & h3, & h4, & h5, & h6': {
-          mt: 2,
-          mb: 1,
-          fontWeight: 'bold',
-          color: 'text.primary'
-        },
-        '& p': {
-          mb: 1,
-          lineHeight: 1.6
-        },
-        '& ul, & ol': {
-          pl: 3,
-          mb: 1
-        },
-        '& li': {
-          mb: 0.5
-        },
-        '& code': {
-          p: 0.5,
-          borderRadius: 1,
-          bgcolor: 'rgba(255, 255, 255, 0.1)',
-          fontFamily: 'monospace'
-        },
-        '& pre': {
-          p: 2,
-          borderRadius: 1,
-          bgcolor: 'rgba(255, 255, 255, 0.1)',
-          overflow: 'auto'
-        },
-        '& blockquote': {
-          borderLeft: '4px solid',
-          borderColor: 'primary.main',
-          pl: 2,
-          py: 0.5,
-          my: 1,
-          bgcolor: 'rgba(255, 255, 255, 0.05)'
-        },
-        '& a': {
-          color: 'primary.main',
-          textDecoration: 'none',
-          '&:hover': {
-            textDecoration: 'underline'
+        <Box sx={{ 
+          p: 3,
+          color: 'text.primary',
+          maxWidth: '800px',
+          margin: '0 auto',
+          width: '100%',
+          '& > *:not(:last-child)': {
+            mb: 2
+          },
+          // Add styles for markdown content
+          '& h1, & h2, & h3, & h4, & h5, & h6': {
+            mt: 2,
+            mb: 1,
+            fontWeight: 'bold'
+          },
+          '& p': {
+            mb: 1,
+            lineHeight: 1.6
+          },
+          '& ul, & ol': {
+            pl: 3,
+            mb: 1
+          },
+          '& li': {
+            mb: 0.5
+          },
+          '& code': {
+            p: 0.5,
+            borderRadius: 1,
+            bgcolor: 'action.hover',
+            fontFamily: 'monospace'
+          },
+          '& pre': {
+            p: 2,
+            borderRadius: 1,
+            bgcolor: 'action.hover',
+            overflow: 'auto'
           }
-        }
-      }}>
-        {canvasItems.map((item) => {
-          if (item.type !== 'text') return null;
-          const content = item.content as TextContent;
-          return (
-            <Box
-              key={item.id}
-              ref={(el: HTMLDivElement | null) => {
-                itemRefs.current[item.id] = el
-              }}
-              sx={{
-                opacity: removingItems[item.id] ? 0 : 1,
-                transform: removingItems[item.id] ? 'translateX(100%)' : 'translateX(0)',
-                transition: 'all 0.3s ease-in-out',
-                mb: 2,
-                p: 2,
-                borderRadius: 1,
-              }}
-            >
-              {renderMarkdown(content.text)}
-            </Box>
-          )
-        })}
-      </Box>
+        }}>
+          {canvasItems.map((item) => {
+            const isRemoving = removingItems[item.id]
+            const content = (item.content as TextContent).text
+
+            return (
+              <Fade
+                key={item.id}
+                in={!isRemoving}
+                timeout={300}
+                unmountOnExit
+              >
+                <Box
+                  ref={(el: HTMLDivElement | null) => {
+                    itemRefs.current[item.id] = el
+                  }}
+                  onClick={() => handleItemClick(item.id)}
+                  sx={{
+                    p: 2,
+                    borderRadius: 1,
+                    border: '1px solid',
+                    borderColor: 'divider',
+                    cursor: 'text',
+                    '&:hover': {
+                      bgcolor: 'action.hover'
+                    }
+                  }}
+                >
+                  {editingItemId === item.id ? (
+                    <TextField
+                      multiline
+                      fullWidth
+                      autoFocus
+                      value={content}
+                      onChange={(e) => handleItemChange(item.id, e.target.value)}
+                      onBlur={handleBlur}
+                      sx={{
+                        '& .MuiOutlinedInput-root': {
+                          bgcolor: 'background.paper'
+                        }
+                      }}
+                    />
+                  ) : (
+                    renderMarkdown(content)
+                  )}
+                </Box>
+              </Fade>
+            )
+          })}
+        </Box>
     )
   }
 
@@ -272,26 +316,26 @@ export const ResearchCanvas: React.FC = () => {
     <Box sx={{ height: '100%', position: 'relative' }}>
       <Box 
         ref={containerRef}
-        sx={{ 
+          sx={{
           height: '100%', 
           overflow: 'auto',
           scrollBehavior: 'smooth'
-        }}
-      >
+          }}
+        >
         {renderContent()}
       </Box>
 
       <Fade in={showScrollButtons}>
-        <Box sx={{
+      <Box sx={{
           position: 'absolute',
           right: 2,
           bottom: 2,
-          display: 'flex',
-          flexDirection: 'column',
+            display: 'flex',
+            flexDirection: 'column',
           gap: 1,
           zIndex: 1,
-        }}>
-          <IconButton
+          }}>
+            <IconButton
             onClick={scrollToTop}
             sx={{
               bgcolor: 'background.paper',
@@ -299,27 +343,27 @@ export const ResearchCanvas: React.FC = () => {
               '&:hover': {
                 bgcolor: 'background.paper',
                 opacity: 0.9
-              }
-            }}
-            size="small"
+                }
+              }}
+              size="small"
           >
             <KeyboardArrowUpIcon />
           </IconButton>
           <IconButton
             onClick={scrollToBottom}
-            sx={{
+              sx={{
               bgcolor: 'background.paper',
               boxShadow: 2,
-              '&:hover': {
+                '&:hover': {
                 bgcolor: 'background.paper',
                 opacity: 0.9
               }
-            }}
+              }}
             size="small"
-          >
+            >
             <KeyboardArrowDownIcon />
-          </IconButton>
-        </Box>
+            </IconButton>
+          </Box>
       </Fade>
     </Box>
   )
