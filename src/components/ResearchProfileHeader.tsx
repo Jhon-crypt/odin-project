@@ -8,7 +8,27 @@ import {
 import EditIcon from '@mui/icons-material/Edit'
 import EmailIcon from '@mui/icons-material/Email'
 
-function ResearchProfileHeader() {
+interface UserProfile {
+  id: string;
+  email: string;
+  display_name: string;
+  created_at: string;
+  updated_at: string;
+}
+
+interface ResearchProfileHeaderProps {
+  userData: UserProfile | null;
+  isOwnProfile: boolean;
+}
+
+function ResearchProfileHeader({ userData, isOwnProfile }: ResearchProfileHeaderProps) {
+  if (!userData) {
+    return null; // or loading state
+  }
+
+  const displayName = userData.display_name || userData.email.split('@')[0];
+  const initials = displayName.charAt(0).toUpperCase();
+
   return (
     <Box
       sx={{
@@ -40,7 +60,7 @@ function ResearchProfileHeader() {
             flexShrink: 0,
           }}
         >
-          JD
+          {initials}
         </Avatar>
 
         {/* Name and Info */}
@@ -71,7 +91,7 @@ function ResearchProfileHeader() {
                     lineHeight: 1.2,
                   }}
                 >
-                  John Doe
+                  {displayName}
                 </Typography>
                 <Chip
                   label="Active Researcher"
@@ -91,7 +111,7 @@ function ResearchProfileHeader() {
                   mb: 1,
                 }}
               >
-                Stanford University • Computer Science Department
+                {userData.email}
               </Typography>
             </Box>
 
@@ -102,40 +122,44 @@ function ResearchProfileHeader() {
               flexDirection: { xs: 'row', sm: 'row' },
               alignSelf: { xs: 'flex-start', sm: 'flex-start' },
             }}>
-              <Button
-                startIcon={<EditIcon />}
-                variant="outlined"
-                size="small"
-                sx={{
-                  borderColor: '#333',
-                  color: '#ccc',
-                  textTransform: 'none',
-                  fontSize: { xs: '12px', sm: '14px' },
-                  '&:hover': {
-                    borderColor: '#C0FF92',
-                    color: '#C0FF92',
-                  },
-                }}
-              >
-                Edit
-              </Button>
-              <Button
-                startIcon={<EmailIcon />}
-                variant="contained"
-                size="small"
-                sx={{
-                  bgcolor: '#C0FF92',
-                  color: '#000',
-                  textTransform: 'none',
-                  fontWeight: 'bold',
-                  fontSize: { xs: '12px', sm: '14px' },
-                  '&:hover': {
-                    bgcolor: '#A8E87C',
-                  },
-                }}
-              >
-                Contact
-              </Button>
+              {isOwnProfile && (
+                <Button
+                  startIcon={<EditIcon />}
+                  variant="outlined"
+                  size="small"
+                  sx={{
+                    borderColor: '#333',
+                    color: '#ccc',
+                    textTransform: 'none',
+                    fontSize: { xs: '12px', sm: '14px' },
+                    '&:hover': {
+                      borderColor: '#C0FF92',
+                      color: '#C0FF92',
+                    },
+                  }}
+                >
+                  Edit
+                </Button>
+              )}
+              {!isOwnProfile && (
+                <Button
+                  startIcon={<EmailIcon />}
+                  variant="contained"
+                  size="small"
+                  sx={{
+                    bgcolor: '#C0FF92',
+                    color: '#000',
+                    textTransform: 'none',
+                    fontWeight: 'bold',
+                    fontSize: { xs: '12px', sm: '14px' },
+                    '&:hover': {
+                      bgcolor: '#A8E87C',
+                    },
+                  }}
+                >
+                  Contact
+                </Button>
+              )}
             </Box>
           </Box>
         </Box>

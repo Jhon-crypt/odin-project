@@ -4,11 +4,53 @@ import {
   createTheme,
   CssBaseline,
 } from '@mui/material'
+import { useParams } from 'react-router-dom'
+import { useEffect, useState } from 'react'
 import ResearchProfileHeader from '../components/ResearchProfileHeader'
 import ResearchHistoryCard from '../components/ResearchHistoryCard'
 import ResearchTable from '../components/ResearchTable'
+import { supabase } from '../lib/supabaseClient'
+import { useAuth } from '../contexts/AuthContext'
+
+interface UserProfile {
+  id: string;
+  email: string;
+  display_name: string;
+  created_at: string;
+  updated_at: string;
+}
 
 function Profile() {
+  const { email } = useParams<{ email: string }>()
+  const { user } = useAuth()
+  const [profileData, setProfileData] = useState<UserProfile | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        const { data, error: fetchError } = await supabase
+          .from('users')
+          .select('*')
+          .eq('email', email)
+          .single()
+
+        if (fetchError) throw fetchError
+
+        setProfileData(data)
+      } catch (err) {
+        console.error('Error fetching user profile:', err)
+        setError('Failed to load user profile')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    if (email) {
+      fetchUserProfile()
+    }
+  }, [email])
 
   const theme = createTheme({
     palette: {
@@ -58,7 +100,7 @@ function Profile() {
           margin: '0 auto'
         }}>
           {/* Profile Header */}
-          <ResearchProfileHeader />
+          <ResearchProfileHeader userData={profileData} isOwnProfile={user?.email === email} />
 
           {/* Main Content */}
           <Box sx={{ 
@@ -72,10 +114,10 @@ function Profile() {
               gap: { xs: 1.5, sm: 2, md: 3 } 
             }}>
               {/* Research History */}
-              <ResearchHistoryCard />
+              <ResearchHistoryCard userId={profileData?.id} />
               
               {/* Research Projects Table */}
-              <ResearchTable />
+              <ResearchTable userId={profileData?.id} />
             </Box>
           </Box>
         </Box>

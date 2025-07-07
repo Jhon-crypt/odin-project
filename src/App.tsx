@@ -38,25 +38,25 @@ function AppRoutes() {
       <LLMInitializer />
       <Routes>
         <Route path="/" element={<Landing />} />
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/profile"
-            element={
-              <ProtectedRoute>
-                <Profile />
-              </ProtectedRoute>
-            }
-          />
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile/:email"
+          element={
+            <ProtectedRoute>
+              <Profile />
+            </ProtectedRoute>
+          }
+        />
         <Route path="/research/:id" element={<PublicResearch />} />
-          <Route path="/auth/callback" element={<AuthCallback />} />
-          <Route path="/projects/:id" element={<ProjectPage />} />
+        <Route path="/auth/callback" element={<AuthCallback />} />
+        <Route path="/projects/:id" element={<ProjectPage />} />
       </Routes>
     </Router>
   )

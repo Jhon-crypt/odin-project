@@ -8,7 +8,11 @@ import {
 } from '@mui/material'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Legend } from 'recharts'
 
-function ResearchHistoryCard() {
+interface ResearchHistoryCardProps {
+  userId?: string;
+}
+
+function ResearchHistoryCard({ userId }: ResearchHistoryCardProps) {
   const data = [
     { month: 'Jan', thisYear: 5, lastYear: 3 },
     { month: 'Feb', thisYear: 8, lastYear: 4 },

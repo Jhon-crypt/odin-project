@@ -22,7 +22,11 @@ interface ResearchProject {
   collaborators: string[]
 }
 
-function ResearchTable() {
+interface ResearchTableProps {
+  userId?: string;
+}
+
+function ResearchTable({ userId }: ResearchTableProps) {
   const navigate = useNavigate()
   
   const researchProjects: ResearchProject[] = [
@@ -74,71 +78,79 @@ function ResearchTable() {
   }
 
   return (
-    <Paper
+    <Box
       sx={{
         bgcolor: '#1a1a1a',
-        border: '1px solid #333',
         borderRadius: 2,
-        overflow: 'hidden',
-        width: '100%',
-        maxWidth: 'none',
+        p: { xs: 2, sm: 3 },
+        border: '1px solid #333',
       }}
     >
-      {/* Header */}
-      <Box sx={{ 
-        p: { xs: 1.5, sm: 2, md: 3 }, 
-        borderBottom: '1px solid #333' 
-      }}>
-        <Typography
-          variant="h6"
-          sx={{
-            color: '#fff',
-            fontWeight: 'bold',
-            fontSize: { xs: '14px', sm: '16px', md: '18px' },
-            mb: { xs: 0.5, sm: 1 },
-          }}
-        >
-          Research Projects
-        </Typography>
-        <Typography
-          sx={{
-            color: '#888',
-            fontSize: { xs: '12px', sm: '13px', md: '14px' },
-          }}
-        >
-          {researchProjects.length} active projects and papers
-        </Typography>
-      </Box>
+      <Typography
+        variant="h6"
+        sx={{
+          color: '#fff',
+          fontWeight: 'bold',
+          fontSize: { xs: '14px', sm: '16px', md: '18px' },
+          mb: 2,
+        }}
+      >
+        Research Projects
+      </Typography>
 
-      {/* Table */}
-      <TableContainer sx={{ overflow: 'auto' }}>
+      <TableContainer component={Paper} sx={{ bgcolor: 'transparent', boxShadow: 'none' }}>
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell sx={{ 
-                color: '#888', 
-                borderBottom: '1px solid #333', 
-                fontSize: { xs: '10px', sm: '11px', md: '12px' },
-                py: { xs: 1, sm: 1.5 },
-                px: { xs: 1.5, sm: 2, md: 3 },
-                fontWeight: 'bold',
-                textTransform: 'uppercase',
-                letterSpacing: 0.5,
-              }}>
-                Project
+              <TableCell
+                sx={{
+                  color: '#888',
+                  borderBottom: '1px solid #333',
+                  fontSize: { xs: '12px', sm: '13px' },
+                  py: 1.5,
+                }}
+              >
+                Title
               </TableCell>
-              <TableCell sx={{ 
-                color: '#888', 
-                borderBottom: '1px solid #333', 
-                fontSize: { xs: '10px', sm: '11px', md: '12px' },
-                py: { xs: 1, sm: 1.5 },
-                px: { xs: 1.5, sm: 2, md: 3 },
-                fontWeight: 'bold',
-                textTransform: 'uppercase',
-                letterSpacing: 0.5,
-                display: { xs: 'none', sm: 'table-cell' }
-              }}>
+              <TableCell
+                sx={{
+                  color: '#888',
+                  borderBottom: '1px solid #333',
+                  fontSize: { xs: '12px', sm: '13px' },
+                  py: 1.5,
+                }}
+              >
+                Type
+              </TableCell>
+              <TableCell
+                sx={{
+                  color: '#888',
+                  borderBottom: '1px solid #333',
+                  fontSize: { xs: '12px', sm: '13px' },
+                  py: 1.5,
+                }}
+              >
                 Last Updated
+              </TableCell>
+              <TableCell
+                sx={{
+                  color: '#888',
+                  borderBottom: '1px solid #333',
+                  fontSize: { xs: '12px', sm: '13px' },
+                  py: 1.5,
+                }}
+              >
+                Status
+              </TableCell>
+              <TableCell
+                sx={{
+                  color: '#888',
+                  borderBottom: '1px solid #333',
+                  fontSize: { xs: '12px', sm: '13px' },
+                  py: 1.5,
+                }}
+              >
+                Actions
               </TableCell>
             </TableRow>
           </TableHead>
@@ -155,11 +167,13 @@ function ResearchTable() {
                   }
                 }}
               >
-                <TableCell sx={{ 
-                  borderBottom: '1px solid #333',
-                  py: { xs: 1.5, sm: 2 },
-                  px: { xs: 1.5, sm: 2, md: 3 },
-                }}>
+                <TableCell
+                  sx={{
+                    color: '#fff',
+                    borderBottom: '1px solid #333',
+                    fontSize: { xs: '13px', sm: '14px' },
+                  }}
+                >
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1.5, sm: 2 } }}>
                     <Typography sx={{ 
                       fontSize: { xs: '16px', sm: '18px', md: '20px' },
@@ -226,12 +240,13 @@ function ResearchTable() {
                   </Box>
                 </TableCell>
                 
-                <TableCell sx={{ 
-                  borderBottom: '1px solid #333',
-                  py: { xs: 1.5, sm: 2 },
-                  px: { xs: 1.5, sm: 2, md: 3 },
-                  display: { xs: 'none', sm: 'table-cell' }
-                }}>
+                <TableCell
+                  sx={{
+                    color: '#ccc',
+                    borderBottom: '1px solid #333',
+                    fontSize: { xs: '12px', sm: '13px' },
+                  }}
+                >
                   <Typography
                     sx={{
                       color: '#ccc',
@@ -242,12 +257,53 @@ function ResearchTable() {
                     {project.lastUpdated}
                   </Typography>
                 </TableCell>
+                <TableCell
+                  sx={{
+                    borderBottom: '1px solid #333',
+                  }}
+                >
+                  <Box
+                    sx={{
+                      display: 'inline-block',
+                      px: 1,
+                      py: 0.5,
+                      borderRadius: 1,
+                      fontSize: { xs: '11px', sm: '12px' },
+                      fontWeight: 'medium',
+                      bgcolor: project.status === 'active' ? '#C0FF92' : '#ccc',
+                      color: project.status === 'active' ? '#000' : '#888',
+                    }}
+                  >
+                    {project.status.charAt(0).toUpperCase() + project.status.slice(1)}
+                  </Box>
+                </TableCell>
+                <TableCell
+                  sx={{
+                    borderBottom: '1px solid #333',
+                  }}
+                >
+                  <Button
+                    startIcon={<LaunchIcon />}
+                    size="small"
+                    onClick={() => navigate(`/research/${project.id}`)}
+                    sx={{
+                      color: '#ccc',
+                      textTransform: 'none',
+                      fontSize: { xs: '12px', sm: '13px' },
+                      '&:hover': {
+                        color: '#C0FF92',
+                      },
+                    }}
+                  >
+                    View
+                  </Button>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
       </TableContainer>
-    </Paper>
+    </Box>
   )
 }
 

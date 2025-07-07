@@ -28,7 +28,9 @@ export default function UserProfile() {
 
   const handleProfile = () => {
     handleClose()
-    navigate('/profile')
+    if (user?.email) {
+      navigate(`/profile/${encodeURIComponent(user.email)}`)
+    }
   }
 
   const handleSignOut = async () => {
