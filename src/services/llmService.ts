@@ -1,7 +1,7 @@
 import { supabase } from '../lib/supabaseClient'
 import type { UserLLMSetting } from '../types/database'
 
-export async function saveUserLLMSettings(modelId: string, apiKey: string) {
+export async function saveUserLLMSettings(modelId: string) {
   try {
     const { data: user } = await supabase.auth.getUser()
     if (!user.user) throw new Error('User not authenticated')
@@ -48,14 +48,14 @@ export async function saveUserLLMSettings(modelId: string, apiKey: string) {
 
     if (deactivateError) throw deactivateError
 
-    // Then upsert the new settings
+    // Then upsert the new settings (using empty string for API key until DB migration is applied)
     const { data: newSettings, error: settingsError } = await supabase
       .from('user_llm_settings')
       .upsert(
         {
           user_id: user.user.id,
           llm_config_id: llmConfigId,
-          encrypted_api_key: apiKey,
+          encrypted_api_key: '', // Using empty string instead of null until DB migration is applied
           is_active: true
         },
         {
@@ -80,7 +80,7 @@ export async function saveUserLLMSettings(modelId: string, apiKey: string) {
         const { data: updatedSettings, error: updateError } = await supabase
           .from('user_llm_settings')
           .update({
-            encrypted_api_key: apiKey,
+            encrypted_api_key: '', // Using empty string instead of null until DB migration is applied
             is_active: true
           })
           .eq('user_id', user.user.id)

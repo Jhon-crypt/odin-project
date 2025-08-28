@@ -119,10 +119,16 @@ const useChatStore = create<ChatStore>((set, get) => ({
 
       if (userMsgError) throw userMsgError;
 
-      // Get the selected model and API key
-      const { selectedLLM: modelName, apiKey } = useLLMStore.getState();
-      if (!modelName || !apiKey) {
+      // Get the selected model and use environment API key
+      const { selectedLLM: modelName } = useLLMStore.getState();
+      if (!modelName) {
         throw new Error('Please configure your LLM settings first');
+      }
+
+      // Get API key from environment variables
+      const apiKey = import.meta.env.VITE_GOOGLE_AI_API_KEY;
+      if (!apiKey) {
+        throw new Error('Google AI API key not configured');
       }
 
       // Initialize Google AI
@@ -158,7 +164,8 @@ const useChatStore = create<ChatStore>((set, get) => ({
       set(state => ({
         messages: [...state.messages, streamingMessage],
         streamingMessageId: placeholderId,
-        streamingContent: ''
+        streamingContent: '',
+        isLoading: false // Stop showing general loading since we're now streaming
       }));
 
       // Send message and get streaming response

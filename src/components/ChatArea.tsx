@@ -328,11 +328,7 @@ function ChatArea() {
             mb: 2
         }}
       >
-        {isChatLoading ? (
-          <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
-            <CircularProgress sx={{ color: '#C0FF92' }} />
-            </Box>
-        ) : chatError ? (
+        {chatError ? (
           <Box sx={{ textAlign: 'center', color: 'error.main', p: 4 }}>
             {chatError}
           </Box>
@@ -358,7 +354,7 @@ function ChatArea() {
           </Box>
         ) : (
           <>
-              {messages.map((message, index) => (
+            {messages.map((message, index) => (
               <Box
                 key={message.id}
                   ref={index === messages.length - 1 ? lastMessageRef : null}
@@ -628,6 +624,48 @@ function ChatArea() {
                 )}
               </Box>
             ))}
+            
+            {/* Show typing indicator when AI is responding and no streaming content yet */}
+            {isChatLoading && messages.length > 0 && !streamingMessageId && (
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  alignSelf: 'flex-start',
+                  maxWidth: '80%',
+                  width: 'auto',
+                  mb: 2
+                }}
+              >
+                <Avatar
+                  sx={{
+                    bgcolor: '#C0FF92',
+                    width: { xs: 32, sm: 36 },
+                    height: { xs: 32, sm: 36 },
+                    mr: 1,
+                    color: '#000'
+                  }}
+                >
+                  <SmartToyIcon sx={{ fontSize: { xs: 16, sm: 20 } }} />
+                </Avatar>
+                <Paper
+                  elevation={1}
+                  sx={{
+                    p: 2,
+                    bgcolor: '#2a2a2a',
+                    borderRadius: 2,
+                    maxWidth: '100%'
+                  }}
+                >
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <CircularProgress size={16} sx={{ color: '#C0FF92' }} />
+                    <Typography variant="body2" sx={{ color: '#ccc' }}>
+                      AI is thinking...
+                    </Typography>
+                  </Box>
+                </Paper>
+              </Box>
+            )}
           </>
         )}
         </Box>

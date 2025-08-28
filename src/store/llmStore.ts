@@ -12,11 +12,10 @@ interface PostgrestError {
 
 interface LLMState {
   selectedLLM: string | null
-  apiKey: string | null
   isLoading: boolean
   error: string | null
   initialized: boolean
-  setLLM: (llm: string, apiKey: string) => Promise<void>
+  setLLM: (llm: string) => Promise<void>
   loadStoredSettings: () => Promise<void>
   clearLLM: () => void
   resetInitialized: () => void
@@ -26,18 +25,16 @@ const useLLMStore = create<LLMState>()(
   persist(
     (set, get) => ({
       selectedLLM: null,
-      apiKey: null,
       isLoading: false,
       error: null,
       initialized: false,
-      setLLM: async (llm: string, apiKey: string) => {
+      setLLM: async (llm: string) => {
         set({ isLoading: true, error: null })
         try {
-          const settings = await saveUserLLMSettings(llm, apiKey)
+          const settings = await saveUserLLMSettings(llm)
           if (settings?.llm_configuration) {
             set({ 
               selectedLLM: settings.llm_configuration.model_id,
-              apiKey: settings.encrypted_api_key,
               isLoading: false,
               error: null,
               initialized: true
@@ -80,7 +77,6 @@ const useLLMStore = create<LLMState>()(
             set({ 
               isLoading: false, 
               selectedLLM: null, 
-              apiKey: null,
               initialized: true,
               error: null
             })
@@ -91,7 +87,6 @@ const useLLMStore = create<LLMState>()(
           if (settings?.llm_configuration) {
             set({
               selectedLLM: settings.llm_configuration.model_id,
-              apiKey: settings.encrypted_api_key,
               isLoading: false,
               error: null,
               initialized: true
@@ -100,7 +95,6 @@ const useLLMStore = create<LLMState>()(
             set({ 
               isLoading: false, 
               selectedLLM: null, 
-              apiKey: null,
               initialized: true,
               error: null
             })
@@ -114,14 +108,12 @@ const useLLMStore = create<LLMState>()(
             error: errorMessage, 
             isLoading: false, 
             selectedLLM: null, 
-            apiKey: null,
             initialized: true 
           })
         }
       },
       clearLLM: () => set({ 
         selectedLLM: null, 
-        apiKey: null, 
         error: null,
         initialized: true 
       }),

@@ -2,7 +2,6 @@ import {
   Modal,
   Box,
   Typography,
-  TextField,
   Button,
   IconButton,
   Select,
@@ -12,13 +11,9 @@ import {
   CircularProgress,
   Alert,
   Snackbar,
-  InputAdornment,
 } from '@mui/material'
 import {
   Close as CloseIcon,
-  Key as KeyIcon,
-  Visibility as VisibilityIcon,
-  VisibilityOff as VisibilityOffIcon,
 } from '@mui/icons-material'
 import { useState, useEffect } from 'react'
 import useLLMStore from '../store/llmStore'
@@ -36,10 +31,8 @@ interface LLMModalProps {
 }
 
 function LLMModal({ open, onClose, llmOptions, loading = false }: LLMModalProps) {
-  const { selectedLLM: storedLLM, apiKey: storedApiKey, setLLM, loadStoredSettings, isLoading: storeLoading, error: storeError } = useLLMStore()
+  const { selectedLLM: storedLLM, setLLM, loadStoredSettings, isLoading: storeLoading, error: storeError } = useLLMStore()
   const [selectedLLM, setSelectedLLM] = useState<string | null>(storedLLM)
-  const [apiKey, setApiKey] = useState(storedApiKey || '')
-  const [showApiKey, setShowApiKey] = useState(false)
   const [saving, setSaving] = useState(false)
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error', message: string } | null>(null)
 
@@ -48,10 +41,7 @@ function LLMModal({ open, onClose, llmOptions, loading = false }: LLMModalProps)
     if (storedLLM !== null) {
       setSelectedLLM(storedLLM)
     }
-    if (storedApiKey !== null) {
-      setApiKey(storedApiKey)
-    }
-  }, [storedLLM, storedApiKey])
+  }, [storedLLM])
 
   // Load stored settings when modal opens
   useEffect(() => {
@@ -81,10 +71,10 @@ function LLMModal({ open, onClose, llmOptions, loading = false }: LLMModalProps)
   }, [storeError])
 
   const handleSave = async () => {
-    if (selectedLLM && apiKey) {
+    if (selectedLLM) {
       setSaving(true)
       try {
-        await setLLM(selectedLLM, apiKey)
+        await setLLM(selectedLLM)
         setFeedback({ type: 'success', message: 'LLM configuration saved successfully!' })
         setTimeout(() => {
           onClose()
@@ -183,49 +173,7 @@ function LLMModal({ open, onClose, llmOptions, loading = false }: LLMModalProps)
             </Select>
           </FormControl>
 
-          <FormControl fullWidth sx={{ mb: 3 }}>
-            <TextField
-              label="API Key"
-              type={showApiKey ? 'text' : 'password'}
-              value={apiKey}
-              onChange={(e) => setApiKey(e.target.value)}
-              disabled={loading || saving}
-              InputProps={{
-                startAdornment: <KeyIcon sx={{ color: '#888', mr: 1 }} />,
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton
-                      onClick={() => setShowApiKey(!showApiKey)}
-                      edge="end"
-                      sx={{ color: '#888', '&:hover': { color: '#C0FF92' } }}
-                    >
-                      {showApiKey ? <VisibilityOffIcon /> : <VisibilityIcon />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }}
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  color: '#fff',
-                  '& fieldset': {
-                    borderColor: '#333',
-                  },
-                  '&:hover fieldset': {
-                    borderColor: '#C0FF92',
-                  },
-                  '&.Mui-focused fieldset': {
-                    borderColor: '#C0FF92',
-                  },
-                },
-                '& .MuiInputLabel-root': {
-                  color: '#888',
-                  '&.Mui-focused': {
-                    color: '#C0FF92',
-                  },
-                },
-              }}
-            />
-          </FormControl>
+
 
           <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
             <Button
@@ -242,7 +190,7 @@ function LLMModal({ open, onClose, llmOptions, loading = false }: LLMModalProps)
             </Button>
             <Button
               onClick={handleSave}
-              disabled={!selectedLLM || !apiKey || loading || saving || storeLoading}
+              disabled={!selectedLLM || loading || saving || storeLoading}
               variant="contained"
               sx={{
                 bgcolor: '#C0FF92',
