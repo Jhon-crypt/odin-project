@@ -114,6 +114,7 @@ function ChatArea() {
   const { id: projectId } = useParams()
   const [input, setInput] = useState('')
   const [selectedImages, setSelectedImages] = useState<File[]>([])
+  const [autoScroll, setAutoScroll] = useState(true)
   const lastMessageRef = useRef<HTMLDivElement>(null)
   const chatContainerRef = useRef<HTMLDivElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -133,7 +134,66 @@ function ChatArea() {
     if (lastMessageRef.current) {
       lastMessageRef.current.scrollIntoView({ behavior: 'smooth' })
     }
-  }, [messages, streamingContent])
+  }, [messages])
+
+  // Detect when user manually scrolls to disable auto-scroll
+  useEffect(() => {
+    const container = chatContainerRef.current
+    if (!container) return
+
+    const handleScroll = () => {
+      const isAtBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 50
+      setAutoScroll(isAtBottom)
+    }
+
+    container.addEventListener('scroll', handleScroll)
+    return () => container.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  // Continuous auto-scroll during streaming
+  useEffect(() => {
+    if (streamingMessageId && streamingContent && chatContainerRef.current && autoScroll) {
+      const container = chatContainerRef.current
+      
+      // Smooth scroll to bottom during streaming
+      const scrollToBottom = () => {
+        container.scrollTo({
+          top: container.scrollHeight,
+          behavior: 'smooth'
+        })
+      }
+      
+      // Use requestAnimationFrame for optimal performance
+      const scrollFrame = requestAnimationFrame(scrollToBottom)
+      
+      return () => cancelAnimationFrame(scrollFrame)
+    }
+  }, [streamingContent, streamingMessageId, autoScroll])
+
+  // Final smooth scroll when streaming completes
+  useEffect(() => {
+    if (!streamingMessageId && chatContainerRef.current && autoScroll) {
+      // Smooth scroll when streaming finishes
+      setTimeout(() => {
+        if (chatContainerRef.current) {
+          chatContainerRef.current.scrollTo({
+            top: chatContainerRef.current.scrollHeight,
+            behavior: 'smooth'
+          })
+        }
+      }, 100)
+    }
+  }, [streamingMessageId, autoScroll])
+
+  // Re-enable auto-scroll when new message is sent
+  useEffect(() => {
+    if (messages.length > 0) {
+      const lastMessage = messages[messages.length - 1]
+      if (lastMessage.role === 'user') {
+        setAutoScroll(true)
+      }
+    }
+  }, [messages])
 
   // Fetch messages when project changes
   useEffect(() => {
@@ -202,6 +262,7 @@ function ChatArea() {
           gap: 1,
           mb: 2,
           alignItems: 'stretch', // Allow full width for proper message alignment
+          position: 'relative',
         }}
       >
         {chatError ? (
@@ -290,6 +351,40 @@ function ChatArea() {
               </Box>
             )}
           </>
+        )}
+        
+        {/* Auto-scroll indicator */}
+        {!autoScroll && (
+          <Box
+            sx={{
+              position: 'absolute',
+              bottom: 80,
+              right: 20,
+              zIndex: 1000,
+            }}
+          >
+            <IconButton
+              onClick={() => {
+                if (chatContainerRef.current) {
+                  chatContainerRef.current.scrollTo({
+                    top: chatContainerRef.current.scrollHeight,
+                    behavior: 'smooth'
+                  })
+                  setAutoScroll(true)
+                }
+              }}
+              sx={{
+                bgcolor: 'primary.main',
+                color: 'white',
+                '&:hover': {
+                  bgcolor: 'primary.dark',
+                },
+                boxShadow: 2,
+              }}
+            >
+              ↓
+            </IconButton>
+          </Box>
         )}
       </Box>
 
