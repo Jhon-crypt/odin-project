@@ -3,6 +3,7 @@ import {
   ThemeProvider,
   createTheme,
   CssBaseline,
+  Typography,
 } from '@mui/material'
 import { useParams } from 'react-router-dom'
 import { useEffect, useState } from 'react'
@@ -76,6 +77,48 @@ function Profile() {
       },
     },
   })
+
+  if (loading) {
+    return (
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <Box
+          sx={{
+            minHeight: '100vh',
+            bgcolor: '#111111',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <Typography variant="h6" sx={{ color: '#fff' }}>
+            Loading profile...
+          </Typography>
+        </Box>
+      </ThemeProvider>
+    )
+  }
+
+  if (error) {
+    return (
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <Box
+          sx={{
+            minHeight: '100vh',
+            bgcolor: '#111111',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <Typography variant="h6" sx={{ color: '#ff6b6b' }}>
+            {error}
+          </Typography>
+        </Box>
+      </ThemeProvider>
+    )
+  }
 
   return (
     <ThemeProvider theme={theme}>

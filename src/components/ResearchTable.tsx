@@ -26,7 +26,8 @@ interface ResearchTableProps {
   userId?: string;
 }
 
-function ResearchTable({ userId }: ResearchTableProps) {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function ResearchTable(_props: ResearchTableProps) {
   const navigate = useNavigate()
   
   const researchProjects: ResearchProject[] = [

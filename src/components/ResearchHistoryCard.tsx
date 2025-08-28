@@ -12,7 +12,8 @@ interface ResearchHistoryCardProps {
   userId?: string;
 }
 
-function ResearchHistoryCard({ userId }: ResearchHistoryCardProps) {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function ResearchHistoryCard(_props: ResearchHistoryCardProps) {
   const data = [
     { month: 'Jan', thisYear: 5, lastYear: 3 },
     { month: 'Feb', thisYear: 8, lastYear: 4 },
