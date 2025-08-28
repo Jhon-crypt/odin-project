@@ -106,7 +106,24 @@ const useChatStore = create<ChatStore>((set, get) => ({
       const userId = (await supabase.auth.getUser()).data.user?.id;
       if (!userId) throw new Error('User not authenticated');
 
-      // Insert user message
+      // Create user message object
+      const userMessage: ChatMessage = {
+        id: crypto.randomUUID(),
+        project_id: projectId,
+        content,
+        role: 'user',
+        user_id: userId,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        images: imageUrls.length > 0 ? imageUrls : undefined
+      };
+
+      // Show user message immediately in UI
+      set(state => ({
+        messages: [...state.messages, userMessage]
+      }));
+
+      // Insert user message to database in background
       const { error: userMsgError } = await supabase
         .from('chat_messages')
         .insert({
@@ -223,9 +240,17 @@ const useChatStore = create<ChatStore>((set, get) => ({
 
       if (aiMsgError) throw aiMsgError;
 
-      // Reset streaming state and fetch final messages
-      set({ streamingMessageId: null, streamingContent: '' });
-      await get().fetchMessages(projectId);
+      // Reset streaming state - keep final message in place
+      set({ 
+        streamingMessageId: null, 
+        streamingContent: '',
+        // Update the streaming message with final content and real ID
+        messages: get().messages.map(msg =>
+          msg.id === placeholderId
+            ? { ...msg, content: fullResponse }
+            : msg
+        )
+      });
     } catch (error) {
       console.error('Chat error:', error);
       let errorMessage = 'An error occurred while processing your message.';

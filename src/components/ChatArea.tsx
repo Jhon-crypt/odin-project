@@ -18,37 +18,42 @@ import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import CloseIcon from '@mui/icons-material/Close'
 
-// Memoized Message Component for better performance
-const MessageComponent = React.memo(({ message, isUser, isStreaming }: {
-  message: any;
+interface MessageProps {
+  message: {
+    id: string;
+    content: string;
+    created_at: string;
+    role: 'user' | 'assistant';
+  };
   isUser: boolean;
   isStreaming: boolean;
-}) => {
+}
+
+// Memoized Message Component for better performance
+const MessageComponent = React.memo(({ message, isUser, isStreaming }: MessageProps) => {
   return (
     <Box
       sx={{
         display: 'flex',
         alignItems: 'flex-start',
-        alignSelf: isUser ? 'flex-end' : 'flex-start',
         maxWidth: '80%',
         width: 'auto',
         mb: 2,
         position: 'relative',
+        flexDirection: isUser ? 'row-reverse' : 'row',
       }}
     >
-      {!isUser && (
-        <Avatar
-          sx={{
-            bgcolor: '#C0FF92',
-            width: { xs: 32, sm: 36 },
-            height: { xs: 32, sm: 36 },
-            mr: 1,
-            color: '#000'
-          }}
-        >
-          <SmartToyIcon sx={{ fontSize: { xs: 16, sm: 20 } }} />
-        </Avatar>
-      )}
+      <Avatar
+        sx={{
+          bgcolor: isUser ? '#666' : '#C0FF92',
+          width: { xs: 32, sm: 36 },
+          height: { xs: 32, sm: 36 },
+          mx: 1,
+          color: isUser ? '#fff' : '#000'
+        }}
+      >
+        {isUser ? 'U' : <SmartToyIcon sx={{ fontSize: { xs: 16, sm: 20 } }} />}
+      </Avatar>
       
       <Paper
         elevation={1}
@@ -95,25 +100,12 @@ const MessageComponent = React.memo(({ message, isUser, isStreaming }: {
             mt: 1,
             opacity: 0.7,
             fontSize: '0.75rem',
+            textAlign: isUser ? 'right' : 'left',
           }}
         >
           {format(new Date(message.created_at), 'HH:mm')}
         </Typography>
       </Paper>
-
-      {isUser && (
-        <Avatar
-          sx={{
-            bgcolor: '#666',
-            width: { xs: 32, sm: 36 },
-            height: { xs: 32, sm: 36 },
-            ml: 1,
-            color: '#fff'
-          }}
-        >
-          U
-        </Avatar>
-      )}
     </Box>
   );
 });
@@ -207,8 +199,9 @@ function ChatArea() {
           p: 2,
           display: 'flex',
           flexDirection: 'column',
-          gap: 2,
-          mb: 2
+          gap: 1,
+          mb: 2,
+          alignItems: 'stretch', // Allow full width for proper message alignment
         }}
       >
         {chatError ? (
@@ -238,16 +231,21 @@ function ChatArea() {
         ) : (
           <>
             {messages.map((message, index) => (
-              <div
+              <Box
                 key={message.id}
                 ref={index === messages.length - 1 ? lastMessageRef : null}
+                sx={{
+                  width: '100%',
+                  display: 'flex',
+                  justifyContent: message.role === 'user' ? 'flex-end' : 'flex-start',
+                }}
               >
                 <MessageComponent
                   message={message}
                   isUser={message.role === 'user'}
                   isStreaming={message.id === streamingMessageId}
                 />
-              </div>
+              </Box>
             ))}
             
             {/* Show typing indicator when AI is responding and no streaming content yet */}
