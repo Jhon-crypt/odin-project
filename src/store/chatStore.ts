@@ -171,22 +171,45 @@ const useChatStore = create<ChatStore>((set, get) => ({
       // Send message and get streaming response
       const result = await chat.sendMessageStream(content);
       let fullResponse = '';
+      let lastUpdateTime = 0;
+      const UPDATE_THROTTLE = 50; // Update every 50ms for smooth streaming
+      
+      // Smooth streaming function with throttled updates
+      const updateStreamingContent = (content: string) => {
+        const now = Date.now();
+        
+        if (now - lastUpdateTime >= UPDATE_THROTTLE) {
+          lastUpdateTime = now;
+          set(state => ({
+            ...state,
+            streamingContent: content,
+            messages: state.messages.map(msg =>
+              msg.id === state.streamingMessageId
+                ? { ...msg, content }
+                : msg
+            )
+          }));
+        }
+      };
       
       for await (const chunk of result.stream) {
         const chunkText = chunk.text();
         fullResponse += chunkText;
         
-        // Update the streaming content
-        set(state => ({
-          ...state,
-          streamingContent: fullResponse,
-          messages: state.messages.map(msg =>
-            msg.id === state.streamingMessageId
-              ? { ...msg, content: fullResponse }
-              : msg
-          )
-        }));
+        // Update with smooth throttling
+        updateStreamingContent(fullResponse);
       }
+      
+      // Final update to ensure we have the complete content
+      set(state => ({
+        ...state,
+        streamingContent: fullResponse,
+        messages: state.messages.map(msg =>
+          msg.id === state.streamingMessageId
+            ? { ...msg, content: fullResponse }
+            : msg
+        )
+      }));
 
       // Insert the final AI response to the database
       const { error: aiMsgError } = await supabase
